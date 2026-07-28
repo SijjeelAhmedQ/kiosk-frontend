@@ -5,6 +5,15 @@ import { PATHS } from '@/routes/paths';
 export default function SplashPage() {
   const navigate = useNavigate();
   return (
+    <div className="relative h-full w-full">
+      {/* Staff entry — deliberately small and out of the customer's path. */}
+      <button
+        onClick={() => navigate(PATHS.orders)}
+        className="press absolute right-6 top-6 z-20 rounded-full border border-white/20 px-5 py-3 font-display text-kiosk-xs font-bold text-white/50 hover:bg-white/10"
+      >
+        🧾 Orders
+      </button>
+
     <button
       onClick={() => navigate(PATHS.orderType)}
       className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-ink text-white"
@@ -26,5 +35,6 @@ export default function SplashPage() {
         <span className="text-kiosk-sm text-white/50">Order &amp; pay in seconds</span>
       </div>
     </button>
+    </div>
   );
 }

@@ -13,8 +13,9 @@ function IdleReset() {
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  // don't reset while already on splash or the payment/confirmation screens
-  const enabled = ![PATHS.splash, PATHS.payment, PATHS.complete].includes(location.pathname as never);
+  // don't reset on splash, the payment/confirmation screens, or the staff history
+  const enabled = ![PATHS.splash, PATHS.payment, PATHS.complete, PATHS.orders]
+    .includes(location.pathname as never);
 
   useIdleTimer(() => {
     dispatch(clearCart());

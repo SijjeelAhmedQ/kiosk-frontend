@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { PaymentMethod, PaymentStatus } from '@/types';
+import { paymentApi } from '@/services/api/paymentApi';
 
 interface PaymentState {
   method: PaymentMethod | null;
@@ -9,14 +10,11 @@ interface PaymentState {
 
 const initialState: PaymentState = { method: null, status: 'idle', error: null };
 
-/** Simulated terminal auth. Replace with paymentApi.authorize() against the backend. */
+/** Authorizes an order that has already been placed — the backend needs its number. */
 export const processPayment = createAsyncThunk(
   'payment/process',
-  async (method: PaymentMethod) => {
-    await new Promise((r) => setTimeout(r, 2200));
-    if (method === 'counter') return { approved: true } as const;
-    return { approved: true } as const;
-  },
+  ({ orderNumber, method }: { orderNumber: string; method: PaymentMethod }) =>
+    paymentApi.authorize(orderNumber, method),
 );
 
 const paymentSlice = createSlice({

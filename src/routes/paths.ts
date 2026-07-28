@@ -6,6 +6,7 @@ export const PATHS = {
   checkout: '/checkout',
   payment: '/payment',
   complete: '/complete',
+  orders: '/orders',        // staff-facing order history
 } as const;
 
 export type PathKey = keyof typeof PATHS;

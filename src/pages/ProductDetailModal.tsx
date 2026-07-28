@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react';
-import type { Product, Modifier, CartLineModifier, CartLineDraft } from '@/types';
-import { modifierGroups, modifiers as allModifiers } from '@/data/menu';
+import { useEffect, useState } from 'react';
+import type { Product, Modifier, ModifierGroup, CartLineModifier, CartLineDraft } from '@/types';
+import { productApi } from '@/services/api/productApi';
 import { MEAL_UPGRADE_PRICE } from '@/constants/order.constants';
 import { formatCurrency, formatCalories } from '@/utils/currency';
 import { unitPriceOf } from '@/utils/priceCalculator';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
+import { Spinner } from '@/components/common/LoadingScreen';
 import { QuantitySelector } from '@/components/controls/QuantitySelector';
 import { cn } from '@/utils/cn';
 
@@ -21,16 +22,42 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
   const [step, setStep] = useState<Step>('customize');
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [groups, setGroups] = useState<ModifierGroup[]>([]);
+  const [available, setAvailable] = useState<Modifier[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
 
-  // reset internal state whenever a new product opens
-  const groups = useMemo(
-    () => (product ? modifierGroups.filter((g) => product.modifierGroupIds.includes(g.id)) : []),
-    [product],
-  );
+  // Options come from the backend, so reload them whenever a new product opens.
+  useEffect(() => {
+    setStep('customize');
+    setQty(1);
+    setSelected({});
+    setGroups([]);
+    setAvailable([]);
+
+    if (!product || !product.modifierGroupIds.length) return;
+
+    let cancelled = false;
+    setLoadingOptions(true);
+    productApi
+      .getProductModifiers(product.id)
+      .then((data) => {
+        if (cancelled) return;
+        setGroups(data.groups);
+        setAvailable(data.modifiers);
+      })
+      .catch(() => {
+        // Options unavailable — the plain item can still be ordered.
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingOptions(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [product]);
 
   if (!product) return null;
 
-  const chosenModifiers: Modifier[] = allModifiers.filter((m) => selected[m.id]);
+  const chosenModifiers: Modifier[] = available.filter((m) => selected[m.id]);
   const asLineMods: CartLineModifier[] = chosenModifiers.map((m) => ({
     modifierId: m.id, name: m.name, priceDelta: m.priceDelta,
   }));
@@ -84,6 +111,12 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
             <p className="mt-2 text-kiosk-base text-ash">{product.description}</p>
             <p className="mt-2 text-kiosk-sm text-ash">{formatCalories(previewCalories)}</p>
 
+            {loadingOptions && (
+              <div className="mt-8 flex items-center gap-4 text-kiosk-sm text-ash">
+                <Spinner size={28} /> Loading options…
+              </div>
+            )}
+
             {groups.map((g) => (
               <section key={g.id} className="mt-8">
                 <div className="mb-3 flex items-baseline justify-between">
@@ -92,7 +125,8 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {g.modifierIds.map((id) => {
-                    const m = allModifiers.find((x) => x.id === id)!;
+                    const m = available.find((x) => x.id === id);
+                    if (!m) return null;
                     const on = !!selected[id];
                     return (
                       <button

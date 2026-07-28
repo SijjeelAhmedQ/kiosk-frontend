@@ -11,6 +11,7 @@ const CartPage = lazy(() => import('@/pages/CartPage'));
 const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'));
 const PaymentPage = lazy(() => import('@/pages/PaymentPage'));
 const OrderCompletePage = lazy(() => import('@/pages/OrderCompletePage'));
+const OrdersPage = lazy(() => import('@/pages/OrdersPage'));
 
 export function AppRoutes() {
   const location = useLocation();
@@ -24,6 +25,7 @@ export function AppRoutes() {
         <Route path={PATHS.checkout} element={<OrderTypeGuard><CheckoutPage /></OrderTypeGuard>} />
         <Route path={PATHS.payment} element={<OrderTypeGuard><PaymentPage /></OrderTypeGuard>} />
         <Route path={PATHS.complete} element={<OrderCompletePage />} />
+        <Route path={PATHS.orders} element={<OrdersPage />} />
       </Routes>
     </Suspense>
   );
