@@ -1,5 +1,5 @@
 export const APP = {
-  name: 'EMBER',
+  name: 'Friends Kitchen',
   tagline: 'Flame-grilled · Made to order',
   taxRate: 0.0825,               // 8.25%
   currency: (import.meta.env.VITE_CURRENCY as string) ?? 'PKR',

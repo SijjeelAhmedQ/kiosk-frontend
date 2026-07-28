@@ -1,10 +1,10 @@
-# EMBER — Self-Order Kiosk (Frontend)
+# Friends Kitchen — Self-Order Kiosk (Frontend)
 
 Touch-first restaurant ordering kiosk. React 19 + TypeScript + Vite + Redux Toolkit +
 React Router + Tailwind + Axios. Built for a 22" Full HD (1920×1080) touch display.
 
-> Generic "EMBER" branding only — no third-party assets. UX/interaction patterns are
-> recreated, not copied.
+> Generic "Friends Kitchen" branding only — no third-party assets. UX/interaction
+> patterns are recreated, not copied.
 
 ## Run
 
@@ -15,9 +15,10 @@ npm run build      # type-check + production build
 npm run type-check
 ```
 
-The app runs fully standalone: `src/services/api/config.ts` has `USE_MOCK = true`, so all
-data comes from `src/data/menu.ts`. Flip it to `false` once the FastAPI backend is live —
-no component changes needed, the Axios service modules already point at the REST endpoints.
+The app talks to the FastAPI backend in `../kiosk-backend` (`VITE_API_BASE_URL`). To run
+standalone off `src/data/menu.ts` instead — no backend, no database — set
+`USE_MOCK = true` in `src/services/api/config.ts`; order history is the only screen that
+needs the backend.
 
 ## Flow
 

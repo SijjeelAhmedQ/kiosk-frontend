@@ -1,9 +1,9 @@
 {
-  "name": "ember-kiosk-frontend",
+  "name": "friends-kitchen-kiosk-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "EMBER self-order kiosk — React 19 + TS + Vite touch client",
+  "description": "Friends Kitchen self-order kiosk — React 19 + TS + Vite touch client",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
