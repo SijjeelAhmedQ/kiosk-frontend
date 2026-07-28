@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -rnE \"\\\\\\\\\\\\$\\\\{?[^{]|'\\\\\\\\\\\\$'|\\\\\"\\\\\\\\\\\\$\\\\\"\" src --include=*.tsx --include=*.ts)",
+      "Bash(grep -iE \"price|cost|total|amount|\\\\\\\\\\\\$[0-9]\")",
+      "Bash(grep -v '\\\\${')",
+      "Bash(node -e \"console.log\\(new Intl.NumberFormat\\('en-PK',{style:'currency',currency:'PKR',currencyDisplay:'narrowSymbol'}\\).format\\(6.49\\)\\)\")",
+      "Bash(grep -vE '\\\\$\\\\{|\\\\`')",
+      "Bash(grep -F '$')",
+      "Bash(grep -rnF '$${' src)",
+      "Bash(grep -nE 'formatCurrency|price|total|amount|Rs|\\\\$' src/pages/PaymentPage.tsx)",
+      "Bash(grep -nE 'USD|VITE_CURRENCY|\\\\$[0-9]|currency' README.md)"
+    ]
+  }
+}
