@@ -15,7 +15,6 @@ export default function SplashPage() {
 
       <div className="relative z-10 flex flex-col items-center gap-8 animate-fade-in">
         <span className="animate-ember-pulse text-[9rem] leading-none">🔥</span>
-        <p className="text-kiosk-lg font-semibold">Hello</p>
         <h1 className="font-display text-kiosk-3xl font-extrabold tracking-tight">{APP.name}</h1>
         <p className="text-kiosk-lg text-white/70">{APP.tagline}</p>
       </div>
