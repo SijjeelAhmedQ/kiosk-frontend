@@ -17,7 +17,9 @@ export const selectProductsByCategory = (categoryId: string | null) =>
     (items, search) => {
       const q = search.trim().toLowerCase();
       return items.filter((p) => {
-        const inCat = categoryId ? p.categoryId === categoryId : true;
+        // "Featured Favorites" is a curated cross-category shelf, not a real categoryId.
+        const inCat =
+          categoryId === 'featured' ? p.badge === 'popular' : categoryId ? p.categoryId === categoryId : true;
         const inSearch = q ? p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) : true;
         return q ? inSearch : inCat;
       });

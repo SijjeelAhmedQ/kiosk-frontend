@@ -15,21 +15,17 @@ export function CategoryCard({ category, active, onSelect, collapsed = false }: 
       title={collapsed ? category.name : undefined}
       aria-label={category.name}
       className={cn(
-        'press flex w-full items-center rounded-2xl text-left transition-colors',
-        collapsed ? 'justify-center p-2' : 'gap-4 px-4 py-4',
-        active ? 'bg-flame-soft' : 'hover:bg-mist/50',
+        'press relative flex w-full items-center text-left transition-colors',
+        collapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3 py-3',
+        active ? 'bg-flame-soft' : 'hover:bg-mist/40',
       )}
     >
-      <span
-        className={cn(
-          'flex h-14 w-14 shrink-0 items-center justify-center rounded-xl2 text-kiosk-lg',
-          active ? 'bg-flame text-white' : 'bg-mist/60',
-        )}
-      >
+      {active && <span className="absolute inset-y-0 left-0 w-1 bg-flame" />}
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center text-kiosk-lg">
         {category.icon}
       </span>
       {!collapsed && (
-        <span className={cn('font-display text-kiosk-sm font-bold', active ? 'text-flame' : 'text-charcoal')}>
+        <span className={cn('font-display text-kiosk-xs font-bold leading-snug', active ? 'text-flame' : 'text-charcoal')}>
           {category.name}
         </span>
       )}

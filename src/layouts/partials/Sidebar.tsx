@@ -12,17 +12,27 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const dispatch = useAppDispatch();
   const { items, activeId } = useAppSelector((s) => s.categories);
 
+  const featured = items.filter((c) => c.featured);
+  const rest = items.filter((c) => !c.featured);
+
+  const renderCard = (c: (typeof items)[number]) => (
+    <CategoryCard
+      key={c.id}
+      category={c}
+      active={c.id === activeId}
+      collapsed={collapsed}
+      onSelect={(id) => dispatch(setActiveCategory(id))}
+    />
+  );
+
   return (
     <aside
       className={cn(
-        'no-scrollbar flex shrink-0 flex-col gap-1 overflow-y-auto border-r border-mist bg-cream p-4 transition-[width] duration-200',
-        collapsed ? 'w-24' : 'w-72',
+        'no-scrollbar flex shrink-0 flex-col gap-3 overflow-y-auto border-r border-mist bg-white p-3 transition-[width] duration-200',
+        collapsed ? 'w-24' : 'w-64',
       )}
     >
-      <div className={cn('flex items-center pb-2 pt-1', collapsed ? 'justify-center' : 'justify-between px-2')}>
-        {!collapsed && (
-          <p className="font-display text-kiosk-xs font-bold uppercase tracking-wide text-ash">Menu</p>
-        )}
+      <div className={cn('flex items-center', collapsed ? 'justify-center' : 'justify-end')}>
         <button
           onClick={onToggle}
           aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
@@ -33,15 +43,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </button>
       </div>
 
-      {items.map((c) => (
-        <CategoryCard
-          key={c.id}
-          category={c}
-          active={c.id === activeId}
-          collapsed={collapsed}
-          onSelect={(id) => dispatch(setActiveCategory(id))}
-        />
-      ))}
+      {featured.length > 0 && (
+        <div className="overflow-hidden rounded-lg border border-mist">{featured.map(renderCard)}</div>
+      )}
+
+      <div className="divide-y divide-mist overflow-hidden rounded-lg border border-mist">
+        {rest.map(renderCard)}
+      </div>
     </aside>
   );
 }

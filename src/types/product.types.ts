@@ -5,6 +5,7 @@ export interface Category {
   name: string;
   icon: string;          // emoji/icon key for the sidebar
   image?: string;
+  featured?: boolean;    // pinned above the main sidebar list
 }
 
 export type ProductBadge = 'new' | 'popular' | 'deal' | null;
@@ -18,6 +19,8 @@ export interface Product {
   calories: number;
   image: string;
   badge?: ProductBadge;
+  protein?: number;             // grams — shown as the yellow chip on the card
+  limitedTime?: boolean;        // renders the red "Limited Time Only" flag
   isMealEligible: boolean;      // can be upgraded to a combo
   modifierGroupIds: string[];
 }
