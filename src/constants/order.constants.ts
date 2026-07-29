@@ -11,4 +11,9 @@ export const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: strin
   { value: 'counter', label: 'Pay at Counter', icon: '🧾' },
 ];
 
-export const MEAL_UPGRADE_PRICE = 1400;
+/**
+ * Display only. The backend re-prices every line from the `MealUpcharge` row in
+ * dbo.AppSettings when the order is placed, so this must be kept in step with
+ * that setting or the kiosk quotes a price it does not charge.
+ */
+export const MEAL_UPGRADE_PRICE = 200;

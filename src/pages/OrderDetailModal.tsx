@@ -55,7 +55,7 @@ export function OrderDetailModal({ order, onClose }: Props) {
           <div className="mt-3 flex flex-col gap-3">
             {order.lines.map((line) => (
               <div key={line.lineId} className="flex gap-4 rounded-2xl bg-paper px-5 py-4 shadow-soft">
-                <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl2 bg-cream p-1.5">
+                <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl2 p-1.5">
                   <ProductImage
                     product={{ image: line.image, imgBase64: line.imgBase64 }}
                     imgClassName="max-h-full max-w-full object-contain"

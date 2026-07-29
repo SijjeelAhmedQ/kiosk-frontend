@@ -60,7 +60,7 @@ export default function MenuPage() {
         ) : (
           // Fixed row unit + row spans give the mosaic; `dense` keeps the
           // tall cards from leaving holes further down the grid.
-          <div className="grid auto-rows-[168px] grid-flow-row-dense grid-cols-3 gap-6 px-8 pb-8 pt-2">
+          <div className="grid auto-rows-[168px] grid-flow-row-dense grid-cols-3 gap-6 px-8 pb-8 pt-8">
             {visible.map((p, i) => {
               const tall = isTallSlot(i);
               return (
