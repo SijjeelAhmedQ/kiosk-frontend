@@ -25,17 +25,20 @@ export function CategoryCard({ category, active, onSelect, collapsed = false }: 
         active ? 'bg-ink' : 'hover:bg-cream',
       )}
     >
+      {/*
+        No tile behind the artwork — just a sizing box. Selection is carried by
+        the row itself, so the image needs no frame of its own.
+      */}
       <span
         className={cn(
-          'flex shrink-0 items-center justify-center overflow-hidden rounded-xl2 transition-colors duration-200',
+          'flex shrink-0 items-center justify-center',
           collapsed ? 'h-14 w-14 text-kiosk-lg' : 'h-12 w-12 text-kiosk-base',
-          active ? 'bg-white/15' : 'bg-cream group-hover:bg-mist',
         )}
       >
         {/* Inline artwork wins, then an image URL, then the emoji in `icon`. */}
         <ProductImage
           product={{ image: category.icon, imgBase64: category.imgBase64 || category.image }}
-          imgClassName="h-full w-full object-cover"
+          imgClassName="max-h-full max-w-full object-contain"
         />
       </span>
 
