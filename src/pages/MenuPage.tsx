@@ -9,7 +9,14 @@ import { SearchBar } from '@/components/controls/SearchBar';
 import { EmptyState } from '@/components/common/EmptyState';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { ProductDetailModal } from './ProductDetailModal';
+import { cn } from '@/utils/cn';
 import type { Product } from '@/types';
+
+/**
+ * Mosaic rhythm: every odd-numbered product — 1st, 3rd, 5th, 7th … — gets the
+ * tall treatment. `index` is 0-based, so odd positions are the even indices.
+ */
+const isTallSlot = (index: number) => index % 2 === 0;
 
 export default function MenuPage() {
   const dispatch = useAppDispatch();
@@ -51,16 +58,21 @@ export default function MenuPage() {
         {visible.length === 0 ? (
           <EmptyState icon="🔎" title="Nothing here yet" message="Try another category or clear your search." />
         ) : (
-          <div className="grid grid-cols-3 gap-6 px-8 pb-8 pt-2">
-            {visible.map((p, i) => (
-              <div
-                key={p.id}
-                className="animate-slide-up"
-                style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
-              >
-                <ProductCard product={p} onSelect={setActive} />
-              </div>
-            ))}
+          // Fixed row unit + row spans give the mosaic; `dense` keeps the
+          // tall cards from leaving holes further down the grid.
+          <div className="grid auto-rows-[168px] grid-flow-row-dense grid-cols-3 gap-6 px-8 pb-8 pt-2">
+            {visible.map((p, i) => {
+              const tall = isTallSlot(i);
+              return (
+                <div
+                  key={p.id}
+                  className={cn('animate-slide-up', tall ? 'row-span-3' : 'row-span-2')}
+                  style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
+                >
+                  <ProductCard product={p} onSelect={setActive} tall={tall} />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

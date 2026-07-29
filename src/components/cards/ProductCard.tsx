@@ -6,11 +6,18 @@ import { cn } from '@/utils/cn';
 const badgeStyle: Record<string, string> = {
   new: 'bg-ink text-white',
   popular: 'bg-amber text-ink',
-  deal: 'bg-leaf text-white',
+  deal: 'bg-flame text-white',
 };
 const badgeLabel: Record<string, string> = { new: 'New', popular: 'Popular', deal: 'Deal' };
 
-export function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Product) => void }) {
+interface ProductCardProps {
+  product: Product;
+  onSelect: (p: Product) => void;
+  /** Taller mosaic slot: bigger plate, and room for the description. */
+  tall?: boolean;
+}
+
+export function ProductCard({ product, onSelect, tall = false }: ProductCardProps) {
   return (
     <button
       onClick={() => onSelect(product)}
@@ -23,7 +30,7 @@ export function ProductCard({ product, onSelect }: { product: Product; onSelect:
       {product.badge && (
         <span
           className={cn(
-            'absolute left-5 top-5 z-10 rounded-full px-3.5 py-1.5 font-display text-kiosk-xs font-bold',
+            'absolute left-4 top-4 z-10 rounded-full px-3 py-1 font-display text-[0.78rem] font-bold uppercase tracking-wide',
             badgeStyle[product.badge],
           )}
         >
@@ -34,38 +41,73 @@ export function ProductCard({ product, onSelect }: { product: Product; onSelect:
       {/*
         Most items ship an emoji rather than a photo, so both sit on the same
         round "plate". It gives the grid one silhouette instead of a mix of
-        full-bleed photos and floating glyphs.
+        full-bleed photos and floating glyphs. In a tall slot the plate takes
+        whatever height is left over.
       */}
-      <div className="relative flex h-[240px] shrink-0 items-center justify-center">
-        <span className="absolute h-44 w-44 rounded-full bg-cream transition-transform duration-500 ease-spring group-hover:scale-105" />
+      <div
+        className={cn(
+          'relative flex items-center justify-center',
+          tall ? 'min-h-0 flex-1' : 'h-[186px] shrink-0',
+        )}
+      >
+        <span
+          className={cn(
+            'absolute rounded-full bg-cream transition-transform duration-500 ease-spring group-hover:scale-105',
+            tall ? 'h-52 w-52' : 'h-36 w-36',
+          )}
+        />
         <ProductImage
           product={product}
-          imgClassName="relative h-40 w-40 rounded-full object-cover shadow-soft transition-transform duration-500 ease-smooth group-hover:scale-[1.06]"
-          fallbackClassName="relative text-[5.5rem] leading-none transition-transform duration-500 ease-spring group-hover:scale-[1.12]"
+          imgClassName={cn(
+            'relative rounded-full object-cover shadow-soft transition-transform duration-500 ease-smooth group-hover:scale-[1.06]',
+            tall ? 'h-48 w-48' : 'h-32 w-32',
+          )}
+          fallbackClassName={cn(
+            'relative leading-none transition-transform duration-500 ease-spring group-hover:scale-[1.12]',
+            tall ? 'text-[6.5rem]' : 'text-[4.25rem]',
+          )}
         />
       </div>
 
-      <div className="flex flex-1 flex-col px-6 pb-6">
-        <h3 className="line-clamp-2 min-h-[2.4em] font-display text-kiosk-base font-extrabold leading-snug text-ink">
+      <div
+        className={cn(
+          'flex flex-col',
+          tall ? 'shrink-0 px-6 pb-6' : 'flex-1 px-5 pb-5',
+        )}
+      >
+        <h3
+          className={cn(
+            'font-display font-extrabold leading-snug text-ink',
+            tall ? 'line-clamp-2 text-kiosk-base' : 'line-clamp-1 text-kiosk-sm',
+          )}
+        >
           {product.name}
         </h3>
-        <p className="mt-1.5 line-clamp-2 min-h-[2.7em] text-kiosk-xs leading-relaxed text-ash">
-          {product.description}
-        </p>
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+        {/* The description is a luxury the compact slots cannot afford. */}
+        {tall && (
+          <p className="mt-2 line-clamp-2 text-kiosk-xs leading-relaxed text-ash">{product.description}</p>
+        )}
+
+        <div className={cn('mt-auto flex items-end justify-between gap-3', tall ? 'pt-5' : 'pt-4')}>
           <div className="flex min-w-0 flex-col">
-            <span className="font-display text-kiosk-lg font-extrabold leading-none text-ink">
+            <span
+              className={cn(
+                'font-display font-extrabold leading-none text-ink',
+                tall ? 'text-kiosk-lg' : 'text-kiosk-base',
+              )}
+            >
               {formatCurrency(product.price)}
             </span>
-            <span className="mt-2 text-kiosk-xs text-ash">{formatCalories(product.calories)}</span>
+            <span className="mt-2 text-[0.8rem] text-ash">{formatCalories(product.calories)}</span>
           </div>
 
           {/* Explicit affordance — makes the whole card read as "tap to add". */}
           <span
             className={cn(
-              'flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-amber text-[1.9rem] font-bold leading-none text-ink',
+              'flex shrink-0 items-center justify-center rounded-full bg-amber font-bold leading-none text-ink',
               'shadow-brand transition-all duration-300 ease-spring group-hover:scale-110 group-hover:rotate-90',
+              tall ? 'h-14 w-14 text-[1.9rem]' : 'h-12 w-12 text-[1.6rem]',
             )}
             aria-hidden="true"
           >
