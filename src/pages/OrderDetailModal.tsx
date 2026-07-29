@@ -1,6 +1,7 @@
 import type { OrderDetail } from '@/types';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
+import { ProductImage } from '@/components/cards/ProductImage';
 import { formatCurrency } from '@/utils/currency';
 import { STATUS_STYLES, formatWhen } from '@/utils/orderDisplay';
 import { cn } from '@/utils/cn';
@@ -52,7 +53,13 @@ export function OrderDetailModal({ order, onClose }: Props) {
           <div className="mt-3 flex flex-col gap-3">
             {order.lines.map((line) => (
               <div key={line.lineId} className="flex gap-4 rounded-2xl border-2 border-mist bg-paper px-5 py-4">
-                <span className="text-[2.5rem] leading-none">{line.image}</span>
+                <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl2 bg-mist/40 p-1.5">
+                  <ProductImage
+                    product={{ image: line.image, imgBase64: line.imgBase64 }}
+                    imgClassName="max-h-full max-w-full object-contain"
+                    fallbackClassName="text-[2.5rem] leading-none"
+                  />
+                </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
                     <span className="font-display text-kiosk-base font-bold text-charcoal">

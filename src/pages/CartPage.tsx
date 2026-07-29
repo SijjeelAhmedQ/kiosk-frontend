@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { incrementLine, decrementLine, removeLine, clearCart } from '@/redux/slices/cartSlice';
@@ -15,6 +16,13 @@ export default function CartPage() {
   const dispatch = useAppDispatch();
   const lines = useAppSelector(selectCartLines);
   const { subtotal, tax, total } = useAppSelector(selectCartSummary);
+
+  // Cart lines snapshot the emoji only, so the photo comes from the live menu.
+  const products = useAppSelector((s) => s.products.items);
+  const artworkByProduct = useMemo(
+    () => new Map(products.map((p) => [p.id, p.imgBase64 ?? null])),
+    [products],
+  );
 
   return (
     <OrderLayout showSidebar={false} showCartBar={false}>
@@ -42,6 +50,7 @@ export default function CartPage() {
                 <CartItem
                   key={l.lineId}
                   line={l}
+                  imgBase64={artworkByProduct.get(l.productId)}
                   onInc={(id) => dispatch(incrementLine(id))}
                   onDec={(id) => dispatch(decrementLine(id))}
                   onRemove={(id) => dispatch(removeLine(id))}

@@ -33,12 +33,18 @@ export interface OrderPayment {
   processedAt: string;
 }
 
+/** Receipt line — carries the product's current photo, which lines do not store. */
+export interface OrderLineDetail extends CartLine {
+  imgBase64?: string | null;
+}
+
 /** A past order as the staff history screen shows it. */
 export interface OrderDetail extends PlacedOrder {
   orderId: number;
   businessDate: string;
   taxRate: number;
   kioskId: string;
+  lines: OrderLineDetail[];
   payments: OrderPayment[];
 }
 

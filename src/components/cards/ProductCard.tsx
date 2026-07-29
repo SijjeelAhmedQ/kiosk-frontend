@@ -1,4 +1,5 @@
 import type { Product } from '@/types';
+import { ProductImage } from './ProductImage';
 import { formatCurrency, formatCalories } from '@/utils/currency';
 import { cn } from '@/utils/cn';
 
@@ -20,8 +21,12 @@ export function ProductCard({ product, onSelect }: { product: Product; onSelect:
           {badgeLabel[product.badge]}
         </span>
       )}
-      <div className="flex h-44 items-center justify-center bg-gradient-to-b from-mist/40 to-cream text-[5.5rem]">
-        <span className="transition-transform duration-300 group-hover:scale-110">{product.image}</span>
+      <div className="flex h-44 items-center justify-center overflow-hidden bg-gradient-to-b from-mist/40 to-cream p-4">
+        <ProductImage
+          product={product}
+          imgClassName="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-110"
+          fallbackClassName="text-[5.5rem] leading-none transition-transform duration-300 group-hover:scale-110"
+        />
       </div>
       <div className="flex flex-1 flex-col gap-1 p-5">
         <h3 className="font-display text-kiosk-base font-bold leading-tight text-charcoal">{product.name}</h3>

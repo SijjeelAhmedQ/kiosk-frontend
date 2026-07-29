@@ -6,5 +6,6 @@ export { QuantitySelector } from './controls/QuantitySelector';
 export { FilterChips } from './controls/FilterChips';
 export { SearchBar } from './controls/SearchBar';
 export { ProductCard } from './cards/ProductCard';
+export { ProductImage } from './cards/ProductImage';
 export { CategoryCard } from './cards/CategoryCard';
 export { CartItem } from './cards/CartItem';

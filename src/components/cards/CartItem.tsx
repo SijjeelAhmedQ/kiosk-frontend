@@ -1,19 +1,26 @@
 import type { CartLine } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { QuantitySelector } from '@/components/controls/QuantitySelector';
+import { ProductImage } from './ProductImage';
 
 interface CartItemProps {
   line: CartLine;
   onInc: (id: string) => void;
   onDec: (id: string) => void;
   onRemove: (id: string) => void;
+  /** The product's photo, looked up by the page — cart lines only snapshot the emoji. */
+  imgBase64?: string | null;
 }
 
-export function CartItem({ line, onInc, onDec, onRemove }: CartItemProps) {
+export function CartItem({ line, onInc, onDec, onRemove, imgBase64 }: CartItemProps) {
   return (
     <div className="flex gap-4 rounded-xl2 border-2 border-mist bg-paper p-5">
-      <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-mist/40 text-[3rem]">
-        {line.image}
+      <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-mist/40 p-2">
+        <ProductImage
+          product={{ image: line.image, imgBase64 }}
+          imgClassName="max-h-full max-w-full object-contain"
+          fallbackClassName="text-[3rem] leading-none"
+        />
       </div>
       <div className="flex flex-1 flex-col">
         <div className="flex items-start justify-between gap-3">

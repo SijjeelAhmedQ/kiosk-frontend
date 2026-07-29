@@ -6,6 +6,7 @@ import { formatCurrency, formatCalories } from '@/utils/currency';
 import { unitPriceOf } from '@/utils/priceCalculator';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
+import { ProductImage } from '@/components/cards/ProductImage';
 import { Spinner } from '@/components/common/LoadingScreen';
 import { QuantitySelector } from '@/components/controls/QuantitySelector';
 import { cn } from '@/utils/cn';
@@ -101,8 +102,12 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
     <Modal open={!!product} onClose={close}>
       {step === 'customize' ? (
         <div className="flex max-h-[88vh] flex-col">
-          <div className="flex items-center justify-center bg-gradient-to-b from-mist/50 to-cream py-8 text-[7rem]">
-            {product.image}
+          <div className="flex h-52 shrink-0 items-center justify-center overflow-hidden bg-gradient-to-b from-mist/50 to-cream p-6">
+            <ProductImage
+              product={product}
+              imgClassName="max-h-full max-w-full object-contain"
+              fallbackClassName="text-[7rem] leading-none"
+            />
           </div>
           <button onClick={close} className="press absolute right-6 top-6 flex h-14 w-14 items-center justify-center rounded-full bg-paper text-kiosk-lg shadow-card" aria-label="Close">✕</button>
 
