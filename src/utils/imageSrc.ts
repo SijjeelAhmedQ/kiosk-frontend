@@ -49,10 +49,19 @@ export function toImageSrc(value?: string | null): string | null {
   if (!trimmed) return null;
 
   if (/^data:/i.test(trimmed)) return trimmed;
-  if (/^(https?:)?\/\//i.test(trimmed) || trimmed.startsWith('/')) return trimmed;
+  // Only an explicit scheme is unambiguous enough to short-circuit on.
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
 
+  // Sniff before treating a leading slash as a path: raw JPEG base64 always
+  // starts "/9j/", so a path check first would emit the payload as a URL and
+  // the image would 404 into the emoji fallback.
   // Base64 columns often come back with line breaks in them.
   const base64 = trimmed.replace(/\s+/g, '');
   const mimeType = sniffMimeType(base64);
-  return mimeType ? `data:${mimeType};base64,${base64}` : null;
+  if (mimeType) return `data:${mimeType};base64,${base64}`;
+
+  // Not image bytes — so a slash really does mean a path this time.
+  if (trimmed.startsWith('/')) return trimmed;
+
+  return null;
 }

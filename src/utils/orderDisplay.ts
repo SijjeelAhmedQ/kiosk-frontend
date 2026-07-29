@@ -2,8 +2,8 @@ import type { OrderStatus } from '@/types';
 import { APP } from '@/constants/app.constants';
 
 export const STATUS_STYLES: Record<OrderStatus, { label: string; className: string }> = {
-  paid: { label: 'Paid', className: 'bg-leaf/15 text-leaf' },
-  placed: { label: 'Awaiting payment', className: 'bg-amber-soft text-amber' },
+  paid: { label: 'Paid', className: 'bg-leaf-soft text-leaf' },
+  placed: { label: 'Awaiting payment', className: 'bg-amber-soft text-amber-dark' },
   payment_failed: { label: 'Payment failed', className: 'bg-flame-soft text-flame' },
   cancelled: { label: 'Cancelled', className: 'bg-mist text-ash' },
 };

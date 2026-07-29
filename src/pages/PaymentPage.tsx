@@ -6,7 +6,6 @@ import { setPlacedOrder } from '@/redux/slices/ordersSlice';
 import { clearCart } from '@/redux/slices/cartSlice';
 import { selectCartLines, selectCartSummary } from '@/redux/selectors';
 import { orderApi } from '@/services/api/orderApi';
-import { Spinner } from '@/components/common/LoadingScreen';
 import { Button } from '@/components/common/Button';
 import { formatCurrency } from '@/utils/currency';
 import type { ApiError } from '@/types';
@@ -58,10 +57,12 @@ export default function PaymentPage() {
   if (error) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-8 bg-cream animate-fade-in">
-        <div className="text-[6rem]">⚠️</div>
+        <div className="flex h-28 w-28 items-center justify-center rounded-full bg-flame-soft text-[3.25rem] animate-pop-in">
+          ⚠️
+        </div>
         <div className="flex max-w-[720px] flex-col items-center gap-3 text-center">
-          <h1 className="font-display text-kiosk-xl font-bold text-charcoal">Payment didn’t go through</h1>
-          <p className="text-kiosk-base text-ash">{error}</p>
+          <h1 className="font-display text-kiosk-xl font-extrabold text-ink">Payment didn’t go through</h1>
+          <p className="text-kiosk-base leading-relaxed text-ash">{error}</p>
         </div>
         <div className="flex gap-4">
           <Button size="xl" variant="secondary" onClick={() => navigate(PATHS.cart)} className="min-w-[220px]">
@@ -77,15 +78,26 @@ export default function PaymentPage() {
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-10 bg-cream animate-fade-in">
-      <div className="text-[6rem]">{method === 'card' ? '💳' : method === 'wallet' ? '📱' : '🧾'}</div>
-      <div className="flex flex-col items-center gap-4">
-        <Spinner size={64} />
-        <h1 className="font-display text-kiosk-xl font-bold text-charcoal">
+      <div className="relative flex h-44 w-44 items-center justify-center">
+        {/* concentric pulses stand in for "talking to the terminal" */}
+        <span className="absolute h-32 w-32 animate-ring-pulse rounded-full bg-flame/20" />
+        <span className="absolute h-32 w-32 animate-ring-pulse rounded-full bg-flame/20" style={{ animationDelay: '0.7s' }} />
+        <span className="relative flex h-32 w-32 items-center justify-center rounded-full bg-paper text-[3.25rem] shadow-card">
+          {method === 'card' ? '💳' : method === 'wallet' ? '📱' : '🧾'}
+        </span>
+      </div>
+
+      <div className="flex flex-col items-center gap-4 text-center">
+        <h1 className="font-display text-kiosk-xl font-extrabold text-ink">
           {status === 'processing' ? 'Processing payment…' : 'Please wait…'}
         </h1>
         <p className="text-kiosk-base text-ash">
           {method === 'counter' ? 'Confirming your order' : `Charging ${formatCurrency(total)} — follow the terminal`}
         </p>
+        <span className="mt-3 h-1.5 w-56 overflow-hidden rounded-full bg-mist">
+          <span className="skeleton block h-full w-full rounded-full" />
+        </span>
+        <p className="mt-2 text-kiosk-xs text-ash">Please don’t leave this screen</p>
       </div>
     </div>
   );

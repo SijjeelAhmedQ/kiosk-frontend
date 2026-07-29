@@ -9,7 +9,7 @@ interface FilterChipsProps {
 
 export function FilterChips({ chips, activeId, onSelect }: FilterChipsProps) {
   return (
-    <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+    <div className="no-scrollbar flex gap-2.5 overflow-x-auto pb-1">
       {chips.map((c) => {
         const active = c.id === activeId;
         return (
@@ -17,8 +17,8 @@ export function FilterChips({ chips, activeId, onSelect }: FilterChipsProps) {
             key={c.id}
             onClick={() => onSelect(c.id)}
             className={cn(
-              'press h-14 shrink-0 rounded-full px-7 font-display text-kiosk-sm font-bold transition-colors',
-              active ? 'bg-charcoal text-white' : 'bg-paper text-charcoal border-2 border-mist',
+              'press h-14 shrink-0 rounded-full px-7 font-display text-kiosk-sm font-bold transition-colors duration-200',
+              active ? 'bg-ink text-white' : 'bg-mist text-charcoal hover:bg-ash/25',
             )}
           >
             {c.label}

@@ -8,6 +8,11 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
+/**
+ * Vertical category rail. Collapsed it is a strip of tiles (icon over label);
+ * expanded it becomes a labelled list for anyone who wants to read rather than
+ * recognise.
+ */
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const dispatch = useAppDispatch();
   const { items, activeId } = useAppSelector((s) => s.categories);
@@ -15,24 +20,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'no-scrollbar flex shrink-0 flex-col gap-1 overflow-y-auto border-r border-mist bg-cream p-4 transition-[width] duration-200',
-        collapsed ? 'w-24' : 'w-72',
+        'no-scrollbar flex shrink-0 flex-col gap-2 overflow-y-auto bg-paper px-3 py-4 transition-[width] duration-300 ease-smooth',
+        collapsed ? 'w-[124px]' : 'w-[268px]',
       )}
     >
-      <div className={cn('flex items-center pb-2 pt-1', collapsed ? 'justify-center' : 'justify-between px-2')}>
-        {!collapsed && (
-          <p className="font-display text-kiosk-xs font-bold uppercase tracking-wide text-ash">Menu</p>
-        )}
-        <button
-          onClick={onToggle}
-          aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
-          title={collapsed ? 'Expand menu' : 'Collapse menu'}
-          className="press flex h-10 w-10 items-center justify-center rounded-xl2 text-ash transition-colors hover:bg-mist/50"
-        >
-          <Chevron className={cn('h-6 w-6 transition-transform duration-200', collapsed && 'rotate-180')} />
-        </button>
-      </div>
-
       {items.map((c) => (
         <CategoryCard
           key={c.id}
@@ -42,6 +33,20 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           onSelect={(id) => dispatch(setActiveCategory(id))}
         />
       ))}
+
+      {/* Anchored at the bottom of the rail so it never competes with the categories. */}
+      <button
+        onClick={onToggle}
+        aria-label={collapsed ? 'Show category names' : 'Shrink to icons'}
+        title={collapsed ? 'Show category names' : 'Shrink to icons'}
+        className={cn(
+          'press mt-auto flex shrink-0 items-center gap-3 rounded-2xl bg-cream text-ash transition-colors hover:text-ink',
+          collapsed ? 'h-12 justify-center' : 'h-12 px-4',
+        )}
+      >
+        <Chevron className={cn('h-5 w-5 transition-transform duration-300 ease-spring', collapsed && 'rotate-180')} />
+        {!collapsed && <span className="font-display text-kiosk-xs font-bold">Collapse</span>}
+      </button>
     </aside>
   );
 }

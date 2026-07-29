@@ -6,17 +6,33 @@ interface SearchBarProps {
 
 export function SearchBar({ value, onChange, placeholder = 'Search the menu' }: SearchBarProps) {
   return (
-    <div className="flex h-16 items-center gap-3 rounded-2xl border-2 border-mist bg-paper px-6">
-      <span className="text-kiosk-lg text-ash">🔍</span>
+    // Filled, borderless, fully rounded — the modern search field.
+    <div className="group flex h-16 items-center gap-3 rounded-full bg-mist px-6 transition-all duration-200 focus-within:bg-paper focus-within:shadow-card">
+      <SearchIcon className="h-6 w-6 shrink-0 text-ash transition-colors group-focus-within:text-ink" />
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-transparent font-sans text-kiosk-base text-charcoal outline-none placeholder:text-ash"
+        className="w-full bg-transparent font-sans text-kiosk-base font-medium text-charcoal outline-none placeholder:font-normal placeholder:text-ash"
       />
       {value && (
-        <button onClick={() => onChange('')} className="press text-kiosk-lg text-ash" aria-label="Clear">✕</button>
+        <button
+          onClick={() => onChange('')}
+          className="press flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ash/20 text-kiosk-xs text-charcoal hover:bg-ash/30"
+          aria-label="Clear"
+        >
+          ✕
+        </button>
       )}
     </div>
+  );
+}
+
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
   );
 }

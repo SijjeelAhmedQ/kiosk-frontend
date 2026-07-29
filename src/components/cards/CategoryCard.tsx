@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import type { Category } from '@/types';
-import { toImageSrc } from '@/utils/imageSrc';
+import { ProductImage } from './ProductImage';
 import { cn } from '@/utils/cn';
 
 interface CategoryCardProps {
@@ -11,47 +10,46 @@ interface CategoryCardProps {
 }
 
 export function CategoryCard({ category, active, onSelect, collapsed = false }: CategoryCardProps) {
-  const [imageBroken, setImageBroken] = useState(false);
-
-  // Artwork wins over the emoji: inline base64 first, then an image URL.
-  const artwork = imageBroken
-    ? null
-    : toImageSrc(category.imgBase64) ?? toImageSrc(category.image);
-
   return (
     <button
       onClick={() => onSelect(category.id)}
-      title={collapsed ? category.name : undefined}
       aria-label={category.name}
+      aria-current={active ? 'true' : undefined}
       className={cn(
-        'press flex w-full items-center rounded-2xl text-left transition-colors',
-        collapsed ? 'justify-center p-2' : 'gap-4 px-4 py-4',
-        active ? 'bg-flame-soft' : 'hover:bg-mist/50',
+        'press group shrink-0 transition-all duration-200 ease-smooth',
+        'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10',
+        collapsed
+          ? // Tile: icon over label, the whole tile is the target.
+            'flex w-full flex-col items-center gap-2 rounded-2xl px-2 py-3'
+          : 'flex w-full items-center gap-3.5 rounded-2xl px-3 py-3 text-left',
+        active ? 'bg-ink' : 'hover:bg-cream',
       )}
     >
       <span
         className={cn(
-          'flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl2 text-kiosk-lg',
-          active ? 'bg-flame text-white' : 'bg-mist/60',
+          'flex shrink-0 items-center justify-center overflow-hidden rounded-xl2 transition-colors duration-200',
+          collapsed ? 'h-14 w-14 text-kiosk-lg' : 'h-12 w-12 text-kiosk-base',
+          active ? 'bg-white/15' : 'bg-cream group-hover:bg-mist',
         )}
       >
-        {artwork ? (
-          <img
-            src={artwork}
-            alt=""
-            loading="lazy"
-            onError={() => setImageBroken(true)}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          category.icon
-        )}
+        {/* Inline artwork wins, then an image URL, then the emoji in `icon`. */}
+        <ProductImage
+          product={{ image: category.icon, imgBase64: category.imgBase64 || category.image }}
+          imgClassName="h-full w-full object-cover"
+        />
       </span>
-      {!collapsed && (
-        <span className={cn('font-display text-kiosk-sm font-bold', active ? 'text-flame' : 'text-charcoal')}>
-          {category.name}
-        </span>
-      )}
+
+      <span
+        className={cn(
+          'font-display transition-colors duration-200',
+          collapsed
+            ? 'w-full truncate text-center text-[0.8rem] font-bold leading-tight'
+            : 'truncate text-kiosk-sm font-bold',
+          active ? 'text-white' : 'text-ash group-hover:text-ink',
+        )}
+      >
+        {category.name}
+      </span>
     </button>
   );
 }

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -14,23 +14,36 @@
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
   }
-  /* Fat, quiet scrollbars for touch flick */
-  ::-webkit-scrollbar { width: 10px; }
-  ::-webkit-scrollbar-thumb { @apply bg-mist rounded-full; }
+  /* Slim, neutral scrollbars — chrome should disappear. */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply rounded-full bg-mist; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-ash/40; }
+
+  input, textarea { -webkit-user-select: text; user-select: text; }
+  ::selection { @apply bg-flame/15 text-ink; }
 }
 
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar { display: none; }
-  .press { @apply transition-transform duration-100 active:scale-[0.97]; }
-  .skeleton {
-    @apply relative overflow-hidden bg-mist/60;
-  }
+
+  /* Touch feedback: immediate and subtle — never bouncy enough to feel toy-like. */
+  .press { @apply transition-all duration-150 ease-spring active:scale-[0.97]; }
+  .lift  { @apply transition-all duration-300 ease-smooth hover:-translate-y-1; }
+
+  /* Frosted chrome. Sets no border so callers pick their own edge. */
+  .glass { @apply bg-paper/85 backdrop-blur-xl; }
+
+  .skeleton { @apply relative overflow-hidden bg-mist/70; }
   .skeleton::after {
     content: '';
     @apply absolute inset-0 -translate-x-full;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent);
     animation: shimmer 1.4s infinite;
   }
+
+  /* The grab handle that makes a panel read as a sheet. */
+  .sheet-grip { @apply mx-auto h-1.5 w-12 shrink-0 rounded-full bg-mist; }
 }
 
 @media (prefers-reduced-motion: reduce) {

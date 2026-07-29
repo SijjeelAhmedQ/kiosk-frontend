@@ -12,16 +12,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-flame text-white hover:bg-flame-dark shadow-card',
-  secondary: 'bg-paper text-charcoal border-2 border-mist hover:border-charcoal/30',
-  ghost: 'bg-transparent text-charcoal hover:bg-mist/60',
-  danger: 'bg-transparent text-flame border-2 border-flame/30 hover:bg-flame-soft',
+  primary: 'bg-amber text-ink shadow-brand hover:bg-amber-hover hover:shadow-brand-lg',
+  secondary: 'bg-mist text-charcoal hover:bg-mist/70',
+  ghost: 'bg-transparent text-charcoal hover:bg-mist/70',
+  danger: 'bg-flame-soft text-flame hover:bg-flame hover:text-white',
 };
 
+/** Pills at every size — the single strongest "this is a 2020s app" signal. */
 const sizes: Record<Size, string> = {
-  md: 'h-14 px-6 text-kiosk-sm rounded-2xl',
-  lg: 'h-[68px] px-8 text-kiosk-base rounded-2xl',
-  xl: 'h-20 px-10 text-kiosk-lg rounded-xl2',
+  md: 'h-14 px-7 text-kiosk-sm rounded-full',
+  lg: 'h-[68px] px-9 text-kiosk-base rounded-full',
+  xl: 'h-[76px] px-10 text-kiosk-lg rounded-full',
 };
 
 export function Button({
@@ -36,9 +37,9 @@ export function Button({
   return (
     <button
       className={cn(
-        'press inline-flex items-center justify-center gap-3 font-display font-bold',
-        'disabled:opacity-40 disabled:pointer-events-none select-none',
-        'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-flame/40',
+        'press inline-flex select-none items-center justify-center gap-3 font-display font-bold tracking-tight',
+        'disabled:opacity-30 disabled:pointer-events-none disabled:shadow-none',
+        'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/25',
         variants[variant],
         sizes[size],
         fullWidth && 'w-full',
@@ -46,7 +47,7 @@ export function Button({
       )}
       {...rest}
     >
-      {leftIcon && <span className="text-[1.4em] leading-none">{leftIcon}</span>}
+      {leftIcon && <span className="text-[1.35em] leading-none">{leftIcon}</span>}
       {children}
     </button>
   );

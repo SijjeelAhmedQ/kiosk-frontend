@@ -5,11 +5,18 @@ import { setMethod } from '@/redux/slices/paymentSlice';
 import { selectCartSummary } from '@/redux/selectors';
 import { OrderLayout } from '@/layouts/OrderLayout';
 import { Button } from '@/components/common/Button';
+import { StepBar } from '@/components/common/StepBar';
 import { PAYMENT_METHODS } from '@/constants/order.constants';
 import type { PaymentMethod } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/utils/cn';
 import { PATHS } from '@/routes/paths';
+
+const HINT: Record<string, string> = {
+  card: 'Tap, insert or swipe at the terminal',
+  wallet: 'Scan the QR with your wallet app',
+  counter: 'Pay the cashier when you collect',
+};
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -24,46 +31,82 @@ export default function CheckoutPage() {
   };
 
   return (
-    <OrderLayout showSidebar={false} showCartBar={false}>
-      <div className="mx-auto flex h-full w-full max-w-[900px] flex-col p-8">
-        <h1 className="font-display text-kiosk-2xl font-extrabold text-ink">Checkout</h1>
+    <OrderLayout showSidebar={false} showBasket={false}>
+      <div className="mx-auto flex h-full w-full max-w-[1400px] gap-8 p-8">
+        <section className="flex min-w-0 flex-1 flex-col">
+          <h1 className="font-display text-kiosk-2xl font-extrabold text-ink">Checkout</h1>
+          <StepBar current={1} className="mt-4" />
 
-        <div className="mt-6 rounded-xl2 border-2 border-mist bg-paper p-6">
-          <div className="flex justify-between text-kiosk-base text-ash"><span>{itemCount} items</span><span>{formatCurrency(subtotal)}</span></div>
-          <div className="mt-1 flex justify-between text-kiosk-base text-ash"><span>Tax</span><span>{formatCurrency(tax)}</span></div>
-          <div className="my-3 border-t border-mist" />
-          <div className="flex justify-between">
-            <span className="font-display text-kiosk-lg font-bold text-charcoal">Total</span>
-            <span className="font-display text-kiosk-xl font-bold text-flame">{formatCurrency(total)}</span>
+          <h2 className="mt-8 font-display text-kiosk-lg font-extrabold text-ink">How would you like to pay?</h2>
+          <div className="no-scrollbar mt-4 flex-1 space-y-3 overflow-y-auto pb-4">
+            {PAYMENT_METHODS.map((p) => {
+              const on = method === p.value;
+              return (
+                <button
+                  key={p.value}
+                  onClick={() => setLocal(p.value)}
+                  className={cn(
+                    'press flex w-full items-center gap-5 rounded-xl3 px-6 py-6 text-left transition-all duration-200 ease-smooth',
+                    'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10',
+                    on ? 'bg-paper shadow-card ring-2 ring-ink' : 'bg-paper shadow-soft hover:shadow-card',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-kiosk-xl transition-colors duration-200',
+                      on ? 'bg-flame-soft' : 'bg-mist',
+                    )}
+                  >
+                    {p.icon}
+                  </span>
+                  <span className="flex min-w-0 flex-col">
+                    <span className="font-display text-kiosk-base font-extrabold text-ink">{p.label}</span>
+                    <span className="mt-1 text-kiosk-xs text-ash">{HINT[p.value]}</span>
+                  </span>
+                  <span
+                    className={cn(
+                      'ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-kiosk-xs font-bold transition-all duration-200 ease-spring',
+                      on ? 'scale-110 bg-ink text-white' : 'bg-mist',
+                    )}
+                  >
+                    {on && '✓'}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-        </div>
+        </section>
 
-        <h2 className="mt-8 font-display text-kiosk-lg font-bold text-charcoal">Payment method</h2>
-        <div className="mt-4 space-y-4">
-          {PAYMENT_METHODS.map((p) => (
-            <button
-              key={p.value}
-              onClick={() => setLocal(p.value)}
-              className={cn(
-                'press flex w-full items-center gap-5 rounded-xl2 border-2 px-6 py-5 text-left transition-colors',
-                method === p.value ? 'border-flame bg-flame-soft' : 'border-mist bg-paper',
-              )}
-            >
-              <span className="text-kiosk-2xl">{p.icon}</span>
-              <span className="font-display text-kiosk-base font-bold text-charcoal">{p.label}</span>
-              <span className={cn('ml-auto flex h-8 w-8 items-center justify-center rounded-full border-2', method === p.value ? 'border-flame bg-flame text-white' : 'border-mist')}>
-                {method === p.value && '✓'}
+        <aside className="flex w-[420px] shrink-0 flex-col">
+          <div className="sticky top-0 rounded-xl3 bg-paper p-7 shadow-card">
+            <h2 className="font-display text-kiosk-lg font-extrabold text-ink">Summary</h2>
+
+            <div className="mt-5 flex justify-between text-kiosk-sm text-ash">
+              <span>{itemCount} item{itemCount === 1 ? '' : 's'}</span>
+              <span className="font-medium tabular-nums text-charcoal">{formatCurrency(subtotal)}</span>
+            </div>
+            <div className="mt-2 flex justify-between text-kiosk-sm text-ash">
+              <span>Tax</span>
+              <span className="font-medium tabular-nums text-charcoal">{formatCurrency(tax)}</span>
+            </div>
+
+            <div className="my-5 h-px bg-mist" />
+
+            <div className="flex items-baseline justify-between">
+              <span className="font-display text-kiosk-lg font-bold text-ink">Total</span>
+              <span className="font-display text-kiosk-2xl font-extrabold tabular-nums text-ink">
+                {formatCurrency(total)}
               </span>
-            </button>
-          ))}
-        </div>
+            </div>
 
-        <div className="mt-auto flex gap-4 pt-8">
-          <Button variant="secondary" size="xl" onClick={() => navigate(PATHS.cart)} className="min-w-[200px]">← Back</Button>
-          <Button size="xl" fullWidth disabled={!method} onClick={proceed}>
-            Pay {formatCurrency(total)} →
-          </Button>
-        </div>
+            <Button size="xl" fullWidth className="mt-7" disabled={!method} onClick={proceed}>
+              {method ? `Pay ${formatCurrency(total)}` : 'Pick a payment method'}
+            </Button>
+            <Button variant="secondary" size="lg" fullWidth className="mt-3" onClick={() => navigate(PATHS.cart)}>
+              Back to order
+            </Button>
+          </div>
+        </aside>
       </div>
     </OrderLayout>
   );

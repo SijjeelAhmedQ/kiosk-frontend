@@ -6,7 +6,17 @@ import { fetchProducts } from '@/redux/slices/productsSlice';
 import { ORDER_TYPES } from '@/constants/order.constants';
 import type { OrderType } from '@/types';
 import { PATHS } from '@/routes/paths';
+import { cn } from '@/utils/cn';
 
+const BLURB: Record<string, string> = {
+  dine_in: 'Eat here — we’ll bring it to your table',
+  take_away: 'Packed to go, ready at the counter',
+};
+
+/**
+ * Full-bleed split screen: each half is the target. Nothing to aim at, which is
+ * the right shape for a first tap on a 1920px panel.
+ */
 export default function OrderTypePage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -19,20 +29,42 @@ export default function OrderTypePage() {
   };
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-14 bg-cream px-8 animate-fade-in">
-      <h1 className="font-display text-kiosk-2xl font-extrabold text-ink">How would you like to eat?</h1>
-      <div className="flex gap-8">
-        {ORDER_TYPES.map((o) => (
-          <button
-            key={o.value}
-            onClick={() => choose(o.value)}
-            className="press flex h-[420px] w-[380px] flex-col items-center justify-center gap-6 rounded-xl3 border-2 border-mist bg-paper shadow-card transition-colors hover:border-flame"
-          >
-            <span className="text-[8rem] leading-none">{o.icon}</span>
-            <span className="font-display text-kiosk-2xl font-bold text-charcoal">{o.label}</span>
-          </button>
-        ))}
-      </div>
+    <div className="relative flex h-full w-full animate-fade-in">
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col items-center gap-3 pt-16">
+        <span className="rounded-full bg-ink px-5 py-2 font-display text-kiosk-xs font-bold uppercase tracking-[0.1em] text-white">
+          Step 1 of 3
+        </span>
+        <h1 className="font-display text-kiosk-2xl font-extrabold text-ink">How are you eating today?</h1>
+      </header>
+
+      {ORDER_TYPES.map((o, i) => (
+        <button
+          key={o.value}
+          onClick={() => choose(o.value)}
+          className={cn(
+            'group relative flex h-full flex-1 flex-col items-center justify-center gap-7 transition-colors duration-300',
+            i === 0 ? 'bg-paper hover:bg-cream' : 'bg-cream hover:bg-paper',
+          )}
+        >
+          <span className="text-[11rem] leading-none transition-transform duration-500 ease-spring group-hover:scale-110 group-active:scale-95">
+            {o.icon}
+          </span>
+
+          <div className="flex flex-col items-center gap-3">
+            <span className="font-display text-[3.5rem] font-extrabold leading-none tracking-[-0.03em] text-ink">
+              {o.label}
+            </span>
+            <span className="max-w-[340px] text-center text-kiosk-base text-ash">{BLURB[o.value]}</span>
+          </div>
+
+          <span className="mt-4 flex h-16 items-center rounded-full bg-mist px-12 font-display text-kiosk-base font-bold text-charcoal transition-colors duration-300 group-hover:bg-amber group-hover:text-ink">
+            Choose
+          </span>
+        </button>
+      ))}
+
+      {/* Hairline seam between the two halves. */}
+      <span className="pointer-events-none absolute inset-y-24 left-1/2 w-px -translate-x-1/2 bg-mist" />
     </div>
   );
 }

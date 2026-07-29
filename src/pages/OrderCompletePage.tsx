@@ -35,23 +35,45 @@ export default function OrderCompletePage() {
   }
 
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center gap-8 overflow-hidden bg-ink text-white animate-fade-in">
-      <div className="pointer-events-none absolute h-[520px] w-[520px] rounded-full bg-leaf/25 blur-[120px]" />
-      <div className="relative z-10 flex flex-col items-center gap-6">
-        <div className="flex h-32 w-32 items-center justify-center rounded-full bg-leaf text-[4rem] animate-scale-in">✓</div>
-        <h1 className="font-display text-kiosk-2xl font-extrabold">Order confirmed</h1>
-        <p className="text-kiosk-lg text-white/70">Thanks — your food is on the way</p>
+    <div className="flex h-full w-full flex-col items-center justify-center gap-10 bg-cream animate-fade-in">
+      {/* Shaped like the receipt the customer is about to be handed. */}
+      <div className="relative w-[520px] overflow-hidden rounded-xl4 bg-paper shadow-card animate-slide-up">
+        <div className="flex flex-col items-center gap-5 px-12 pb-10 pt-12">
+          <div className="relative flex items-center justify-center">
+            <span className="absolute h-28 w-28 animate-ring-pulse rounded-full bg-leaf/25" />
+            <span className="relative flex h-24 w-24 items-center justify-center rounded-full bg-leaf text-[2.75rem] text-white animate-pop-in">
+              ✓
+            </span>
+          </div>
+          <h1 className="font-display text-kiosk-xl font-extrabold text-ink">Order confirmed</h1>
+          <p className="text-center text-kiosk-base text-ash">Thanks — your food is on the way</p>
+        </div>
 
-        <div className="mt-4 flex flex-col items-center gap-1 rounded-xl3 bg-white/10 px-16 py-8">
-          <span className="text-kiosk-sm text-white/60">Your order number</span>
-          <span className="font-display text-kiosk-3xl font-extrabold text-amber">#{order.orderNumber}</span>
-          <span className="mt-2 text-kiosk-base text-white/70">{formatCurrency(order.summary.total)} · {order.summary.itemCount} items</span>
+        {/* Perforation: notches punched out of both edges, dashes between. */}
+        <div className="relative h-8">
+          <span className="absolute -left-4 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full bg-cream" />
+          <span className="absolute -right-4 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full bg-cream" />
+          <span className="absolute inset-x-8 top-1/2 border-t-2 border-dashed border-mist" />
+        </div>
+
+        <div className="flex flex-col items-center gap-1 px-12 pb-12 pt-4">
+          <span className="text-kiosk-xs uppercase tracking-[0.14em] text-ash">Your order number</span>
+          <span className="my-2 font-display text-[5.5rem] font-extrabold leading-none tabular-nums text-flame">
+            {order.orderNumber}
+          </span>
+          <span className="text-kiosk-sm text-ash">
+            {formatCurrency(order.summary.total)} · {order.summary.itemCount} item
+            {order.summary.itemCount === 1 ? '' : 's'}
+          </span>
         </div>
       </div>
 
-      <Button size="xl" variant="secondary" onClick={finish} className="relative z-10 mt-4 min-w-[320px]">
-        Start new order
-      </Button>
+      <div className="flex flex-col items-center gap-4">
+        <Button size="xl" onClick={finish} className="min-w-[360px]">
+          Start new order
+        </Button>
+        <p className="text-kiosk-xs text-ash">Listen for your number at the counter</p>
+      </div>
     </div>
   );
 }

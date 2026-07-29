@@ -9,9 +9,12 @@ interface ProductImageProps {
 }
 
 /**
- * A product's photo when it has one, its emoji otherwise. Artwork order is
+ * Artwork when there is any, the emoji otherwise. Resolution order is
  * `imgBase64` (inline) → `image` (a URL) → `image` rendered as the emoji it
  * usually is. A broken image falls back to the emoji rather than an empty box.
+ *
+ * Categories run through here too (see CategoryCard), so both catalogues
+ * resolve their pictures by exactly the same rule.
  */
 export function ProductImage({ product, imgClassName, fallbackClassName }: ProductImageProps) {
   const [imageBroken, setImageBroken] = useState(false);

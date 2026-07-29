@@ -21,15 +21,15 @@ export function Modal({ open, onClose, children, className, size = 'lg' }: Modal
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
       <div
         className="absolute inset-0 animate-fade-in bg-ink/50 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
         className={cn(
-          'relative z-10 w-full animate-slide-up overflow-hidden rounded-t-xl3 bg-cream shadow-pop sm:rounded-xl3',
-          size === 'lg' ? 'max-w-[860px]' : 'max-w-[560px]',
+          'relative z-10 w-full animate-sheet-up overflow-hidden rounded-t-xl4 bg-paper shadow-pop sm:rounded-xl4',
+          size === 'lg' ? 'max-w-[900px]' : 'max-w-[560px]',
           className,
         )}
         role="dialog"
