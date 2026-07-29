@@ -11,7 +11,12 @@
       "Bash(grep -F '$')",
       "Bash(grep -rnF '$${' src)",
       "Bash(grep -nE 'formatCurrency|price|total|amount|Rs|\\\\$' src/pages/PaymentPage.tsx)",
-      "Bash(grep -nE 'USD|VITE_CURRENCY|\\\\$[0-9]|currency' README.md)"
+      "Bash(grep -nE 'USD|VITE_CURRENCY|\\\\$[0-9]|currency' README.md)",
+      "PowerShell(npm run *)",
+      "PowerShell(try { $r = Invoke-WebRequest 'http://localhost:5173/' -UseBasicParsing -TimeoutSec 8; \"Dev server UP - HTTP $\\($r.StatusCode\\)\" } catch { \"Dev server DOWN: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(try { $r = Invoke-WebRequest 'http://localhost:5173/' -UseBasicParsing -TimeoutSec 8; \"dev server: UP \\($\\($r.StatusCode\\)\\)\" } catch { \"dev server: DOWN\" })",
+      "PowerShell(node \"C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\a021213f-9017-4493-94f8-039191f5a966\\\\scratchpad\\\\sniff-test.mjs\")"
     ]
   }
 }
