@@ -39,31 +39,20 @@ export function ProductCard({ product, onSelect, tall = false }: ProductCardProp
       )}
 
       {/*
-        Most items ship an emoji rather than a photo, so both sit on the same
-        round "plate". It gives the grid one silhouette instead of a mix of
-        full-bleed photos and floating glyphs. In a tall slot the plate takes
-        whatever height is left over.
+        The whole photo, never cropped — `contain` inside a padded box, so tall
+        and wide artwork both fit rather than being masked to a shape.
       */}
       <div
         className={cn(
-          'relative flex items-center justify-center',
-          tall ? 'min-h-0 flex-1' : 'h-[186px] shrink-0',
+          'flex items-center justify-center overflow-hidden',
+          tall ? 'min-h-0 flex-1 p-6' : 'h-[186px] shrink-0 p-5',
         )}
       >
-        <span
-          className={cn(
-            'absolute rounded-full bg-cream transition-transform duration-500 ease-spring group-hover:scale-105',
-            tall ? 'h-52 w-52' : 'h-36 w-36',
-          )}
-        />
         <ProductImage
           product={product}
-          imgClassName={cn(
-            'relative rounded-full object-cover shadow-soft transition-transform duration-500 ease-smooth group-hover:scale-[1.06]',
-            tall ? 'h-48 w-48' : 'h-32 w-32',
-          )}
+          imgClassName="max-h-full max-w-full object-contain transition-transform duration-500 ease-smooth group-hover:scale-[1.06]"
           fallbackClassName={cn(
-            'relative leading-none transition-transform duration-500 ease-spring group-hover:scale-[1.12]',
+            'leading-none transition-transform duration-500 ease-spring group-hover:scale-[1.12]',
             tall ? 'text-[6.5rem]' : 'text-[4.25rem]',
           )}
         />
@@ -84,12 +73,17 @@ export function ProductCard({ product, onSelect, tall = false }: ProductCardProp
           {product.name}
         </h3>
 
-        {/* The description is a luxury the compact slots cannot afford. */}
-        {tall && (
-          <p className="mt-2 line-clamp-2 text-kiosk-xs leading-relaxed text-ash">{product.description}</p>
-        )}
+        {/* Clamped rather than dropped in the compact slot — it has room for two lines. */}
+        <p
+          className={cn(
+            'line-clamp-2 text-ash',
+            tall ? 'mt-2 text-kiosk-xs leading-relaxed' : 'mt-1.5 text-[0.85rem] leading-snug',
+          )}
+        >
+          {product.description}
+        </p>
 
-        <div className={cn('mt-auto flex items-end justify-between gap-3', tall ? 'pt-5' : 'pt-4')}>
+        <div className={cn('mt-auto flex items-end justify-between gap-3', tall ? 'pt-5' : 'pt-3')}>
           <div className="flex min-w-0 flex-col">
             <span
               className={cn(

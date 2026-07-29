@@ -104,13 +104,12 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
         <div className="flex max-h-[88vh] flex-col">
           <div className="pt-3"><div className="sheet-grip" /></div>
 
-          {/* Same round plate as the grid card, so opening an item feels continuous. */}
-          <div className="relative flex h-64 shrink-0 items-center justify-center bg-paper">
-            <span className="absolute h-52 w-52 rounded-full bg-cream" />
+          {/* Uncropped, same as the grid card — the detail view shows the whole photo. */}
+          <div className="flex h-64 shrink-0 items-center justify-center overflow-hidden bg-paper p-6">
             <ProductImage
               product={product}
-              imgClassName="relative h-48 w-48 rounded-full object-cover shadow-soft animate-scale-in"
-              fallbackClassName="relative text-[7.5rem] leading-none animate-scale-in"
+              imgClassName="max-h-full max-w-full object-contain animate-scale-in"
+              fallbackClassName="text-[7.5rem] leading-none animate-scale-in"
             />
           </div>
 
