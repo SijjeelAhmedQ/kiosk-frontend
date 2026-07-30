@@ -37,9 +37,19 @@
   .skeleton { @apply relative overflow-hidden bg-mist/70; }
   .skeleton::after {
     content: '';
-    @apply absolute inset-0 -translate-x-full;
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent);
-    animation: shimmer 1.4s infinite;
+  }
+
+  /* Same idea on the dark splash, where bg-mist/70 reads as a bright block.
+     --shim-delay lets a row of these ripple instead of pulsing in lockstep;
+     it has to live on the pseudo-element, which inline styles can't reach. */
+  .skeleton-dark { @apply relative overflow-hidden bg-white/10; }
+  .skeleton-dark::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+    animation-delay: var(--shim-delay, 0s);
   }
 
   /* The grab handle that makes a panel read as a sheet. */

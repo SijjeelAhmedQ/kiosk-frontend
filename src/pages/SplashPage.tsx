@@ -1,11 +1,39 @@
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { fetchCategories } from '@/redux/slices/categoriesSlice';
 import { APP } from '@/constants/app.constants';
 import { PATHS } from '@/routes/paths';
 
-const TEASERS = ['Burgers', 'Fried chicken', 'Loaded fries', 'Shakes', 'Wraps'];
+/** How many category chips fit on one line before it starts to read as a list. */
+const MAX_TEASERS = 5;
+
+/** Widths for the placeholder chips — uneven, so it reads as words, not a bar. */
+const SKELETON_WIDTHS = ['7rem', '9.5rem', '8rem', '6.5rem'];
 
 export default function SplashPage() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const categories = useAppSelector((s) => s.categories.items);
+  // A fetch that returns nothing leaves the store looking exactly like a fetch
+  // that hasn't started, so the settled flag is tracked here rather than read
+  // off `loading` — otherwise an empty menu shimmers forever.
+  const [settled, setSettled] = useState(false);
+
+  // Prefetched here purely so the strip below is real. The menu re-fetches on
+  // its own once an order type is picked.
+  useEffect(() => {
+    if (categories.length) { setSettled(true); return; }
+    dispatch(fetchCategories()).finally(() => setSettled(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const teasers = categories.slice(0, MAX_TEASERS);
+  const extra = categories.length - teasers.length;
+  // Once settled with nothing to show — empty menu, or the API is down — the
+  // strip is dropped rather than faked. The splash still reads as "tap to order".
+  const showTeasers = !settled || categories.length > 0;
+
   return (
     <div className="relative h-full w-full bg-ink">
       {/* Staff entry — deliberately small and out of the customer's path. */}
@@ -35,17 +63,42 @@ export default function SplashPage() {
             {APP.name}
           </h1>
 
-          {/* Says what's inside before the customer commits to a tap. */}
-          <div className="flex flex-wrap gap-2.5">
-            {TEASERS.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-white/15 px-5 py-2.5 font-display text-kiosk-sm font-bold text-white/70"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
+          {/* Says what's inside before the customer commits to a tap — the real
+              categories, so it can never advertise something we don't sell.
+              Fixed height keeps the headline still when they swap in. */}
+          {showTeasers && (
+            <div className="flex min-h-[2.875rem] flex-wrap items-center gap-2.5">
+              {!settled ? (
+                SKELETON_WIDTHS.map((w, i) => (
+                  <span
+                    key={i}
+                    className="skeleton-dark h-[2.875rem] rounded-full"
+                    style={{ width: w, '--shim-delay': `${i * 0.16}s` } as CSSProperties}
+                  />
+                ))
+              ) : (
+                <>
+                  {teasers.map((c, i) => (
+                    <span
+                      key={c.id}
+                      className="animate-pop-in rounded-full border border-white/15 px-5 py-2.5 font-display text-kiosk-sm font-bold text-white/70"
+                      style={{ animationDelay: `${i * 0.07}s` }}
+                    >
+                      {c.name}
+                    </span>
+                  ))}
+                  {extra > 0 && (
+                    <span
+                      className="animate-pop-in rounded-full border border-white/15 px-5 py-2.5 font-display text-kiosk-sm font-bold text-white/40"
+                      style={{ animationDelay: `${teasers.length * 0.07}s` }}
+                    >
+                      +{extra} more
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           <div className="mt-4 flex items-center gap-6">
             <span className="flex items-center gap-3.5 rounded-full bg-amber px-12 py-6 font-display text-kiosk-lg font-extrabold text-ink shadow-brand-lg">

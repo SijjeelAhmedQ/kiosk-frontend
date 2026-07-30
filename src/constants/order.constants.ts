@@ -6,8 +6,6 @@ export const ORDER_TYPES: { value: OrderType; label: string; icon: string }[] = 
 ];
 
 export const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: string }[] = [
-  { value: 'card', label: 'Credit / Debit Card', icon: '💳' },
-  { value: 'wallet', label: 'Mobile Wallet', icon: '📱' },
   { value: 'counter', label: 'Pay at Counter', icon: '🧾' },
 ];
 

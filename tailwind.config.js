@@ -103,6 +103,9 @@ export default {
         'ember-pulse': 'ember-pulse 2.4s ease-in-out infinite',
         'ring-pulse': 'ring-pulse 2.2s ease-out infinite',
         'dot-blink': 'dot-blink 1.4s ease-in-out infinite',
+        // Must exist as an animation, not just a keyframe — Tailwind only emits
+        // @keyframes for keyframes an animation utility actually references.
+        shimmer: 'shimmer 1.4s infinite',
       },
     },
   },

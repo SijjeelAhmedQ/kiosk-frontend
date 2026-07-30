@@ -13,8 +13,6 @@ import { cn } from '@/utils/cn';
 import { PATHS } from '@/routes/paths';
 
 const HINT: Record<string, string> = {
-  card: 'Tap, insert or swipe at the terminal',
-  wallet: 'Scan the QR with your wallet app',
   counter: 'Pay the cashier when you collect',
 };
 
@@ -38,7 +36,9 @@ export default function CheckoutPage() {
           <StepBar current={1} className="mt-4" />
 
           <h2 className="mt-8 font-display text-kiosk-lg font-extrabold text-ink">How would you like to pay?</h2>
-          <div className="no-scrollbar mt-4 flex-1 space-y-3 overflow-y-auto pb-4">
+          {/* overflow-y-auto also clips the x-axis, so pull the box out and pad it
+              back in — otherwise the card shadow/ring is sliced off both edges. */}
+          <div className="no-scrollbar -mx-4 mt-4 flex-1 space-y-3 overflow-y-auto px-4 pb-6 pt-2">
             {PAYMENT_METHODS.map((p) => {
               const on = method === p.value;
               return (
