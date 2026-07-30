@@ -3,6 +3,7 @@ export { Modal } from './common/Modal';
 export { EmptyState } from './common/EmptyState';
 export { LoadingScreen, Spinner } from './common/LoadingScreen';
 export { StepBar } from './common/StepBar';
+export { PlusIcon, MinusIcon } from './common/icons';
 export { QuantitySelector } from './controls/QuantitySelector';
 export { FilterChips } from './controls/FilterChips';
 export { SearchBar } from './controls/SearchBar';

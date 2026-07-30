@@ -1,5 +1,6 @@
 import type { Product } from '@/types';
 import { ProductImage } from './ProductImage';
+import { PlusIcon } from '../common/icons';
 import { formatCurrency, formatCalories } from '@/utils/currency';
 import { cn } from '@/utils/cn';
 
@@ -99,13 +100,13 @@ export function ProductCard({ product, onSelect, tall = false }: ProductCardProp
           {/* Explicit affordance — makes the whole card read as "tap to add". */}
           <span
             className={cn(
-              'flex shrink-0 items-center justify-center rounded-full bg-amber font-bold leading-none text-ink',
+              'flex shrink-0 items-center justify-center rounded-full bg-amber text-ink',
               'shadow-brand transition-all duration-300 ease-spring group-hover:scale-110 group-hover:rotate-90',
-              tall ? 'h-14 w-14 text-[1.9rem]' : 'h-12 w-12 text-[1.6rem]',
+              tall ? 'h-14 w-14' : 'h-12 w-12',
             )}
             aria-hidden="true"
           >
-            +
+            <PlusIcon className={tall ? 'h-7 w-7' : 'h-6 w-6'} />
           </span>
         </div>
       </div>

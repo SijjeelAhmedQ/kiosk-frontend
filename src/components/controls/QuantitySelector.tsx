@@ -1,4 +1,5 @@
 import { cn } from '@/utils/cn';
+import { PlusIcon, MinusIcon } from '../common/icons';
 
 type Size = 'sm' | 'md' | 'lg';
 
@@ -10,17 +11,17 @@ interface QuantitySelectorProps {
   size?: Size;
 }
 
-const dims: Record<Size, { btn: string; label: string; gap: string; pad: string }> = {
-  sm: { btn: 'h-9 w-9 text-kiosk-sm', label: 'min-w-[2ch] text-kiosk-sm', gap: 'gap-1.5', pad: 'p-1' },
-  md: { btn: 'h-11 w-11 text-kiosk-base', label: 'min-w-[2ch] text-kiosk-base', gap: 'gap-2', pad: 'p-1.5' },
-  lg: { btn: 'h-14 w-14 text-kiosk-lg', label: 'min-w-[2.5ch] text-kiosk-lg', gap: 'gap-3', pad: 'p-1.5' },
+const dims: Record<Size, { btn: string; icon: string; label: string; gap: string; pad: string }> = {
+  sm: { btn: 'h-9 w-9', icon: 'h-4 w-4', label: 'min-w-[2ch] text-kiosk-sm', gap: 'gap-1.5', pad: 'p-1' },
+  md: { btn: 'h-11 w-11', icon: 'h-5 w-5', label: 'min-w-[2ch] text-kiosk-base', gap: 'gap-2', pad: 'p-1.5' },
+  lg: { btn: 'h-14 w-14', icon: 'h-6 w-6', label: 'min-w-[2.5ch] text-kiosk-lg', gap: 'gap-3', pad: 'p-1.5' },
 };
 
 export function QuantitySelector({ value, onChange, min = 1, max = 99, size = 'lg' }: QuantitySelectorProps) {
   const d = dims[size];
   // White circles floating on a grey track — a stepper, not two bordered boxes.
   const btn =
-    'press flex items-center justify-center rounded-full bg-paper font-display font-bold leading-none text-ink shadow-soft ' +
+    'press flex items-center justify-center rounded-full bg-paper text-ink shadow-soft ' +
     'transition-colors hover:bg-amber disabled:opacity-30 disabled:pointer-events-none disabled:shadow-none';
 
   return (
@@ -31,7 +32,7 @@ export function QuantitySelector({ value, onChange, min = 1, max = 99, size = 'l
         disabled={value <= min}
         aria-label="Decrease"
       >
-        −
+        <MinusIcon className={d.icon} />
       </button>
       <span className={cn('text-center font-display font-extrabold tabular-nums text-ink', d.label)}>
         {value}
@@ -42,7 +43,7 @@ export function QuantitySelector({ value, onChange, min = 1, max = 99, size = 'l
         disabled={value >= max}
         aria-label="Increase"
       >
-        +
+        <PlusIcon className={d.icon} />
       </button>
     </div>
   );
