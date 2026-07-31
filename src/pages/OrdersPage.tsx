@@ -37,6 +37,9 @@ const isoDaysAgo = (days: number): string =>
 const rangeToQuery = (range: Range): Pick<OrderListQuery, 'from'> =>
   range === 'all' ? {} : { from: isoDaysAgo(range === 'today' ? 0 : 6) };
 
+/** Ticket numbers are digits only, so anything else is a typo on the keypad. */
+const toOrderNumber = (raw: string): string => raw.replace(/\D/g, '').slice(0, 10);
+
 export default function OrdersPage() {
   const navigate = useNavigate();
   const [range, setRange] = useState<Range>('today');
@@ -55,13 +58,15 @@ export default function OrdersPage() {
 
   const load = useCallback(
     async (offset = 0) => {
+      const orderNumber = toOrderNumber(debouncedSearch);
       setLoading(true);
       setError(null);
       try {
         const page = await orderApi.list({
-          ...rangeToQuery(range),
+          // Ticket numbers restart every day, so a search has to look past the
+          // selected period — otherwise yesterday's #142 is simply invisible.
+          ...(orderNumber ? { orderNumber } : rangeToQuery(range)),
           ...(status === 'all' ? {} : { status }),
-          ...(debouncedSearch.trim() ? { orderNumber: debouncedSearch.trim() } : {}),
           limit: PAGE_SIZE,
           offset,
         });
@@ -78,6 +83,8 @@ export default function OrdersPage() {
   );
 
   useEffect(() => { void load(0); }, [load]);
+
+  const activeNumber = toOrderNumber(debouncedSearch);
 
   const openDetail = async (orderId: number) => {
     setDetailLoading(true);
@@ -106,9 +113,14 @@ export default function OrdersPage() {
           <Stat label="Revenue" value={formatCurrency(revenue)} />
         </div>
 
-        <FilterGroup label="Period">
+        <FilterGroup label="Period" note={activeNumber ? 'All dates while searching' : undefined}>
           {RANGES.map((r) => (
-            <FilterChip key={r.value} active={range === r.value} onClick={() => setRange(r.value)}>
+            <FilterChip
+              key={r.value}
+              active={range === r.value}
+              muted={Boolean(activeNumber)}
+              onClick={() => setRange(r.value)}
+            >
               {r.label}
             </FilterChip>
           ))}
@@ -129,7 +141,11 @@ export default function OrdersPage() {
 
       <section className="flex min-w-0 flex-1 flex-col">
         <div className="shrink-0 px-8 pb-5 pt-6">
-          <SearchBar value={search} onChange={setSearch} placeholder="Search by order number…" />
+          <SearchBar
+            value={search}
+            onChange={(v) => setSearch(toOrderNumber(v))}
+            placeholder="Search by order number…"
+          />
         </div>
 
         <div className="no-scrollbar flex-1 overflow-y-auto px-8 pb-8">
@@ -143,7 +159,20 @@ export default function OrdersPage() {
           {loading && items.length === 0 ? (
             <div className="flex h-full items-center justify-center"><Spinner size={52} /></div>
           ) : items.length === 0 ? (
-            <EmptyState icon="🧾" title="No orders yet" message="Orders placed on this kiosk will show up here." />
+            activeNumber ? (
+              <EmptyState
+                icon="🔍"
+                title={`No order #${activeNumber}`}
+                message="No ticket starts with that number. Check the digits, or clear the search to browse the list."
+                action={
+                  <Button variant="secondary" onClick={() => setSearch('')}>
+                    Clear search
+                  </Button>
+                }
+              />
+            ) : (
+              <EmptyState icon="🧾" title="No orders yet" message="Orders placed on this kiosk will show up here." />
+            )
           ) : (
             <>
               <div className="flex flex-col gap-3">
@@ -184,24 +213,31 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function FilterGroup({
+  label, note, children,
+}: { label: string; note?: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-3 font-display text-kiosk-xs font-bold uppercase tracking-[0.1em] text-ash">{label}</p>
+      <div className="mb-3 flex items-baseline justify-between gap-2">
+        <p className="font-display text-kiosk-xs font-bold uppercase tracking-[0.1em] text-ash">{label}</p>
+        {note && <span className="text-kiosk-xs text-ash">{note}</span>}
+      </div>
       <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );
 }
 
+/** `muted` dims a filter the current search overrides — it still stays clickable. */
 function FilterChip({
-  active, onClick, children,
-}: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  active, muted = false, onClick, children,
+}: { active: boolean; muted?: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       onClick={onClick}
       className={cn(
         'press rounded-full px-5 py-2.5 font-display text-kiosk-xs font-bold transition-colors duration-200',
         active ? 'bg-ink text-white' : 'bg-cream text-charcoal hover:bg-mist',
+        muted && 'opacity-40',
       )}
     >
       {children}
