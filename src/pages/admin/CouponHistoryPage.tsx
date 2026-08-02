@@ -87,40 +87,45 @@ export default function CouponHistoryPage() {
   const filtered = Boolean(debouncedSearch || campaignId || range.from || range.to);
 
   return (
-    <PageBody>
-      <PageHeader
-        title="Redemptions"
-        subtitle="Every time a coupon paid for something, newest first."
-      />
+    <PageBody fill>
+      {/* Header, figures and filters hold their height; the log takes what is
+          left and scrolls inside itself. */}
+      <div className="shrink-0">
+        <PageHeader
+          title="Redemptions"
+          subtitle="Every time a coupon paid for something, newest first."
+        />
 
-      <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
+        <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
 
-      {/* Two figures, not four — stretched over a four-column grid they read
-          as a row that failed to load. */}
-      <div className="mb-5 grid max-w-[34rem] grid-cols-2 gap-3">
-        <Stat label="Redemptions" value={String(historyTotal)} />
-        <Stat label="Value redeemed" value={formatCurrency(historyValue)} tone="text-leaf" />
-      </div>
+        {/* Two figures, not four — stretched over a four-column grid they read
+            as a row that failed to load. */}
+        <div className="mb-5 grid max-w-[34rem] grid-cols-2 gap-3">
+          <Stat label="Redemptions" value={String(historyTotal)} />
+          <Stat label="Value redeemed" value={formatCurrency(historyValue)} tone="text-leaf" />
+        </div>
 
-      <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
-        <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Field label="Campaign">
-            <Select value={campaignId} onChange={setCampaignId} options={campaignOptions} />
-          </Field>
-          <div className="sm:col-span-2">
-            <DateRangeFilter
-              from={range.from}
-              to={range.to}
-              onChange={setRange}
-              fromLabel="Redeemed from"
-              toLabel="Redeemed to"
-            />
+        <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
+          <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Field label="Campaign">
+              <Select value={campaignId} onChange={setCampaignId} options={campaignOptions} />
+            </Field>
+            <div className="sm:col-span-2">
+              <DateRangeFilter
+                from={range.from}
+                to={range.to}
+                onChange={setRange}
+                fromLabel="Redeemed from"
+                toLabel="Redeemed to"
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <ListView
+        fill
         rows={history}
         rowKey={(h) => h.historyId}
         loading={historyLoading}
@@ -143,13 +148,15 @@ export default function CouponHistoryPage() {
         }
       />
 
-      <Pagination
-        total={historyTotal}
-        limit={historyQuery.limit ?? COUPON_PAGE_SIZE}
-        offset={historyQuery.offset ?? 0}
-        onPageChange={(page) => dispatch(setHistoryPage(page))}
-        noun="redemptions"
-      />
+      <div className="shrink-0">
+        <Pagination
+          total={historyTotal}
+          limit={historyQuery.limit ?? COUPON_PAGE_SIZE}
+          offset={historyQuery.offset ?? 0}
+          onPageChange={(page) => dispatch(setHistoryPage(page))}
+          noun="redemptions"
+        />
+      </div>
     </PageBody>
   );
 }

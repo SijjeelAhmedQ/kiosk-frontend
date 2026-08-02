@@ -71,29 +71,34 @@ export default function CategoryListPage() {
   };
 
   return (
-    <PageBody>
-      <PageHeader
-        title="Categories"
-        subtitle="The sections the kiosk groups the menu into. A category has to exist before anything can be put in it."
-        actions={
-          <Button size="md" onClick={() => navigate(ADMIN_PATHS.categoryNew)}>
-            New category
-          </Button>
-        }
-      />
+    <PageBody fill>
+      {/* Header, figures and search hold their height; the list takes what is
+          left and scrolls inside itself. */}
+      <div className="shrink-0">
+        <PageHeader
+          title="Categories"
+          subtitle="The sections the kiosk groups the menu into. A category has to exist before anything can be put in it."
+          actions={
+            <Button size="md" onClick={() => navigate(ADMIN_PATHS.categoryNew)}>
+              New category
+            </Button>
+          }
+        />
 
-      <AlertBanner message={error} onDismiss={() => dispatch(clearCatalogError())} />
+        <AlertBanner message={error} onDismiss={() => dispatch(clearCatalogError())} />
 
-      <div className="mb-5 grid max-w-[34rem] grid-cols-2 gap-3">
-        <Stat label="Categories" value={`${activeCount} of ${categories.length} active`} />
-        <Stat label="Products in them" value={String(productCount)} />
-      </div>
+        <div className="mb-5 grid max-w-[34rem] grid-cols-2 gap-3">
+          <Stat label="Categories" value={`${activeCount} of ${categories.length} active`} />
+          <Stat label="Products in them" value={String(productCount)} />
+        </div>
 
-      <div className="mb-5">
-        <SearchBar value={search} onChange={setSearch} placeholder="Search categories…" />
+        <div className="mb-5">
+          <SearchBar value={search} onChange={setSearch} placeholder="Search categories…" />
+        </div>
       </div>
 
       <ListView
+        fill
         rows={shown}
         rowKey={(c) => c.id}
         loading={loadingCategories}

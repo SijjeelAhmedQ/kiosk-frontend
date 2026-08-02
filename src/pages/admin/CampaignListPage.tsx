@@ -87,32 +87,37 @@ export default function CampaignListPage() {
   };
 
   return (
-    <PageBody>
-      <PageHeader
-        title="Campaigns"
-        subtitle="Every coupon belongs to a campaign. Deactivating one stops all of its coupons at once."
-        actions={
-          <Button size="md" onClick={() => navigate(ADMIN_PATHS.campaignNew)}>
-            New campaign
-          </Button>
-        }
-      />
+    <PageBody fill>
+      {/* Header and filters hold their height; the list takes what is left and
+          scrolls inside itself. */}
+      <div className="shrink-0">
+        <PageHeader
+          title="Campaigns"
+          subtitle="Every coupon belongs to a campaign. Deactivating one stops all of its coupons at once."
+          actions={
+            <Button size="md" onClick={() => navigate(ADMIN_PATHS.campaignNew)}>
+              New campaign
+            </Button>
+          }
+        />
 
-      <AlertBanner message={error} onDismiss={() => dispatch(clearCampaignError())} />
+        <AlertBanner message={error} onDismiss={() => dispatch(clearCampaignError())} />
 
-      <div className="mb-5 flex flex-wrap items-center gap-3">
-        <div className="min-w-[260px] flex-1">
-          <SearchBar
-            value={search}
-            onChange={setSearch}
-            placeholder="Search campaigns by name or description…"
-          />
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <div className="min-w-[260px] flex-1">
+            <SearchBar
+              value={search}
+              onChange={setSearch}
+              placeholder="Search campaigns by name or description…"
+            />
+          </div>
+          <FilterRow options={STATUS_FILTERS} value={status} onChange={setStatus} />
+          <FilterRow options={TYPE_FILTERS} value={type} onChange={setType} />
         </div>
-        <FilterRow options={STATUS_FILTERS} value={status} onChange={setStatus} />
-        <FilterRow options={TYPE_FILTERS} value={type} onChange={setType} />
       </div>
 
       <ListView
+        fill
         rows={items}
         rowKey={(c) => c.campaignId}
         loading={loading}
@@ -146,13 +151,15 @@ export default function CampaignListPage() {
         }
       />
 
-      <Pagination
-        total={total}
-        limit={query.limit ?? CAMPAIGN_PAGE_SIZE}
-        offset={query.offset ?? 0}
-        onPageChange={(page) => dispatch(setCampaignPage(page))}
-        noun="campaigns"
-      />
+      <div className="shrink-0">
+        <Pagination
+          total={total}
+          limit={query.limit ?? CAMPAIGN_PAGE_SIZE}
+          offset={query.offset ?? 0}
+          onPageChange={(page) => dispatch(setCampaignPage(page))}
+          noun="campaigns"
+        />
+      </div>
 
       <Modal open={Boolean(pendingDelete)} size="md" onClose={() => setPendingDelete(null)}>
         <div className="flex flex-col gap-5 p-8">

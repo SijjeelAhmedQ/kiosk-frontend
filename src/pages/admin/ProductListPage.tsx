@@ -113,38 +113,51 @@ export default function ProductListPage() {
   };
 
   return (
-    <PageBody>
-      <PageHeader
-        title="Products"
-        subtitle="Everything the kiosk can sell. Hiding a product takes it off the menu and leaves the history alone."
-        actions={
-          <Button size="md" onClick={() => navigate(ADMIN_PATHS.productNew)}>
-            New product
-          </Button>
-        }
-      />
+    <PageBody fill>
+      {/* Everything above the list keeps its height; the list takes what is
+          left and scrolls inside itself, so the page never does. The menu is
+          the one screen you scan for a long time, and losing the search box off
+          the top of it every time is what makes that tiring. */}
+      <div className="shrink-0">
+        <PageHeader
+          title="Products"
+          subtitle="Everything the kiosk can sell. Hiding a product takes it off the menu and leaves the history alone."
+          actions={
+            <Button size="md" onClick={() => navigate(ADMIN_PATHS.productNew)}>
+              New product
+            </Button>
+          }
+        />
 
-      <AlertBanner message={error} onDismiss={() => dispatch(clearCatalogError())} />
+        <AlertBanner message={error} onDismiss={() => dispatch(clearCatalogError())} />
 
-      <div className="mb-5 grid max-w-[34rem] grid-cols-2 gap-3">
-        <Stat label="Matching" value={String(products.length)} />
-        <Stat label="On the menu" value={String(onMenu)} tone="text-leaf" />
-      </div>
+        <div className="mb-5 flex flex-wrap items-end gap-3">
+          <div className="grid max-w-[34rem] flex-1 grid-cols-2 gap-3">
+            <Stat label="Matching" value={String(products.length)} />
+            <Stat label="On the menu" value={String(onMenu)} tone="text-leaf" />
+          </div>
+        </div>
 
-      <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
-        <SearchBar value={search} onChange={setSearch} placeholder="Search by name or description…" />
+        <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
+          <SearchBar
+            value={search}
+            onChange={setSearch}
+            placeholder="Search by name or description…"
+          />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Category">
-            <Select value={categoryId} onChange={setCategoryId} options={categoryOptions} />
-          </Field>
-          <Field label="Visibility">
-            <Select<ActiveFilter> value={active} onChange={setActive} options={ACTIVE_OPTIONS} />
-          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Category">
+              <Select value={categoryId} onChange={setCategoryId} options={categoryOptions} />
+            </Field>
+            <Field label="Visibility">
+              <Select<ActiveFilter> value={active} onChange={setActive} options={ACTIVE_OPTIONS} />
+            </Field>
+          </div>
         </div>
       </div>
 
       <ListView
+        fill
         rows={products}
         rowKey={(p) => p.id}
         loading={loadingProducts}

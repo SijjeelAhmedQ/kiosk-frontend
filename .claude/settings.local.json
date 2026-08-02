@@ -81,7 +81,10 @@
       "Bash(curl -s -o /dev/null -w \"admin_categories=%{http_code}\\\\n\" \"http://localhost:8000/api/v1/admin/categories\")",
       "Bash(curl -s \"http://localhost:8000/api/v1/admin/categories\")",
       "Bash(curl -s -o /dev/null -w \"api8001=%{http_code}\\\\n\" \"http://localhost:8001/api/v1/admin/products\")",
-      "Bash(./.venv/Scripts/python.exe scripts/catalog_smoke_test.py http://127.0.0.1:8001)"
+      "Bash(./.venv/Scripts/python.exe scripts/catalog_smoke_test.py http://127.0.0.1:8001)",
+      "PowerShell(Start-Sleep -Seconds 2; $edge = \"C:\\\\Program Files \\(x86\\)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\"; $out = \"C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\4e5d639c-8424-4fc5-b702-b4f7e2b623d7\\\\scratchpad\\\\fill\"; foreach \\($h in @\\(900, 1080\\)\\) { & $edge --headless=new --disable-gpu --no-first-run --user-data-dir=\"$out\\\\prof2\" --window-size=1600,$h --virtual-time-budget=9000 --screenshot=\"$out\\\\fixed-$h.png\" \"http://localhost:5177/admin/products\" 2>$null | Out-Null }; \"done\")",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 5177 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { Stop-Process -Id $c[0].OwningProcess -Force -ErrorAction SilentlyContinue; \"stopped leftover dev server on 5177\" } else { \"5177 already free\" }; foreach \\($p in @\\(8001, 5175, 5176\\)\\) { $x = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($x\\) { \"still listening: $p\" } })",
+      "PowerShell(foreach \\($p in @\\(5175, 5176\\)\\) { $x = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($x\\) { Stop-Process -Id $x[0].OwningProcess -Force -ErrorAction SilentlyContinue; \"stopped $p\" } }; Start-Sleep -Seconds 1; foreach \\($p in @\\(5175,5176,5177,8001\\)\\) { $x = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($x\\) { \"STILL UP: $p\" } }; \"cleanup done — your own servers on 5173/8000 untouched\"; foreach \\($p in @\\(5173,8000\\)\\) { $x = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($x\\) { \"yours still running: $p\" } })"
     ]
   }
 }

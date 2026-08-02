@@ -24,12 +24,18 @@ interface ListViewProps<T> {
   loading?: boolean;
   /** Shown instead of the rows when there are none. */
   empty?: ReactNode;
+  /**
+   * Take the height the rest of the page left over and scroll the cards inside
+   * it, so the page itself never scrolls. Needs an ancestor that constrains the
+   * height — <PageBody fill> is the one that does.
+   */
+  fill?: boolean;
 }
 
-export function ListView<T>({ rows, rowKey, renderRow, loading, empty }: ListViewProps<T>) {
+export function ListView<T>({ rows, rowKey, renderRow, loading, empty, fill }: ListViewProps<T>) {
   // The spinner and the empty state stand in for the list, so they take up the
   // room it would — otherwise the page jumps on reload.
-  const surface = 'rounded-xl3 bg-paper shadow-soft';
+  const surface = cn('rounded-xl3 bg-paper shadow-soft', fill && 'min-h-0 flex-1');
 
   if (loading && rows.length === 0) {
     return (
@@ -44,7 +50,15 @@ export function ListView<T>({ rows, rowKey, renderRow, loading, empty }: ListVie
   }
 
   return (
-    <div className={cn('flex flex-col gap-3', loading && 'opacity-50 transition-opacity')}>
+    <div
+      className={cn(
+        'flex flex-col gap-3',
+        // px-1 pb-1: a card's shadow sits outside its box, and a scroll
+        // container would shave it off at the edges.
+        fill && 'min-h-0 flex-1 overflow-y-auto px-1 pb-1',
+        loading && 'opacity-50 transition-opacity',
+      )}
+    >
       {rows.map((row) => (
         <Fragment key={rowKey(row)}>{renderRow(row)}</Fragment>
       ))}
@@ -87,7 +101,10 @@ export function ListRow({
     <div
       className={cn(
         'group relative flex flex-wrap items-center gap-x-5 gap-y-4 overflow-hidden',
-        'rounded-xl3 bg-paper px-5 py-4 shadow-soft',
+        // shrink-0: inside a scrolling <ListView fill> these are flex children,
+        // and flex would otherwise squash them all to fit rather than letting
+        // the container scroll.
+        'shrink-0 rounded-xl3 bg-paper px-5 py-4 shadow-soft',
         'transition-shadow duration-200 ease-smooth',
         onOpen && 'hover:shadow-card',
       )}

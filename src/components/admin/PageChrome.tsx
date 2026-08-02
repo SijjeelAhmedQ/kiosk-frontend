@@ -80,7 +80,23 @@ export function AlertBanner({ message, tone = 'error', onDismiss }: AlertBannerP
   );
 }
 
-/** The padded column every admin page lives in. */
-export function PageBody({ children }: { children: ReactNode }) {
-  return <div className="mx-auto w-full max-w-[1200px] px-8 py-7">{children}</div>;
+/**
+ * The padded column every admin page lives in.
+ *
+ * `fill` pins it to the viewport instead of letting it grow: the page itself
+ * then never scrolls, and one child inside it is expected to claim the leftover
+ * height and scroll on its own. Everything else has to be marked `shrink-0`, or
+ * flex will squeeze the header to make room.
+ */
+export function PageBody({ children, fill }: { children: ReactNode; fill?: boolean }) {
+  return (
+    <div
+      className={cn(
+        'mx-auto w-full max-w-[1200px] px-8 py-7',
+        fill && 'flex h-full min-h-0 flex-col overflow-hidden',
+      )}
+    >
+      {children}
+    </div>
+  );
 }

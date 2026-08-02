@@ -110,52 +110,58 @@ export default function CouponListPage() {
   const filtered = Boolean(debouncedSearch || campaignId || status || type || range.from || range.to);
 
   return (
-    <PageBody>
-      <PageHeader
-        title="Coupons"
-        subtitle="Every code issued, and what is left on it. Codes are matched from the start, so typing the prefix is enough."
-      />
+    <PageBody fill>
+      {/* This is the busiest chrome of the four screens — four figures, a
+          search box and five controls. It holds its height and the list takes
+          what is left, which is why the filters are one row rather than two. */}
+      <div className="shrink-0">
+        <PageHeader
+          title="Coupons"
+          subtitle="Every code issued, and what is left on it. Codes are matched from the start, so typing the prefix is enough."
+        />
 
-      <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
+        <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
 
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Coupons" value={String(total)} />
-        <Stat label="Issued value" value={formatCurrency(issuedValue)} />
-        <Stat label="Redeemed" value={formatCurrency(redeemedValue)} tone="text-leaf" />
-        <Stat label="Outstanding" value={formatCurrency(remainingValue)} tone="text-amber-dark" />
-      </div>
+        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Stat label="Coupons" value={String(total)} />
+          <Stat label="Issued value" value={formatCurrency(issuedValue)} />
+          <Stat label="Redeemed" value={formatCurrency(redeemedValue)} tone="text-leaf" />
+          <Stat label="Outstanding" value={formatCurrency(remainingValue)} tone="text-amber-dark" />
+        </div>
 
-      <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
-        <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
+        <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
+          <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Field label="Campaign">
-            <Select value={campaignId} onChange={setCampaignId} options={campaignOptions} />
-          </Field>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Field label="Campaign">
+              <Select value={campaignId} onChange={setCampaignId} options={campaignOptions} />
+            </Field>
 
-          <Field label="Status">
-            <Select<CouponStatus | ''>
-              value={status}
-              onChange={setStatus}
-              options={STATUS_OPTIONS}
+            <Field label="Status">
+              <Select<CouponStatus | ''>
+                value={status}
+                onChange={setStatus}
+                options={STATUS_OPTIONS}
+              />
+            </Field>
+
+            <Field label="Type">
+              <Select<CouponType | ''> value={type} onChange={setType} options={TYPE_OPTIONS} />
+            </Field>
+
+            <DateRangeFilter
+              from={range.from}
+              to={range.to}
+              onChange={setRange}
+              fromLabel="Issued from"
+              toLabel="Issued to"
             />
-          </Field>
-
-          <Field label="Type">
-            <Select<CouponType | ''> value={type} onChange={setType} options={TYPE_OPTIONS} />
-          </Field>
-
-          <DateRangeFilter
-            from={range.from}
-            to={range.to}
-            onChange={setRange}
-            fromLabel="Issued from"
-            toLabel="Issued to"
-          />
+          </div>
         </div>
       </div>
 
       <ListView
+        fill
         rows={items}
         rowKey={(c) => c.couponId}
         loading={loading}
@@ -178,13 +184,15 @@ export default function CouponListPage() {
         }
       />
 
-      <Pagination
-        total={total}
-        limit={query.limit ?? COUPON_PAGE_SIZE}
-        offset={query.offset ?? 0}
-        onPageChange={(page) => dispatch(setCouponPage(page))}
-        noun="coupons"
-      />
+      <div className="shrink-0">
+        <Pagination
+          total={total}
+          limit={query.limit ?? COUPON_PAGE_SIZE}
+          offset={query.offset ?? 0}
+          onPageChange={(page) => dispatch(setCouponPage(page))}
+          noun="coupons"
+        />
+      </div>
     </PageBody>
   );
 }
