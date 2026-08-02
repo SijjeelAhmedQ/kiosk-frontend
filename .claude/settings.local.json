@@ -72,7 +72,8 @@
       "Bash(rm -rf node_modules/.vite)",
       "Bash(curl -s -o /dev/null -w \"vite=%{http_code}\\\\n\" \"http://127.0.0.1:5174/admin/coupons\")",
       "Bash(grep -iv \"^$\")",
-      "Bash(curl -s -o /dev/null -w \"vite5175=%{http_code}\\\\n\" \"http://127.0.0.1:5175/admin/coupons\")"
+      "Bash(curl -s -o /dev/null -w \"vite5175=%{http_code}\\\\n\" \"http://127.0.0.1:5175/admin/coupons\")",
+      "PowerShell(cd \"D:\\\\other apps\\\\kiosk-backend\"; foreach \\($f in @\\(\"sql\\\\06_coupons_schema.sql\",\"sql\\\\07_coupons_procedures.sql\"\\)\\) { sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -b -I -i $f | Select-Object -Last 2; \"  -> $f exit=$LASTEXITCODE\" })"
     ]
   }
 }
