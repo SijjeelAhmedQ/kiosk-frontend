@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { Campaign, Coupon, CouponStatus, CouponType } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -16,6 +16,7 @@ import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
   type Column,
+  CopyButton,
   CouponStatusBadge,
   CouponTypeBadge,
   DataTable,
@@ -26,6 +27,7 @@ import {
   Pagination,
   Select,
   Stat,
+  type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
 import {
@@ -36,6 +38,19 @@ import {
   spentFraction,
 } from '@/utils/couponDisplay';
 import { ADMIN_PATHS } from '@/routes/paths';
+
+/* '' is a real option in these lists, not a placeholder — it is the value the
+   filters carry when nothing is selected, and what the query reads as "any". */
+const STATUS_OPTIONS: SelectOption<CouponStatus | ''>[] = [
+  { value: '', label: 'Any status' },
+  ...COUPON_STATUSES.map((s) => ({ value: s, label: COUPON_STATUS_STYLES[s].label })),
+];
+
+const TYPE_OPTIONS: SelectOption<CouponType | ''>[] = [
+  { value: '', label: 'Any type' },
+  { value: 'product', label: 'Product' },
+  { value: 'value', label: 'Value' },
+];
 
 export default function CouponListPage() {
   const navigate = useNavigate();
@@ -65,6 +80,14 @@ export default function CouponListPage() {
     return () => { cancelled = true; };
   }, []);
 
+  const campaignOptions = useMemo<SelectOption<string>[]>(
+    () => [
+      { value: '', label: 'All campaigns' },
+      ...campaigns.map((c) => ({ value: String(c.campaignId), label: c.name })),
+    ],
+    [campaigns],
+  );
+
   useEffect(() => {
     dispatch(
       setCouponQuery({
@@ -89,9 +112,12 @@ export default function CouponListPage() {
       key: 'code',
       header: 'Code',
       render: (c) => (
-        <div className="min-w-0">
-          <code className="font-mono text-sm font-semibold text-ink">{c.couponCode}</code>
-          <p className="mt-0.5 truncate text-xs text-ash">{c.campaignName}</p>
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="min-w-0">
+            <code className="font-mono text-sm font-semibold text-ink">{c.couponCode}</code>
+            <p className="mt-0.5 truncate text-xs text-ash">{c.campaignName}</p>
+          </div>
+          <CopyButton value={c.couponCode} label="coupon code" />
         </div>
       ),
     },
@@ -134,66 +160,57 @@ export default function CouponListPage() {
   ];
 
   return (
-    <PageBody>
-      <PageHeader
-        title="Coupons"
-        subtitle="Every code issued, and what is left on it. Codes are matched from the start, so typing the prefix is enough."
-      />
+    <PageBody fill>
+      {/* Everything above the table keeps its height; the table absorbs the
+          rest and scrolls, so the page itself never does. */}
+      <div className="shrink-0">
+        <PageHeader
+          title="Coupons"
+          subtitle="Every code issued, and what is left on it. Codes are matched from the start, so typing the prefix is enough."
+        />
 
-      <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
+        <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
 
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Coupons" value={String(total)} />
-        <Stat label="Issued value" value={formatCurrency(issuedValue)} />
-        <Stat label="Redeemed" value={formatCurrency(redeemedValue)} tone="text-leaf" />
-        <Stat label="Outstanding" value={formatCurrency(remainingValue)} tone="text-amber-dark" />
-      </div>
+        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Stat label="Coupons" value={String(total)} />
+          <Stat label="Issued value" value={formatCurrency(issuedValue)} />
+          <Stat label="Redeemed" value={formatCurrency(redeemedValue)} tone="text-leaf" />
+          <Stat label="Outstanding" value={formatCurrency(remainingValue)} tone="text-amber-dark" />
+        </div>
 
-      <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
-        <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
+        <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
+          <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Field label="Campaign">
-            <Select value={campaignId} onChange={(e) => setCampaignId(e.target.value)}>
-              <option value="">All campaigns</option>
-              {campaigns.map((c) => (
-                <option key={c.campaignId} value={c.campaignId}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Field label="Campaign">
+              <Select value={campaignId} onChange={setCampaignId} options={campaignOptions} />
+            </Field>
 
-          <Field label="Status">
-            <Select value={status} onChange={(e) => setStatus(e.target.value as CouponStatus | '')}>
-              <option value="">Any status</option>
-              {COUPON_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {COUPON_STATUS_STYLES[s].label}
-                </option>
-              ))}
-            </Select>
-          </Field>
+            <Field label="Status">
+              <Select<CouponStatus | ''>
+                value={status}
+                onChange={setStatus}
+                options={STATUS_OPTIONS}
+              />
+            </Field>
 
-          <Field label="Type">
-            <Select value={type} onChange={(e) => setType(e.target.value as CouponType | '')}>
-              <option value="">Any type</option>
-              <option value="product">Product</option>
-              <option value="value">Value</option>
-            </Select>
-          </Field>
+            <Field label="Type">
+              <Select<CouponType | ''> value={type} onChange={setType} options={TYPE_OPTIONS} />
+            </Field>
 
-          <DateRangeFilter
-            from={range.from}
-            to={range.to}
-            onChange={setRange}
-            fromLabel="Issued from"
-            toLabel="Issued to"
-          />
+            <DateRangeFilter
+              from={range.from}
+              to={range.to}
+              onChange={setRange}
+              fromLabel="Issued from"
+              toLabel="Issued to"
+            />
+          </div>
         </div>
       </div>
 
       <DataTable
+        fill
         columns={columns}
         rows={items}
         rowKey={(c) => c.couponId}
@@ -212,13 +229,15 @@ export default function CouponListPage() {
         }
       />
 
-      <Pagination
-        total={total}
-        limit={query.limit ?? COUPON_PAGE_SIZE}
-        offset={query.offset ?? 0}
-        onPageChange={(page) => dispatch(setCouponPage(page))}
-        noun="coupons"
-      />
+      <div className="shrink-0">
+        <Pagination
+          total={total}
+          limit={query.limit ?? COUPON_PAGE_SIZE}
+          offset={query.offset ?? 0}
+          onPageChange={(page) => dispatch(setCouponPage(page))}
+          noun="coupons"
+        />
+      </div>
     </PageBody>
   );
 }

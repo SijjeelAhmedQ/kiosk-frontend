@@ -14,6 +14,7 @@ import { Spinner } from '@/components/common/LoadingScreen';
 import {
   AlertBanner,
   CampaignStateBadge,
+  DateInput,
   Field,
   PageBody,
   PageHeader,
@@ -22,6 +23,7 @@ import {
   TextArea,
   TextInput,
   Toggle,
+  type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
 import { isoDaysFromToday, todayIso } from '@/utils/couponDisplay';
@@ -46,6 +48,11 @@ const blankForm: FormState = {
 };
 
 type Errors = Partial<Record<keyof FormState, string>>;
+
+const COUPON_TYPE_OPTIONS: SelectOption<CouponType>[] = [
+  { value: 'value', label: 'Value — a spendable balance' },
+  { value: 'product', label: 'Product — one free item' },
+];
 
 /**
  * Create and edit share this page because the two forms are the same form —
@@ -219,24 +226,22 @@ export default function CampaignFormPage() {
               : 'Product coupons give away one menu item. Value coupons carry a spendable balance.'
           }
         >
-          <Select
+          <Select<CouponType>
             value={form.couponType}
             disabled={typeLocked}
-            onChange={(e) => update('couponType', e.target.value as CouponType)}
-          >
-            <option value="value">Value — a spendable balance</option>
-            <option value="product">Product — one free item</option>
-          </Select>
+            onChange={(value) => update('couponType', value)}
+            options={COUPON_TYPE_OPTIONS}
+          />
         </Field>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Starts" required error={errors.startDate}>
-            <TextInput
-              type="date"
+            <DateInput
               value={form.startDate}
               max={form.expiryDate || undefined}
+              allowClear={false}
               invalid={Boolean(errors.startDate)}
-              onChange={(e) => update('startDate', e.target.value)}
+              onChange={(value) => update('startDate', value)}
             />
           </Field>
 
@@ -250,12 +255,12 @@ export default function CampaignFormPage() {
                 : 'Coupons in this campaign can never outlive this date.'
             }
           >
-            <TextInput
-              type="date"
+            <DateInput
               value={form.expiryDate}
               min={form.startDate || undefined}
+              allowClear={false}
               invalid={Boolean(errors.expiryDate)}
-              onChange={(e) => update('expiryDate', e.target.value)}
+              onChange={(value) => update('expiryDate', value)}
             />
           </Field>
         </div>

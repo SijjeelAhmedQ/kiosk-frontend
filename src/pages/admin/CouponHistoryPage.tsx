@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Campaign, CouponHistoryItem } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -25,6 +25,7 @@ import {
   Pagination,
   Select,
   Stat,
+  type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
 import { formatWhen } from '@/utils/orderDisplay';
@@ -57,6 +58,14 @@ export default function CouponHistoryPage() {
       .catch(() => { /* the filter stays empty; the log still loads */ });
     return () => { cancelled = true; };
   }, []);
+
+  const campaignOptions = useMemo<SelectOption<string>[]>(
+    () => [
+      { value: '', label: 'All campaigns' },
+      ...campaigns.map((c) => ({ value: String(c.campaignId), label: c.name })),
+    ],
+    [campaigns],
+  );
 
   useEffect(() => {
     dispatch(
@@ -160,14 +169,7 @@ export default function CouponHistoryPage() {
         <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field label="Campaign">
-            <Select value={campaignId} onChange={(e) => setCampaignId(e.target.value)}>
-              <option value="">All campaigns</option>
-              {campaigns.map((c) => (
-                <option key={c.campaignId} value={c.campaignId}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
+            <Select value={campaignId} onChange={setCampaignId} options={campaignOptions} />
           </Field>
           <div className="sm:col-span-2">
             <DateRangeFilter

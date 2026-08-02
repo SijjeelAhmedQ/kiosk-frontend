@@ -14,12 +14,14 @@ import { Spinner } from '@/components/common/LoadingScreen';
 import {
   AlertBanner,
   CouponTypeBadge,
+  DateInput,
   Field,
   PageBody,
   PageHeader,
   Select,
   Stat,
   TextInput,
+  type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
 import { formatDay } from '@/utils/couponDisplay';
@@ -68,8 +70,14 @@ export default function GenerateCouponsPage() {
     if (current && !expiryDate) setExpiryDate(current.expiryDate);
   }, [current, expiryDate]);
 
-  const sortedProducts = useMemo(
-    () => [...products].sort((a, b) => a.name.localeCompare(b.name)),
+  const productOptions = useMemo<SelectOption<string>[]>(
+    () =>
+      [...products]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((product) => ({
+          value: String(product.id),
+          label: `${product.name} — ${formatCurrency(product.price)}`,
+        })),
     [products],
   );
 
@@ -187,15 +195,9 @@ export default function GenerateCouponsPage() {
               <Select
                 value={productId}
                 invalid={Boolean(errors.productId)}
-                onChange={(e) => setProductId(e.target.value)}
-              >
-                <option value="">Choose an item…</option>
-                {sortedProducts.map((product) => (
-                  <option key={product.id} value={product.id}>
-                    {product.name} — {formatCurrency(product.price)}
-                  </option>
-                ))}
-              </Select>
+                onChange={setProductId}
+                options={[{ value: '', label: 'Choose an item…' }, ...productOptions]}
+              />
             </Field>
           ) : (
             <Field
@@ -228,12 +230,11 @@ export default function GenerateCouponsPage() {
               error={errors.expiryDate}
               hint={`Cannot be later than ${current.expiryDate}.`}
             >
-              <TextInput
-                type="date"
+              <DateInput
                 value={expiryDate}
                 max={current.expiryDate}
                 invalid={Boolean(errors.expiryDate)}
-                onChange={(e) => setExpiryDate(e.target.value)}
+                onChange={setExpiryDate}
               />
             </Field>
 

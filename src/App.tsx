@@ -1,5 +1,8 @@
 import { BrowserRouter, useNavigate, useLocation } from 'react-router-dom';
+import { ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
 import { AppRoutes } from '@/routes/AppRoutes';
+import { adminTheme } from '@/theme/antdTheme';
 import { useIdleTimer } from '@/hooks/useIdleTimer';
 import { useAppDispatch } from '@/redux/hooks';
 import { resetSession } from '@/redux/slices/settingsSlice';
@@ -34,11 +37,15 @@ function IdleReset() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <div className="mx-auto h-screen w-screen max-w-[1920px] overflow-hidden">
-        <IdleReset />
-        <AppRoutes />
-      </div>
-    </BrowserRouter>
+    // antd is themed once, at the root: the kiosk screens don't use it today,
+    // but anything that later does inherits the same palette as the back office.
+    <ConfigProvider theme={adminTheme} locale={enUS}>
+      <BrowserRouter>
+        <div className="mx-auto h-screen w-screen max-w-[1920px] overflow-hidden">
+          <IdleReset />
+          <AppRoutes />
+        </div>
+      </BrowserRouter>
+    </ConfigProvider>
   );
 }

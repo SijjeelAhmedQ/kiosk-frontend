@@ -1,20 +1,38 @@
-import { type ReactNode, type SelectHTMLAttributes, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
+import dayjs from 'dayjs';
+import { DatePicker, Input, Select as AntSelect, Switch, type InputProps } from 'antd';
+import type { TextAreaProps } from 'antd/es/input';
 import { cn } from '@/utils/cn';
 
 /**
  * Form controls for the back office.
  *
- * Deliberately smaller than the kiosk's controls: those are sized for a finger
- * on a 32" screen, these are for a keyboard and mouse. Same palette and radius,
- * so the two still read as one product.
+ * These are antd controls underneath — Select and DatePicker in particular are
+ * not worth hand-rolling — but every one of them is themed to the kiosk palette
+ * in src/theme/antdTheme.ts, so the fields look exactly as they did: cream fill,
+ * no border, white and lifted on focus.
+ *
+ * They stay deliberately smaller than the kiosk's own controls: those are sized
+ * for a finger on a 32" screen, these are for a keyboard and mouse.
  */
 
-const fieldBase =
-  'w-full rounded-2xl bg-cream px-4 py-3 font-sans text-sm text-charcoal outline-none ' +
-  'transition-all duration-150 placeholder:text-ash ' +
-  'focus:bg-paper focus:shadow-card disabled:opacity-50 disabled:cursor-not-allowed';
+/** antd's `filled` variant is the one that matches the kiosk fields. */
+const VARIANT = 'filled' as const;
 
-const invalid = 'ring-2 ring-flame/40';
+const ISO = 'YYYY-MM-DD';
+
+/**
+ * Field can't wrap its child in a <label>: antd's Select and DatePicker put a
+ * real <input> inside, and a label click forwards a second click to it, which
+ * opens and immediately closes the popup. So the label text is announced
+ * through context instead, and each control adopts it as its aria-label.
+ */
+const FieldLabelContext = createContext<string | undefined>(undefined);
+
+function useFieldLabel(explicit?: string) {
+  const inherited = useContext(FieldLabelContext);
+  return explicit ?? inherited;
+}
 
 interface FieldProps {
   label: string;
@@ -29,49 +47,158 @@ interface FieldProps {
 
 export function Field({ label, hint, error, required, children, className }: FieldProps) {
   return (
-    <label className={cn('flex flex-col gap-2', className)}>
+    <div className={cn('flex flex-col gap-2', className)}>
       <span className="font-display text-xs font-bold uppercase tracking-[0.08em] text-ash">
         {label}
         {required && <span className="ml-1 text-flame">*</span>}
       </span>
-      {children}
+      <FieldLabelContext.Provider value={label}>{children}</FieldLabelContext.Provider>
       {error ? (
         <span className="text-xs font-medium text-flame">{error}</span>
       ) : hint ? (
         <span className="text-xs text-ash">{hint}</span>
       ) : null}
-    </label>
+    </div>
   );
 }
 
 export function TextInput({
-  invalid: isInvalid,
+  invalid,
   className,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }) {
-  return <input className={cn(fieldBase, isInvalid && invalid, className)} {...rest} />;
-}
-
-export function TextArea({
-  invalid: isInvalid,
-  className,
-  ...rest
-}: TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean }) {
+}: Omit<InputProps, 'variant' | 'status'> & { invalid?: boolean }) {
+  const ariaLabel = useFieldLabel(rest['aria-label']);
   return (
-    <textarea rows={3} className={cn(fieldBase, 'resize-y', isInvalid && invalid, className)} {...rest} />
+    <Input
+      {...rest}
+      aria-label={ariaLabel}
+      variant={VARIANT}
+      status={invalid ? 'error' : undefined}
+      className={cn('w-full', className)}
+    />
   );
 }
 
-export function Select({
-  invalid: isInvalid,
+export function TextArea({
+  invalid,
   className,
-  children,
   ...rest
-}: SelectHTMLAttributes<HTMLSelectElement> & { invalid?: boolean }) {
+}: Omit<TextAreaProps, 'variant' | 'status'> & { invalid?: boolean }) {
+  const ariaLabel = useFieldLabel(rest['aria-label']);
   return (
-    <select className={cn(fieldBase, 'cursor-pointer pr-10', isInvalid && invalid, className)} {...rest}>
-      {children}
-    </select>
+    <Input.TextArea
+      rows={3}
+      {...rest}
+      aria-label={ariaLabel}
+      variant={VARIANT}
+      status={invalid ? 'error' : undefined}
+      className={cn('w-full', className)}
+    />
+  );
+}
+
+export interface SelectOption<T extends string> {
+  value: T;
+  label: ReactNode;
+  disabled?: boolean;
+}
+
+interface SelectProps<T extends string> {
+  value: T;
+  onChange: (value: T) => void;
+  options: SelectOption<T>[];
+  placeholder?: string;
+  disabled?: boolean;
+  invalid?: boolean;
+  className?: string;
+  'aria-label'?: string;
+}
+
+/**
+ * Options come in as a prop rather than as children — antd deprecated the
+ * <Option> child form, and a plain array is easier to build from the API lists
+ * these filters are populated from anyway.
+ */
+export function Select<T extends string>({
+  value,
+  onChange,
+  options,
+  placeholder,
+  disabled,
+  invalid,
+  className,
+  ...rest
+}: SelectProps<T>) {
+  const ariaLabel = useFieldLabel(rest['aria-label']);
+  return (
+    <AntSelect<T>
+      value={value}
+      onChange={onChange}
+      options={options}
+      placeholder={placeholder}
+      disabled={disabled}
+      variant={VARIANT}
+      status={invalid ? 'error' : undefined}
+      aria-label={ariaLabel}
+      className={cn('w-full', className)}
+    />
+  );
+}
+
+interface DateInputProps {
+  /** ISO day, `YYYY-MM-DD`. Empty string means no date. */
+  value?: string;
+  onChange: (value: string) => void;
+  /** Inclusive bounds — days outside them can't be picked. */
+  min?: string;
+  max?: string;
+  disabled?: boolean;
+  invalid?: boolean;
+  /** Off for required fields, where clearing only creates an error to fix. */
+  allowClear?: boolean;
+  className?: string;
+  'aria-label'?: string;
+}
+
+/**
+ * A single day, as an ISO string in and out — the shape the API and the redux
+ * slices already use, so nothing outside this file has to know about dayjs.
+ *
+ * Shown as YYYY-MM-DD rather than the browser's locale format, because the
+ * hints beside these fields quote ISO dates back at you.
+ */
+export function DateInput({
+  value,
+  onChange,
+  min,
+  max,
+  disabled,
+  invalid,
+  allowClear = true,
+  className,
+  ...rest
+}: DateInputProps) {
+  const ariaLabel = useFieldLabel(rest['aria-label']);
+  return (
+    <DatePicker
+      value={value ? dayjs(value) : null}
+      onChange={(day) => onChange(day ? day.format(ISO) : '')}
+      disabledDate={
+        min || max
+          ? (day) =>
+              Boolean(min && day.isBefore(dayjs(min), 'day')) ||
+              Boolean(max && day.isAfter(dayjs(max), 'day'))
+          : undefined
+      }
+      format={ISO}
+      placeholder={ISO.toLowerCase()}
+      disabled={disabled}
+      allowClear={allowClear}
+      variant={VARIANT}
+      status={invalid ? 'error' : undefined}
+      aria-label={ariaLabel}
+      className={cn('w-full', className)}
+    />
   );
 }
 
@@ -83,7 +210,7 @@ interface ToggleProps {
   disabled?: boolean;
 }
 
-/** The active/inactive switch. A checkbox underneath, so it is keyboard-reachable. */
+/** The active/inactive switch. Wrapped in a label, so the whole row is a target. */
 export function Toggle({ checked, onChange, label, hint, disabled }: ToggleProps) {
   return (
     <label
@@ -97,29 +224,7 @@ export function Toggle({ checked, onChange, label, hint, disabled }: ToggleProps
         {hint && <span className="mt-0.5 text-xs text-ash">{hint}</span>}
       </span>
 
-      <span className="relative shrink-0">
-        <input
-          type="checkbox"
-          className="peer sr-only"
-          checked={checked}
-          disabled={disabled}
-          onChange={(e) => onChange(e.target.checked)}
-        />
-        <span
-          className={cn(
-            'block h-7 w-12 rounded-full transition-colors duration-200',
-            'peer-focus-visible:ring-4 peer-focus-visible:ring-ink/20',
-            checked ? 'bg-leaf' : 'bg-ash/40',
-          )}
-        />
-        <span
-          className={cn(
-            'absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-soft',
-            'transition-transform duration-200 ease-smooth',
-            checked && 'translate-x-5',
-          )}
-        />
-      </span>
+      <Switch checked={checked} disabled={disabled} onChange={onChange} aria-label={label} />
     </label>
   );
 }
@@ -133,7 +238,7 @@ interface DateRangeFilterProps {
 }
 
 /**
- * A pair of date inputs. Either end can be left empty, which the API reads as
+ * A pair of date pickers. Either end can be left empty, which the API reads as
  * "unbounded on that side" — so "everything before March" needs no start date.
  */
 export function DateRangeFilter({
@@ -146,19 +251,17 @@ export function DateRangeFilter({
   return (
     <div className="grid grid-cols-2 gap-3">
       <Field label={fromLabel}>
-        <TextInput
-          type="date"
-          value={from ?? ''}
-          max={to || undefined}
-          onChange={(e) => onChange({ from: e.target.value || undefined, to })}
+        <DateInput
+          value={from}
+          max={to}
+          onChange={(value) => onChange({ from: value || undefined, to })}
         />
       </Field>
       <Field label={toLabel}>
-        <TextInput
-          type="date"
-          value={to ?? ''}
-          min={from || undefined}
-          onChange={(e) => onChange({ from, to: e.target.value || undefined })}
+        <DateInput
+          value={to}
+          min={from}
+          onChange={(value) => onChange({ from, to: value || undefined })}
         />
       </Field>
     </div>

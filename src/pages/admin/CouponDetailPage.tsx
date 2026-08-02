@@ -14,6 +14,7 @@ import { Spinner } from '@/components/common/LoadingScreen';
 import {
   AlertBanner,
   type Column,
+  CopyButton,
   CouponStatusBadge,
   CouponTypeBadge,
   DataTable,
@@ -159,6 +160,7 @@ export default function CouponDetailPage() {
         backTo={ADMIN_PATHS.coupons}
         actions={
           <>
+            <CopyButton value={current.couponCode} label="coupon code" />
             <CouponTypeBadge type={current.couponType} />
             <CouponStatusBadge status={current.status} />
             {cancellable && (

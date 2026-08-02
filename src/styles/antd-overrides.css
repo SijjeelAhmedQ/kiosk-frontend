@@ -1,0 +1,81 @@
+/*
+ * The handful of antd details that no theme token can reach.
+ *
+ * Everything else lives in src/theme/antdTheme.ts — only add here when a value
+ * genuinely has no token. `!important` is deliberate: antd injects its styles
+ * at render time, which lands them after this sheet in the document.
+ */
+
+/* --- Fields ------------------------------------------------------------- */
+
+/* focus:shadow-card. antd's filled variant swaps the background on focus but
+   never lifts the field, which is the whole point of the old treatment. */
+.ant-input-filled:focus,
+.ant-input-filled:focus-within,
+.ant-picker-filled.ant-picker-focused,
+.ant-select-filled.ant-select-focused {
+  box-shadow: 0 2px 6px rgba(13, 13, 15, 0.04), 0 10px 28px rgba(13, 13, 15, 0.06) !important;
+}
+
+/* ring-2 ring-flame/40 — shown the whole time a field is invalid, not just
+   while it has focus, so a form full of errors reads at a glance. */
+.ant-input-filled.ant-input-status-error,
+.ant-picker-filled.ant-picker-status-error,
+.ant-select-filled.ant-select-status-error {
+  box-shadow: 0 0 0 2px rgba(218, 41, 28, 0.4) !important;
+}
+
+/* --- Table -------------------------------------------------------------- */
+
+/* The card's rounded edge closes the list; a hairline under the last row
+   would sit floating just above it. */
+.admin-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: 0 !important;
+}
+
+/* border-mist/60 between rows, full-strength mist under the header. */
+.admin-table .ant-table-tbody > tr > td {
+  border-bottom-color: rgba(233, 233, 238, 0.6) !important;
+}
+
+/* Below this the columns stop being readable, so the card scrolls sideways
+   rather than the page going wide. */
+.admin-table .ant-table table {
+  min-width: 720px;
+}
+
+/* antd draws its own surface; ours is the card this table sits in. */
+.admin-table .ant-table {
+  background: transparent !important;
+}
+
+/* A table that owns the page's height keeps its header in view while the rows
+   move under it. Done with position:sticky on a single table rather than
+   antd's scroll={{ y }}, which splits the header into a second table and then
+   needs every column pinned to an explicit width to stay lined up. */
+/* The card is the scroll container, so nothing between it and the header may
+   clip or scroll — a sticky cell anchors to the nearest scrolling ancestor. */
+.admin-table--sticky .ant-table,
+.admin-table--sticky .ant-table-container,
+.admin-table--sticky .ant-table-content {
+  overflow: visible;
+}
+
+.admin-table--sticky .ant-table-thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  /* The theme leaves headers transparent; a sticky one has rows behind it. */
+  background: #ffffff !important;
+}
+
+/* --- Pagination --------------------------------------------------------- */
+
+/* Page numbers read as numbers: same display face and tabular figures as the
+   row counts they sit beside. */
+.ant-pagination .ant-pagination-item a,
+.ant-pagination .ant-pagination-item-link {
+  font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

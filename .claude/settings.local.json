@@ -35,7 +35,15 @@
       "Bash(./.venv/Scripts/python.exe scripts/deploy_db.py)",
       "Bash(curl -s -X POST http://127.0.0.1:8014/api/v1/coupons/validate -H 'Content-Type: application/json' -d '{\"couponCode\":\"GIFT-DEMO01000\",\"orderAmount\":2109,\"allowPartial\":true}')",
       "Bash(python -c \"import json,sys; s=json.load\\(sys.stdin\\)['data']['summary']; print\\('5. receipt  -> ',s\\)\")",
-      "PowerShell(Get-Process *)"
+      "PowerShell(Get-Process *)",
+      "Bash(npm install *)",
+      "Bash(node -p \"require\\('./node_modules/antd/package.json'\\).version\")",
+      "Bash(node -e \"const p=require\\('./node_modules/antd/package.json'\\); console.log\\(JSON.stringify\\({main:p.main,module:p.module,types:p.types,peer:p.peerDependencies,deps:Object.keys\\(p.dependencies\\)},null,1\\)\\)\")",
+      "Bash(awk '/genFilledStyle|genBaseFilledStyle/,/^};/' input/style/variants.js)",
+      "Bash(awk '/genFilledStyle/,0' select/style/variants.js)",
+      "Bash(awk '/genFilledStyle/,0' date-picker/style/variants.js)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(grep -o \"\\\\.ant-table[^{,]*{[^}]*border-collapse:[a-z]*[^}]*}\" antd.css)"
     ]
   }
 }

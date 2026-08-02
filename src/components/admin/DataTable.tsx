@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react';
+import { ConfigProvider, Table, type TableColumnsType } from 'antd';
 import { cn } from '@/utils/cn';
 import { Spinner } from '@/components/common/LoadingScreen';
 
@@ -20,85 +21,94 @@ interface DataTableProps<T> {
   loading?: boolean;
   /** Shown instead of the table body when there are no rows. */
   empty?: ReactNode;
+  /**
+   * Claim the height left over by the rest of the page and scroll the rows
+   * inside it, with the header pinned. Needs an ancestor that constrains the
+   * height — <PageBody fill> is the one that does.
+   */
+  fill?: boolean;
 }
 
-const alignment = {
-  left: 'text-left',
-  right: 'text-right',
-  center: 'text-center',
-} as const;
-
 /**
- * The one table the back office uses.
+ * The one table the back office uses — antd's Table underneath, themed in
+ * src/theme/antdTheme.ts so it reads as the same plain list it always did.
  *
- * Kept deliberately plain — no sorting, no column resizing, no virtualisation.
+ * Still deliberately plain: no sorting, no column resizing, no virtualisation.
  * The lists it renders are server-paged at 10–15 rows, so none of that would do
- * anything except add ways for it to go wrong.
+ * anything except add ways for it to go wrong. Paging stays outside the table
+ * too, in <Pagination>, because it sits below the card rather than inside it.
+ *
+ * Loading and empty are handled here rather than by antd, so a first load shows
+ * the app's spinner and an empty list shows the page's own <EmptyState>.
  *
  * The table scrolls inside its own container rather than pushing the page wide,
  * which is what keeps a narrow window usable.
  */
-export function DataTable<T>({
+export function DataTable<T extends object>({
   columns,
   rows,
   rowKey,
   onRowClick,
   loading,
   empty,
+  fill,
 }: DataTableProps<T>) {
+  // The spinner and the empty state stand in for the table, so they have to
+  // take up the same room it would — otherwise a filled page jumps on reload.
+  const surface = cn('rounded-xl3 bg-paper shadow-soft', fill && 'min-h-0 flex-1');
+
   if (loading && rows.length === 0) {
     return (
-      <div className="flex min-h-[280px] items-center justify-center rounded-xl3 bg-paper shadow-soft">
+      <div className={cn('flex min-h-[280px] items-center justify-center', surface)}>
         <Spinner size={44} />
       </div>
     );
   }
 
   if (rows.length === 0) {
-    return <div className="rounded-xl3 bg-paper shadow-soft">{empty}</div>;
+    return <div className={surface}>{empty}</div>;
   }
 
+  const antColumns: TableColumnsType<T> = columns.map((col) => ({
+    key: col.key,
+    // The header's own typography lives on this span rather than on the <th>:
+    // antd's th rules are specific enough to beat a Tailwind class there.
+    title: (
+      <span className="font-display text-xs font-bold uppercase tracking-[0.08em] text-ash">
+        {col.header}
+      </span>
+    ),
+    align: col.align ?? 'left',
+    className: col.width,
+    render: (_: unknown, row: T) => col.render(row),
+  }));
+
   return (
-    <div className="overflow-x-auto rounded-xl3 bg-paper shadow-soft">
-      <table className="w-full min-w-[720px] border-collapse">
-        <thead>
-          <tr className="border-b border-mist">
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                className={cn(
-                  'whitespace-nowrap px-5 py-4 font-display text-xs font-bold uppercase tracking-[0.08em] text-ash',
-                  alignment[col.align ?? 'left'],
-                  col.width,
-                )}
-              >
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className={cn(loading && 'opacity-50 transition-opacity')}>
-          {rows.map((row) => (
-            <tr
-              key={rowKey(row)}
-              onClick={onRowClick ? () => onRowClick(row) : undefined}
-              className={cn(
-                'border-b border-mist/60 last:border-0 transition-colors duration-150',
-                onRowClick && 'cursor-pointer hover:bg-cream',
-              )}
-            >
-              {columns.map((col) => (
-                <td
-                  key={col.key}
-                  className={cn('px-5 py-4 text-sm text-charcoal', alignment[col.align ?? 'left'])}
-                >
-                  {col.render(row)}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div
+      className={cn(
+        'admin-table rounded-xl3 bg-paper shadow-soft',
+        // Sideways when it has to, both ways when it owns the page's height.
+        fill ? 'admin-table--sticky min-h-0 flex-1 overflow-auto' : 'overflow-x-auto',
+      )}
+    >
+      <ConfigProvider
+        // Rows only light up when there is somewhere to click through to.
+        theme={{ components: { Table: { rowHoverBg: onRowClick ? '#F4F4F7' : 'transparent' } } }}
+      >
+        <Table<T>
+          columns={antColumns}
+          dataSource={rows}
+          rowKey={rowKey}
+          pagination={false}
+          tableLayout="auto"
+          className={cn(loading && 'opacity-50 transition-opacity')}
+          onRow={
+            onRowClick
+              ? (row) => ({ onClick: () => onRowClick(row), className: 'cursor-pointer' })
+              : undefined
+          }
+        />
+      </ConfigProvider>
     </div>
   );
 }
