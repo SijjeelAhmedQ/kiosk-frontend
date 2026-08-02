@@ -39,7 +39,7 @@ export default function SplashPage() {
       {/* Staff entries — deliberately small and out of the customer's path. */}
       <div className="absolute right-6 top-6 z-20 flex gap-2">
         <button
-          onClick={() => navigate(PATHS.orders)}
+          onClick={() => navigate(ADMIN_PATHS.orders)}
           className="press rounded-full bg-white/10 px-5 py-3 font-display text-kiosk-xs font-bold text-white/60 transition-colors hover:bg-white/20 hover:text-white"
         >
           Orders

@@ -22,6 +22,7 @@ import {
   ListView,
   PageBody,
   PageHeader,
+  Pagination,
   RowTile,
   Select,
   Stat,
@@ -30,6 +31,8 @@ import {
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/utils/cn';
 import { ADMIN_PATHS } from '@/routes/paths';
+
+const PAGE_SIZE = 15;
 
 type ActiveFilter = '' | 'active' | 'hidden';
 
@@ -51,6 +54,11 @@ const BADGE_STYLES: Record<string, string> = {
  * Filtering happens on the server so the counts in the header are the truth
  * rather than whatever survived a local filter — the same reason the coupon
  * list pushes its filters into the query.
+ *
+ * Paging, unlike filtering, is local: the endpoint hands back the whole matching
+ * menu in one response and reports no total, so there is nothing to page against
+ * on the server. Cutting the rows here keeps the pager honest — it counts what
+ * the filters actually returned.
  */
 export default function ProductListPage() {
   const navigate = useNavigate();
@@ -65,6 +73,7 @@ export default function ProductListPage() {
   const debouncedSearch = useDebounce(search, 350);
   const [categoryId, setCategoryId] = useState(searchParams.get('categoryId') ?? '');
   const [active, setActive] = useState<ActiveFilter>('');
+  const [offset, setOffset] = useState(0);
   const [pendingDelete, setPendingDelete] = useState<ProductAdmin | null>(null);
 
   useEffect(() => {
@@ -80,6 +89,20 @@ export default function ProductListPage() {
       }),
     );
   }, [dispatch, categoryId, debouncedSearch, active]);
+
+  // Any filter change puts you back on the first page — page 4 of the old
+  // result set means nothing once the filter has moved.
+  useEffect(() => { setOffset(0); }, [categoryId, debouncedSearch, active]);
+
+  // Deleting or hiding the last row of the last page would otherwise leave you
+  // on a page that no longer exists, staring at nothing.
+  useEffect(() => {
+    if (offset > 0 && offset >= products.length) {
+      setOffset(Math.max(0, (Math.ceil(products.length / PAGE_SIZE) - 1) * PAGE_SIZE));
+    }
+  }, [products.length, offset]);
+
+  const paged = useMemo(() => products.slice(offset, offset + PAGE_SIZE), [products, offset]);
 
   const categoryOptions = useMemo<SelectOption<string>[]>(
     () => [
@@ -158,7 +181,7 @@ export default function ProductListPage() {
 
       <ListView
         fill
-        rows={products}
+        rows={paged}
         rowKey={(p) => p.id}
         loading={loadingProducts}
         renderRow={(p) => (
@@ -187,6 +210,15 @@ export default function ProductListPage() {
           />
         }
       />
+
+      <div className="shrink-0">
+        <Pagination
+          total={products.length}
+          limit={PAGE_SIZE}
+          offset={offset}
+          onPageChange={(page) => setOffset(page * PAGE_SIZE)}
+        />
+      </div>
 
       <Modal open={Boolean(pendingDelete)} size="md" onClose={() => setPendingDelete(null)}>
         <div className="flex flex-col gap-5 p-8">

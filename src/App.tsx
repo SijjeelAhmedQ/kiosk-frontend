@@ -17,11 +17,11 @@ function IdleReset() {
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  // Don't reset on splash, the payment/confirmation screens, or the staff
-  // history — and not anywhere in the back office, where someone reading a
-  // coupon list is working, not an abandoned customer.
+  // Don't reset on splash or the payment/confirmation screens — and not
+  // anywhere in the back office, where someone reading an order or a coupon
+  // list is working, not an abandoned customer.
   const enabled =
-    ![PATHS.splash, PATHS.payment, PATHS.complete, PATHS.orders].includes(location.pathname as never) &&
+    ![PATHS.splash, PATHS.payment, PATHS.complete].includes(location.pathname as never) &&
     !location.pathname.startsWith(ADMIN_PATHS.root);
 
   useIdleTimer(() => {

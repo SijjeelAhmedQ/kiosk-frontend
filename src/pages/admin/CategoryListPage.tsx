@@ -19,18 +19,26 @@ import {
   ListView,
   PageBody,
   PageHeader,
+  Pagination,
   RowTile,
   Stat,
 } from '@/components/admin';
 import { cn } from '@/utils/cn';
 import { ADMIN_PATHS } from '@/routes/paths';
 
+const PAGE_SIZE = 15;
+
 /**
  * The menu's sections.
  *
- * Unpaged on purpose: a restaurant has a handful of categories, and a pager
- * over six rows is furniture. The search box is here because the list doubles
- * as the place you check whether a section already exists before adding one.
+ * The search box is here because the list doubles as the place you check whether
+ * a section already exists before adding one.
+ *
+ * Paged locally: the endpoint returns every category in one response, so the
+ * cut is made here over the rows the search left behind. Most kitchens have a
+ * handful of sections and never see the pager at all — it draws nothing until
+ * there is a second page — but the long menus that do get one behave like every
+ * other list in the back office.
  */
 export default function CategoryListPage() {
   const navigate = useNavigate();
@@ -38,6 +46,7 @@ export default function CategoryListPage() {
   const { categories, loadingCategories, saving, error } = useAppSelector((s) => s.catalogAdmin);
 
   const [search, setSearch] = useState('');
+  const [offset, setOffset] = useState(0);
   const [pendingDelete, setPendingDelete] = useState<CategoryAdmin | null>(null);
 
   useEffect(() => {
@@ -49,6 +58,17 @@ export default function CategoryListPage() {
     if (!needle) return categories;
     return categories.filter((c) => c.name.toLowerCase().includes(needle) || c.id.includes(needle));
   }, [categories, search]);
+
+  // A new search starts at the top, and deleting the last row of the last page
+  // must not strand you on a page that no longer exists.
+  useEffect(() => { setOffset(0); }, [search]);
+  useEffect(() => {
+    if (offset > 0 && offset >= shown.length) {
+      setOffset(Math.max(0, (Math.ceil(shown.length / PAGE_SIZE) - 1) * PAGE_SIZE));
+    }
+  }, [shown.length, offset]);
+
+  const paged = useMemo(() => shown.slice(offset, offset + PAGE_SIZE), [shown, offset]);
 
   const activeCount = categories.filter((c) => c.isActive).length;
   const productCount = categories.reduce((sum, c) => sum + c.productCount, 0);
@@ -99,7 +119,7 @@ export default function CategoryListPage() {
 
       <ListView
         fill
-        rows={shown}
+        rows={paged}
         rowKey={(c) => c.id}
         loading={loadingCategories}
         renderRow={(c) => (
@@ -129,6 +149,15 @@ export default function CategoryListPage() {
           />
         }
       />
+
+      <div className="shrink-0">
+        <Pagination
+          total={shown.length}
+          limit={PAGE_SIZE}
+          offset={offset}
+          onPageChange={(page) => setOffset(page * PAGE_SIZE)}
+        />
+      </div>
 
       <Modal open={Boolean(pendingDelete)} size="md" onClose={() => setPendingDelete(null)}>
         <div className="flex flex-col gap-5 p-8">

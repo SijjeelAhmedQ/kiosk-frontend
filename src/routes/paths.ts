@@ -6,7 +6,6 @@ export const PATHS = {
   checkout: '/checkout',
   payment: '/payment',
   complete: '/complete',
-  orders: '/orders',        // staff-facing order history
 } as const;
 
 export type PathKey = keyof typeof PATHS;
@@ -17,6 +16,9 @@ export type PathKey = keyof typeof PATHS;
  */
 export const ADMIN_PATHS = {
   root: '/admin',
+
+  // What the kiosk has sold.
+  orders: '/admin/orders',
 
   // The menu.
   categories: '/admin/categories',

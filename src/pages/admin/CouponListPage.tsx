@@ -17,6 +17,7 @@ import {
   AlertBanner,
   CopyButton,
   CouponStatusBadge,
+  CouponTypeBadge,
   DateRangeFilter,
   Field,
   ListRow,
@@ -190,7 +191,6 @@ export default function CouponListPage() {
           limit={query.limit ?? COUPON_PAGE_SIZE}
           offset={query.offset ?? 0}
           onPageChange={(page) => dispatch(setCouponPage(page))}
-          noun="coupons"
         />
       </div>
     </PageBody>
@@ -219,6 +219,7 @@ function CouponCard({ coupon, onOpen }: { coupon: Coupon; onOpen: () => void }) 
             {coupon.couponCode}
           </code>
           <CopyButton value={coupon.couponCode} label="coupon code" />
+          <CouponTypeBadge type={coupon.couponType} />
           <CouponStatusBadge status={coupon.status} />
         </>
       }

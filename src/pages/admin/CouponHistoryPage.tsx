@@ -16,6 +16,7 @@ import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
   CopyButton,
+  CouponTypeBadge,
   DateRangeFilter,
   Field,
   ListRow,
@@ -154,7 +155,6 @@ export default function CouponHistoryPage() {
           limit={historyQuery.limit ?? COUPON_PAGE_SIZE}
           offset={historyQuery.offset ?? 0}
           onPageChange={(page) => dispatch(setHistoryPage(page))}
-          noun="redemptions"
         />
       </div>
     </PageBody>
@@ -181,6 +181,7 @@ function RedemptionCard({ item, onOpen }: { item: CouponHistoryItem; onOpen: () 
             {item.couponCode}
           </code>
           <CopyButton value={item.couponCode} label="coupon code" />
+          <CouponTypeBadge type={item.couponType} />
           {item.orderNumber && (
             <span className="rounded-full bg-cream px-3 py-1 font-mono text-xs font-bold text-charcoal">
               #{item.orderNumber}

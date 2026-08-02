@@ -11,7 +11,8 @@ import type {
 import { campaignApi } from '@/services/api/campaignApi';
 import { errorMessage } from '@/utils/apiError';
 
-export const CAMPAIGN_PAGE_SIZE = 10;
+/** 15, like every other list in the back office — one page length to learn. */
+export const CAMPAIGN_PAGE_SIZE = 15;
 
 interface CampaignsState {
   items: Campaign[];

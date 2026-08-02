@@ -12,9 +12,13 @@ import { ADMIN_PATHS, PATHS } from '@/routes/paths';
  * same product.
  */
 
-/* Two groups, because they are two jobs: keeping the menu right, and running
-   the promotions on top of it. Someone doing one is rarely doing the other. */
+/* Three groups, because they are three jobs: watching what sold, keeping the
+   menu right, and running the promotions on top of it. Orders leads — it is the
+   one opened every day, the others only when something changes. */
 const NAV = [
+  { group: 'Sales', items: [
+    { to: ADMIN_PATHS.orders, label: 'Orders', icon: '🧾' },
+  ] },
   { group: 'Menu', items: [
     { to: ADMIN_PATHS.products, label: 'Products', icon: '🍔' },
     { to: ADMIN_PATHS.categories, label: 'Categories', icon: '🗂️' },
@@ -61,15 +65,9 @@ export function AdminLayout() {
           ))}
         </nav>
 
+        {/* Order history used to sit down here, apart from the nav. It is a
+            list like the others now, so it lives with them. */}
         <div className="mt-auto flex flex-col gap-1 border-t border-mist p-3">
-          <button
-            type="button"
-            onClick={() => navigate(PATHS.orders)}
-            className="press flex items-center gap-3 rounded-2xl px-4 py-3 text-left font-display text-sm font-bold text-charcoal transition-colors hover:bg-cream"
-          >
-            <span className="text-base leading-none">🧾</span>
-            Order history
-          </button>
           <button
             type="button"
             onClick={() => navigate(PATHS.splash)}

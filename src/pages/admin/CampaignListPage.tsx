@@ -157,7 +157,6 @@ export default function CampaignListPage() {
           limit={query.limit ?? CAMPAIGN_PAGE_SIZE}
           offset={query.offset ?? 0}
           onPageChange={(page) => dispatch(setCampaignPage(page))}
-          noun="campaigns"
         />
       </div>
 

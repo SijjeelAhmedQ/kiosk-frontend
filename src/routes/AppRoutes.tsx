@@ -11,13 +11,13 @@ const CartPage = lazy(() => import('@/pages/CartPage'));
 const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'));
 const PaymentPage = lazy(() => import('@/pages/PaymentPage'));
 const OrderCompletePage = lazy(() => import('@/pages/OrderCompletePage'));
-const OrdersPage = lazy(() => import('@/pages/OrdersPage'));
 
 /* Back office. Lazy like everything else, so a customer ordering a burger never
    downloads the coupon admin. */
 const AdminLayout = lazy(() =>
   import('@/layouts/AdminLayout').then((m) => ({ default: m.AdminLayout })),
 );
+const OrderListPage = lazy(() => import('@/pages/admin/OrderListPage'));
 const CategoryListPage = lazy(() => import('@/pages/admin/CategoryListPage'));
 const CategoryFormPage = lazy(() => import('@/pages/admin/CategoryFormPage'));
 const ProductListPage = lazy(() => import('@/pages/admin/ProductListPage'));
@@ -47,12 +47,13 @@ export function AppRoutes() {
         <Route path={PATHS.checkout} element={<OrderTypeGuard><CheckoutPage /></OrderTypeGuard>} />
         <Route path={PATHS.payment} element={<OrderTypeGuard><PaymentPage /></OrderTypeGuard>} />
         <Route path={PATHS.complete} element={<OrderCompletePage />} />
-        <Route path={PATHS.orders} element={<OrdersPage />} />
 
         {/* Back office — its own layout, and no OrderTypeGuard: an admin has
             not chosen dine-in or take-away and should not be asked to. */}
         <Route path={ADMIN_PATHS.root} element={<AdminLayout />}>
-          <Route index element={<Navigate to={ADMIN_PATHS.products} replace />} />
+          <Route index element={<Navigate to={ADMIN_PATHS.orders} replace />} />
+
+          <Route path="orders" element={<OrderListPage />} />
 
           {/* The menu. "new" is declared before ":id", or a category could be
               called "new" and shadow the create form. */}
