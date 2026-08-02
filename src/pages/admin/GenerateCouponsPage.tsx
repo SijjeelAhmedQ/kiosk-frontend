@@ -14,7 +14,7 @@ import { Spinner } from '@/components/common/LoadingScreen';
 import {
   AlertBanner,
   CouponTypeBadge,
-  DateInput,
+  DateTimeInput,
   Field,
   PageBody,
   PageHeader,
@@ -24,7 +24,7 @@ import {
   type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
-import { formatDay } from '@/utils/couponDisplay';
+import { formatDayTime } from '@/utils/couponDisplay';
 import { ADMIN_PATHS } from '@/routes/paths';
 
 /** Handy round numbers, so the common cases are one tap. */
@@ -92,7 +92,7 @@ export default function GenerateCouponsPage() {
       next.amount = 'Give the coupon a value above zero.';
     }
     if (current && expiryDate && expiryDate > current.expiryDate) {
-      next.expiryDate = `The campaign ends on ${current.expiryDate}, so coupons cannot run past it.`;
+      next.expiryDate = `The campaign ends ${formatDayTime(current.expiryDate)}, so coupons cannot run past it.`;
     }
     if (codePrefix && !/^[A-Za-z0-9]+$/.test(codePrefix)) {
       next.codePrefix = 'Letters and digits only.';
@@ -148,7 +148,7 @@ export default function GenerateCouponsPage() {
         subtitle={
           <>
             for <span className="font-semibold text-charcoal">{current.name}</span> · runs{' '}
-            {formatDay(current.startDate)} → {formatDay(current.expiryDate)}
+            {formatDayTime(current.startDate)} → {formatDayTime(current.expiryDate)}
           </>
         }
         backTo={ADMIN_PATHS.campaignEdit(numericId)}
@@ -228,9 +228,9 @@ export default function GenerateCouponsPage() {
             <Field
               label="Expires"
               error={errors.expiryDate}
-              hint={`Cannot be later than ${current.expiryDate}.`}
+              hint={`Your local time. Cannot be later than ${formatDayTime(current.expiryDate)}.`}
             >
-              <DateInput
+              <DateTimeInput
                 value={expiryDate}
                 max={current.expiryDate}
                 invalid={Boolean(errors.expiryDate)}

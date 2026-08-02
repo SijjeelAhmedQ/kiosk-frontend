@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { DatePicker, Input, Select as AntSelect, Switch, type InputProps } from 'antd';
 import type { TextAreaProps } from 'antd/es/input';
 import { cn } from '@/utils/cn';
+import { toInstant } from '@/utils/couponDisplay';
 
 /**
  * Form controls for the back office.
@@ -20,6 +21,8 @@ import { cn } from '@/utils/cn';
 const VARIANT = 'filled' as const;
 
 const ISO = 'YYYY-MM-DD';
+/** dayjs tokens: 12-hour clock, lowercase am/pm — "5:00 pm". */
+const TIME = 'h:mm a';
 
 /**
  * Field can't wrap its child in a <label>: antd's Select and DatePicker put a
@@ -48,7 +51,8 @@ interface FieldProps {
 export function Field({ label, hint, error, required, children, className }: FieldProps) {
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <span className="font-display text-xs font-bold uppercase tracking-[0.08em] text-ash">
+      {/* Sentence case, not caps — these read as words, not as headings. */}
+      <span className="font-display text-xs font-bold tracking-[0.01em] text-ash">
         {label}
         {required && <span className="ml-1 text-flame">*</span>}
       </span>
@@ -192,6 +196,61 @@ export function DateInput({
       }
       format={ISO}
       placeholder={ISO.toLowerCase()}
+      disabled={disabled}
+      allowClear={allowClear}
+      variant={VARIANT}
+      status={invalid ? 'error' : undefined}
+      aria-label={ariaLabel}
+      className={cn('w-full', className)}
+    />
+  );
+}
+
+interface DateTimeInputProps extends Omit<DateInputProps, 'value' | 'onChange'> {
+  /** A UTC instant, `YYYY-MM-DDTHH:mm:ssZ`. Empty string means none. */
+  value?: string;
+  onChange: (value: string) => void;
+}
+
+/**
+ * A day *and* a time of day — campaign and coupon windows are instants, so a
+ * coupon can be good from 05:00 to 17:00 on one date.
+ *
+ * The admin picks in their own timezone and the value leaves as UTC, which is
+ * what the column stores. Seconds are zeroed and the string is cut to the
+ * API's exact shape so these values stay directly comparable — see toInstant.
+ */
+export function DateTimeInput({
+  value,
+  onChange,
+  min,
+  max,
+  disabled,
+  invalid,
+  allowClear = true,
+  className,
+  ...rest
+}: DateTimeInputProps) {
+  const ariaLabel = useFieldLabel(rest['aria-label']);
+  return (
+    <DatePicker
+      // 12-hour, with an am/pm column in the panel — the same way the times
+      // are written everywhere else on these screens.
+      showTime={{ format: TIME, use12Hours: true }}
+      format={`${ISO} ${TIME}`}
+      value={value ? dayjs(value) : null}
+      onChange={(day) => onChange(day ? toInstant(day.second(0).millisecond(0).toDate()) : '')}
+      // Day granularity only. The exact instant is checked by the form and by
+      // the database; disabling half a day's worth of minutes in the picker
+      // would buy very little for a lot of fiddly code.
+      disabledDate={
+        min || max
+          ? (day) =>
+              Boolean(min && day.isBefore(dayjs(min), 'day')) ||
+              Boolean(max && day.isAfter(dayjs(max), 'day'))
+          : undefined
+      }
+      placeholder={`${ISO.toLowerCase()} h:mm am`}
       disabled={disabled}
       allowClear={allowClear}
       variant={VARIANT}

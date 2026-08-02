@@ -74,7 +74,7 @@ export function DataTable<T extends object>({
     // The header's own typography lives on this span rather than on the <th>:
     // antd's th rules are specific enough to beat a Tailwind class there.
     title: (
-      <span className="font-display text-xs font-bold uppercase tracking-[0.08em] text-ash">
+      <span className="font-display text-xs font-bold tracking-[0.01em] text-ash">
         {col.header}
       </span>
     ),

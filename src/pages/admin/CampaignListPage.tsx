@@ -27,7 +27,7 @@ import {
 } from '@/components/admin';
 import { Modal } from '@/components/common/Modal';
 import { formatCurrency } from '@/utils/currency';
-import { formatDay } from '@/utils/couponDisplay';
+import { formatDayTime } from '@/utils/couponDisplay';
 import { cn } from '@/utils/cn';
 import { ADMIN_PATHS } from '@/routes/paths';
 
@@ -99,7 +99,7 @@ export default function CampaignListPage() {
       width: 'w-52',
       render: (c) => (
         <span className="whitespace-nowrap text-xs text-ash">
-          {formatDay(c.startDate)} → {formatDay(c.expiryDate)}
+          {formatDayTime(c.startDate)} → {formatDayTime(c.expiryDate)}
         </span>
       ),
     },

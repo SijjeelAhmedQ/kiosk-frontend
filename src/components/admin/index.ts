@@ -9,6 +9,7 @@ export {
   TextArea,
   Select,
   DateInput,
+  DateTimeInput,
   Toggle,
   DateRangeFilter,
   Stat,

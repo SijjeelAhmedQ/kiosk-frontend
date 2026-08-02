@@ -26,7 +26,7 @@ import {
 } from '@/components/admin';
 import { EmptyState } from '@/components/common/EmptyState';
 import { formatCurrency } from '@/utils/currency';
-import { formatDay, relativeDay, spentFraction } from '@/utils/couponDisplay';
+import { formatDayTime, relativeWhen, spentFraction } from '@/utils/couponDisplay';
 import { formatWhen } from '@/utils/orderDisplay';
 import { ADMIN_PATHS } from '@/routes/paths';
 
@@ -213,11 +213,11 @@ export default function CouponDetailPage() {
 
           <dl className="mt-2 flex flex-col gap-3 border-t border-mist pt-4 text-sm">
             <Row label="Expires">
-              {formatDay(current.expiryDate)}
-              <span className="ml-1.5 text-ash">({relativeDay(current.expiryDate)})</span>
+              {formatDayTime(current.expiryDate)}
+              <span className="ml-1.5 text-ash">({relativeWhen(current.expiryDate)})</span>
             </Row>
             <Row label="Campaign window">
-              {formatDay(current.campaignStartDate)} → {formatDay(current.campaignExpiryDate)}
+              {formatDayTime(current.campaignStartDate)} → {formatDayTime(current.campaignExpiryDate)}
             </Row>
             <Row label="Campaign active">{current.campaignIsActive ? 'Yes' : 'No'}</Row>
             <Row label="Times used">{current.redemptionCount}</Row>

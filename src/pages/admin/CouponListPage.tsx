@@ -33,8 +33,8 @@ import { formatCurrency } from '@/utils/currency';
 import {
   COUPON_STATUS_STYLES,
   COUPON_STATUSES,
-  formatDay,
-  relativeDay,
+  formatDayTime,
+  relativeWhen,
   spentFraction,
 } from '@/utils/couponDisplay';
 import { ADMIN_PATHS } from '@/routes/paths';
@@ -145,8 +145,8 @@ export default function CouponListPage() {
       width: 'w-44',
       render: (c) => (
         <span className="whitespace-nowrap text-xs text-ash">
-          {formatDay(c.expiryDate)}
-          <span className="ml-1.5 opacity-70">({relativeDay(c.expiryDate)})</span>
+          {formatDayTime(c.expiryDate)}
+          <span className="ml-1.5 opacity-70">({relativeWhen(c.expiryDate)})</span>
         </span>
       ),
     },

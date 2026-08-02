@@ -43,7 +43,14 @@
       "Bash(awk '/genFilledStyle/,0' select/style/variants.js)",
       "Bash(awk '/genFilledStyle/,0' date-picker/style/variants.js)",
       "Bash(echo \"EXIT=$?\")",
-      "Bash(grep -o \"\\\\.ant-table[^{,]*{[^}]*border-collapse:[a-z]*[^}]*}\" antd.css)"
+      "Bash(grep -o \"\\\\.ant-table[^{,]*{[^}]*border-collapse:[a-z]*[^}]*}\" antd.css)",
+      "Bash(grep -n \"@today\\\\|AS DATE\\)\\\\|DATE  *=\\\\|DATE,\\\\|DATE$\" sql/07_coupons_procedures.sql)",
+      "Bash(python -)",
+      "Bash(python -c ' *)",
+      "PowerShell($dir = \"C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\4e5d639c-8424-4fc5-b702-b4f7e2b623d7\\\\scratchpad\"; $bak = \"$dir\\\\FriendsKitchen_pre_datetime.bak\"; sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -b -Q \"BACKUP DATABASE FriendsKitchen TO DISK = N'$bak' WITH INIT, FORMAT, NAME = N'FriendsKitchen pre-datetime migration'\"; if \\($?\\) { Get-Item $bak | Select-Object FullName, @{n='MB';e={[math]::Round\\($_.Length/1MB,1\\)}} | Format-List })",
+      "PowerShell(sqlcmd *)",
+      "PowerShell($bak = \"C:\\\\Program Files\\\\Microsoft SQL Server\\\\MSSQL17.SQLEXPRESS\\\\MSSQL\\\\Backup\\\\FriendsKitchen_pre_datetime.bak\"; sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -b -Q \"BACKUP DATABASE FriendsKitchen TO DISK = N'$bak' WITH INIT, FORMAT, NAME = N'FriendsKitchen pre-datetime migration'\"; if \\($?\\) { Get-Item $bak | Select-Object FullName, @{n='MB';e={[math]::Round\\($_.Length/1MB,1\\)}}, LastWriteTime | Format-List })",
+      "Bash(./.venv/Scripts/python.exe -)"
     ]
   }
 }

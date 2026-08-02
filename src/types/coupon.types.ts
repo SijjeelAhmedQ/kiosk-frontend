@@ -2,8 +2,12 @@
  * Campaign and coupon types.
  *
  * These mirror app/schemas/coupon.py on the API one-for-one. Money is `number`
- * in whole rupees, dates are `YYYY-MM-DD` strings, timestamps are UTC ISO
- * strings — the same conventions the order types already use.
+ * in whole rupees and timestamps are UTC ISO strings — the same conventions the
+ * order types already use.
+ *
+ * Campaign and coupon windows are instants, not days: a coupon can be good from
+ * 05:00 to 17:00 on a single date. They arrive as `YYYY-MM-DDTHH:mm:ssZ` and are
+ * shown in the admin's local time — see utils/couponDisplay.ts.
  */
 
 export type CouponType = 'product' | 'value';
@@ -32,8 +36,8 @@ export interface Campaign {
   name: string;
   description: string;
   couponType: CouponType;
-  startDate: string;          // YYYY-MM-DD
-  expiryDate: string;         // YYYY-MM-DD
+  startDate: string;          // UTC instant — the moment the campaign opens
+  expiryDate: string;         // UTC instant — the last moment it is live
   isActive: boolean;
   state: CampaignState;
 
@@ -95,8 +99,8 @@ export interface Coupon {
   campaignId: number;
   campaignName: string;
   campaignIsActive: boolean;
-  campaignStartDate: string;
-  campaignExpiryDate: string;
+  campaignStartDate: string;   // UTC instant
+  campaignExpiryDate: string;  // UTC instant
 
   couponType: CouponType;
   originalAmount: number | null;    // value coupons only
@@ -105,7 +109,7 @@ export interface Coupon {
   status: CouponStatus;
   storedStatus: string;             // the raw column, for the audit trail
 
-  expiryDate: string;
+  expiryDate: string;          // UTC instant — the last moment it is redeemable
   customerId: string | null;
   issuedAt: string;
   redeemedAt: string | null;
@@ -169,7 +173,7 @@ export interface CouponGenerateInput {
   quantity: number;
   amount?: number;            // value campaigns
   productId?: string;         // product campaigns
-  expiryDate?: string;        // defaults to the campaign's expiry
+  expiryDate?: string;        // UTC instant; defaults to the campaign's expiry
   codePrefix?: string;
   customerId?: string;
 }

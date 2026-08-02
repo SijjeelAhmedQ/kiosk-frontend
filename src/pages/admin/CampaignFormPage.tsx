@@ -14,7 +14,7 @@ import { Spinner } from '@/components/common/LoadingScreen';
 import {
   AlertBanner,
   CampaignStateBadge,
-  DateInput,
+  DateTimeInput,
   Field,
   PageBody,
   PageHeader,
@@ -26,7 +26,7 @@ import {
   type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
-import { isoDaysFromToday, todayIso } from '@/utils/couponDisplay';
+import { endOfDayInstant, formatDayTime, startOfTodayInstant } from '@/utils/couponDisplay';
 import { ADMIN_PATHS } from '@/routes/paths';
 
 interface FormState {
@@ -42,8 +42,10 @@ const blankForm: FormState = {
   name: '',
   description: '',
   couponType: 'value',
-  startDate: todayIso(),
-  expiryDate: isoDaysFromToday(90),
+  // Opens at the start of today and closes at the end of the day 90 days out —
+  // both ends are instants now, so the defaults have to name a time.
+  startDate: startOfTodayInstant(),
+  expiryDate: endOfDayInstant(90),
   isActive: true,
 };
 
@@ -110,13 +112,15 @@ export default function CampaignFormPage() {
   const validate = (): boolean => {
     const next: Errors = {};
     if (!form.name.trim()) next.name = 'Give the campaign a name.';
-    if (!form.startDate) next.startDate = 'Pick a start date.';
-    if (!form.expiryDate) next.expiryDate = 'Pick an expiry date.';
+    if (!form.startDate) next.startDate = 'Pick a start date and time.';
+    if (!form.expiryDate) next.expiryDate = 'Pick an expiry date and time.';
+    /* Safe as string comparisons: every instant here is the same fixed-width
+       UTC shape, so lexicographic order is chronological order. */
     if (form.startDate && form.expiryDate && form.startDate > form.expiryDate) {
       next.expiryDate = 'The campaign cannot end before it starts.';
     }
     if (expiryFloor && form.expiryDate < expiryFloor) {
-      next.expiryDate = `Coupons already run to ${expiryFloor}, so it cannot end sooner.`;
+      next.expiryDate = `Coupons already run to ${formatDayTime(expiryFloor)}, so it cannot end sooner.`;
     }
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -235,8 +239,13 @@ export default function CampaignFormPage() {
         </Field>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Starts" required error={errors.startDate}>
-            <DateInput
+          <Field
+            label="Starts"
+            required
+            error={errors.startDate}
+            hint="Your local time. A campaign can open part-way through a day."
+          >
+            <DateTimeInput
               value={form.startDate}
               max={form.expiryDate || undefined}
               allowClear={false}
@@ -251,11 +260,11 @@ export default function CampaignFormPage() {
             error={errors.expiryDate}
             hint={
               expiryFloor && !errors.expiryDate
-                ? `Cannot be earlier than ${expiryFloor} — coupons already run to then.`
-                : 'Coupons in this campaign can never outlive this date.'
+                ? `Cannot be earlier than ${formatDayTime(expiryFloor)} — coupons already run to then.`
+                : 'The last moment a coupon in this campaign can be redeemed.'
             }
           >
-            <DateInput
+            <DateTimeInput
               value={form.expiryDate}
               min={form.startDate || undefined}
               allowClear={false}

@@ -41,48 +41,111 @@ export const COUPON_STATUSES: CouponStatus[] = [
   'cancelled',
 ];
 
+/* ---------------------------------------------------------------------------
+   Campaign and coupon windows are instants, not days: a coupon can be good from
+   05:00 to 17:00 on one date. They travel as UTC ISO strings and are shown in
+   the admin's local time, which is the only time of day a person here means.
+   --------------------------------------------------------------------------- */
+
 /**
- * "02 Aug 2026" from a YYYY-MM-DD date.
+ * The API's instant format: seconds, no milliseconds, `Z`.
  *
- * Built from the parts rather than `new Date(iso)`: that parses a bare date as
- * UTC midnight, which renders as the previous day for anyone west of Greenwich.
+ * Worth pinning down, because the app compares these strings directly — and
+ * lexicographic order only matches chronological order while every string has
+ * the same shape. '…:00.000Z' sorts *before* '…:00Z' for the same moment.
  */
-export const formatDay = (isoDate: string): string => {
-  const [year, month, day] = isoDate.slice(0, 10).split('-').map(Number);
-  if (!year || !month || !day) return isoDate;
-  return new Date(year, month - 1, day).toLocaleDateString(APP.locale, {
+export const toInstant = (date: Date): string => `${date.toISOString().slice(0, 19)}Z`;
+
+/**
+ * Parses either an instant or a bare `YYYY-MM-DD` day.
+ *
+ * A bare day is built from its parts rather than handed to `new Date`: that
+ * reads it as UTC midnight, which renders as the previous day for anyone west
+ * of Greenwich. The report filters still send bare days, so both shapes arrive.
+ */
+const parse = (iso: string): Date | null => {
+  if (!iso) return null;
+
+  if (!iso.includes('T')) {
+    const [year, month, day] = iso.slice(0, 10).split('-').map(Number);
+    return year && month && day ? new Date(year, month - 1, day) : null;
+  }
+
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+/** "02 Aug 2026", in local time. */
+export const formatDay = (iso: string): string => {
+  const date = parse(iso);
+  if (!date) return iso;
+  return date.toLocaleDateString(APP.locale, {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   });
 };
 
-/** Today as YYYY-MM-DD in local time — the format <input type="date"> wants. */
-export const todayIso = (): string => {
-  const now = new Date();
-  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 10);
+/** "5:00 pm", in local time. */
+export const formatTime = (iso: string): string => {
+  const date = parse(iso);
+  if (!date) return '';
+  return date.toLocaleTimeString(APP.locale, { hour: 'numeric', minute: '2-digit' });
 };
 
-/** YYYY-MM-DD, `days` from today. Used for the default campaign window. */
-export const isoDaysFromToday = (days: number): string => {
+/** "02 Aug 2026, 5:00 pm" — a whole window end, which is what these now are. */
+export const formatDayTime = (iso: string): string => {
+  const date = parse(iso);
+  if (!date) return iso;
+  return `${formatDay(iso)}, ${formatTime(iso)}`;
+};
+
+/** Local start of today, as an instant. The default campaign start. */
+export const startOfTodayInstant = (): string => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return toInstant(date);
+};
+
+/** The last minute of the day `days` from today, local, as an instant. */
+export const endOfDayInstant = (days: number): string => {
   const date = new Date();
   date.setDate(date.getDate() + days);
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 10);
+  date.setHours(23, 59, 0, 0);
+  return toInstant(date);
 };
 
-/** "in 12 days" / "3 days ago" / "today" — context for an expiry date. */
-export const relativeDay = (isoDate: string): string => {
-  const [year, month, day] = isoDate.slice(0, 10).split('-').map(Number);
-  if (!year || !month || !day) return '';
+/**
+ * "in 4h" / "in 12 days" / "20 min ago" — context for a window end.
+ *
+ * Inside a day it counts the clock, because that is the useful answer for a
+ * coupon that closes this afternoon. Past that it counts calendar days, so the
+ * phrase agrees with the date printed beside it.
+ */
+export const relativeWhen = (iso: string): string => {
+  const date = parse(iso);
+  if (!date) return '';
 
-  const target = new Date(year, month - 1, day);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const ms = date.getTime() - Date.now();
+  const ahead = ms >= 0;
+  const abs = Math.abs(ms);
 
-  const days = Math.round((target.getTime() - today.getTime()) / 86_400_000);
-  if (days === 0) return 'today';
+  if (abs < 60_000) return 'now';
+  if (abs < 3_600_000) {
+    const minutes = Math.round(abs / 60_000);
+    return ahead ? `in ${minutes} min` : `${minutes} min ago`;
+  }
+  if (abs < 86_400_000) {
+    const hours = Math.round(abs / 3_600_000);
+    return ahead ? `in ${hours}h` : `${hours}h ago`;
+  }
+
+  const midnight = new Date();
+  midnight.setHours(0, 0, 0, 0);
+  const targetDay = new Date(date);
+  targetDay.setHours(0, 0, 0, 0);
+
+  const days = Math.round((targetDay.getTime() - midnight.getTime()) / 86_400_000);
   if (days === 1) return 'tomorrow';
   if (days === -1) return 'yesterday';
   return days > 0 ? `in ${days} days` : `${Math.abs(days)} days ago`;
