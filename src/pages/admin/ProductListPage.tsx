@@ -74,6 +74,7 @@ export default function ProductListPage() {
   const [categoryId, setCategoryId] = useState(searchParams.get('categoryId') ?? '');
   const [active, setActive] = useState<ActiveFilter>('');
   const [offset, setOffset] = useState(0);
+  const [limit, setLimit] = useState(PAGE_SIZE);
   const [pendingDelete, setPendingDelete] = useState<ProductAdmin | null>(null);
 
   useEffect(() => {
@@ -98,11 +99,11 @@ export default function ProductListPage() {
   // on a page that no longer exists, staring at nothing.
   useEffect(() => {
     if (offset > 0 && offset >= products.length) {
-      setOffset(Math.max(0, (Math.ceil(products.length / PAGE_SIZE) - 1) * PAGE_SIZE));
+      setOffset(Math.max(0, (Math.ceil(products.length / limit) - 1) * limit));
     }
-  }, [products.length, offset]);
+  }, [products.length, offset, limit]);
 
-  const paged = useMemo(() => products.slice(offset, offset + PAGE_SIZE), [products, offset]);
+  const paged = useMemo(() => products.slice(offset, offset + limit), [products, offset, limit]);
 
   const categoryOptions = useMemo<SelectOption<string>[]>(
     () => [
@@ -214,9 +215,10 @@ export default function ProductListPage() {
       <div className="shrink-0">
         <Pagination
           total={products.length}
-          limit={PAGE_SIZE}
+          limit={limit}
           offset={offset}
-          onPageChange={(page) => setOffset(page * PAGE_SIZE)}
+          onPageChange={(page) => setOffset(page * limit)}
+          onLimitChange={(next) => { setLimit(next); setOffset(0); }}
         />
       </div>
 

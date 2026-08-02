@@ -93,7 +93,9 @@
       "PowerShell(npx vite build)",
       "PowerShell($ports = 5173,8000,8001; foreach \\($p in $ports\\) { $r = Test-NetConnection -ComputerName localhost -Port $p -InformationLevel Quiet -WarningAction SilentlyContinue; \"$p listening=$r\" })",
       "PowerShell(Get-ChildItem *)",
-      "PowerShell(Test-Path *)"
+      "PowerShell(Test-Path *)",
+      "PowerShell(npx tsc --noEmit; if \\($?\\) { \"typecheck OK\" })",
+      "PowerShell(npx vite build 2>&1 | Select-Object -Last 2)"
     ]
   }
 }

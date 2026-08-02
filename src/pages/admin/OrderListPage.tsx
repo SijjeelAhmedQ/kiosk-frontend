@@ -83,6 +83,7 @@ export default function OrderListPage() {
   const [total, setTotal] = useState(0);
   const [revenue, setRevenue] = useState(0);
   const [offset, setOffset] = useState(0);
+  const [limit, setLimit] = useState(PAGE_SIZE);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,7 +101,7 @@ export default function OrderListPage() {
            selected period — otherwise yesterday's #142 is simply invisible. */
         ...(activeNumber ? { orderNumber: activeNumber } : rangeToQuery(range)),
         ...(status ? { status } : {}),
-        limit: PAGE_SIZE,
+        limit,
         offset,
       });
       setItems(page.items);
@@ -111,7 +112,7 @@ export default function OrderListPage() {
     } finally {
       setLoading(false);
     }
-  }, [activeNumber, range, status, offset]);
+  }, [activeNumber, range, status, offset, limit]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -189,9 +190,10 @@ export default function OrderListPage() {
       <div className="shrink-0">
         <Pagination
           total={total}
-          limit={PAGE_SIZE}
+          limit={limit}
           offset={offset}
-          onPageChange={(page) => setOffset(page * PAGE_SIZE)}
+          onPageChange={(page) => setOffset(page * limit)}
+          onLimitChange={(next) => { setLimit(next); setOffset(0); }}
         />
       </div>
 

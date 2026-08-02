@@ -138,6 +138,10 @@ const campaignsSlice = createSlice({
     setCampaignPage: (s, a: PayloadAction<number>) => {
       s.query = { ...s.query, offset: a.payload * (s.query.limit ?? CAMPAIGN_PAGE_SIZE) };
     },
+    /** A longer page renumbers every page after it, so this goes back to one. */
+    setCampaignLimit: (s, a: PayloadAction<number>) => {
+      s.query = { ...s.query, limit: a.payload, offset: 0 };
+    },
     resetCampaignQuery: (s) => { s.query = initialQuery; },
     clearCampaignError: (s) => { s.error = null; },
     clearCurrentCampaign: (s) => { s.current = null; },
@@ -207,6 +211,7 @@ const campaignsSlice = createSlice({
 export const {
   setCampaignQuery,
   setCampaignPage,
+  setCampaignLimit,
   resetCampaignQuery,
   clearCampaignError,
   clearCurrentCampaign,

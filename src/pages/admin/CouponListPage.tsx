@@ -6,6 +6,7 @@ import {
   COUPON_PAGE_SIZE,
   clearCouponError,
   fetchCoupons,
+  setCouponLimit,
   setCouponPage,
   setCouponQuery,
 } from '@/redux/slices/couponsSlice';
@@ -191,6 +192,7 @@ export default function CouponListPage() {
           limit={query.limit ?? COUPON_PAGE_SIZE}
           offset={query.offset ?? 0}
           onPageChange={(page) => dispatch(setCouponPage(page))}
+          onLimitChange={(limit) => dispatch(setCouponLimit(limit))}
         />
       </div>
     </PageBody>

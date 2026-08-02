@@ -120,6 +120,10 @@ const couponsSlice = createSlice({
     setCouponPage: (s, a: PayloadAction<number>) => {
       s.query = { ...s.query, offset: a.payload * (s.query.limit ?? COUPON_PAGE_SIZE) };
     },
+    /** A longer page renumbers every page after it, so this goes back to one. */
+    setCouponLimit: (s, a: PayloadAction<number>) => {
+      s.query = { ...s.query, limit: a.payload, offset: 0 };
+    },
     resetCouponQuery: (s) => { s.query = initialQuery; },
 
     setHistoryQuery: (s, a: PayloadAction<Partial<CouponHistoryQuery>>) => {
@@ -130,6 +134,9 @@ const couponsSlice = createSlice({
         ...s.historyQuery,
         offset: a.payload * (s.historyQuery.limit ?? COUPON_PAGE_SIZE),
       };
+    },
+    setHistoryLimit: (s, a: PayloadAction<number>) => {
+      s.historyQuery = { ...s.historyQuery, limit: a.payload, offset: 0 };
     },
     resetHistoryQuery: (s) => { s.historyQuery = initialHistoryQuery; },
 
@@ -194,9 +201,11 @@ const couponsSlice = createSlice({
 export const {
   setCouponQuery,
   setCouponPage,
+  setCouponLimit,
   resetCouponQuery,
   setHistoryQuery,
   setHistoryPage,
+  setHistoryLimit,
   resetHistoryQuery,
   clearCouponError,
   clearCurrentCoupon,

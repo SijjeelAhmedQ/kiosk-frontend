@@ -8,6 +8,7 @@ import {
   deleteCampaign,
   fetchCampaigns,
   setCampaignActive,
+  setCampaignLimit,
   setCampaignPage,
   setCampaignQuery,
 } from '@/redux/slices/campaignsSlice';
@@ -157,6 +158,7 @@ export default function CampaignListPage() {
           limit={query.limit ?? CAMPAIGN_PAGE_SIZE}
           offset={query.offset ?? 0}
           onPageChange={(page) => dispatch(setCampaignPage(page))}
+          onLimitChange={(limit) => dispatch(setCampaignLimit(limit))}
         />
       </div>
 

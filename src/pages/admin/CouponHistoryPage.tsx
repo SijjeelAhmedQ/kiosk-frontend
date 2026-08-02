@@ -6,6 +6,7 @@ import {
   COUPON_PAGE_SIZE,
   clearCouponError,
   fetchCouponHistory,
+  setHistoryLimit,
   setHistoryPage,
   setHistoryQuery,
 } from '@/redux/slices/couponsSlice';
@@ -155,6 +156,7 @@ export default function CouponHistoryPage() {
           limit={historyQuery.limit ?? COUPON_PAGE_SIZE}
           offset={historyQuery.offset ?? 0}
           onPageChange={(page) => dispatch(setHistoryPage(page))}
+          onLimitChange={(limit) => dispatch(setHistoryLimit(limit))}
         />
       </div>
     </PageBody>

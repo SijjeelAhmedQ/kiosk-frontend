@@ -47,6 +47,7 @@ export default function CategoryListPage() {
 
   const [search, setSearch] = useState('');
   const [offset, setOffset] = useState(0);
+  const [limit, setLimit] = useState(PAGE_SIZE);
   const [pendingDelete, setPendingDelete] = useState<CategoryAdmin | null>(null);
 
   useEffect(() => {
@@ -64,11 +65,11 @@ export default function CategoryListPage() {
   useEffect(() => { setOffset(0); }, [search]);
   useEffect(() => {
     if (offset > 0 && offset >= shown.length) {
-      setOffset(Math.max(0, (Math.ceil(shown.length / PAGE_SIZE) - 1) * PAGE_SIZE));
+      setOffset(Math.max(0, (Math.ceil(shown.length / limit) - 1) * limit));
     }
-  }, [shown.length, offset]);
+  }, [shown.length, offset, limit]);
 
-  const paged = useMemo(() => shown.slice(offset, offset + PAGE_SIZE), [shown, offset]);
+  const paged = useMemo(() => shown.slice(offset, offset + limit), [shown, offset, limit]);
 
   const activeCount = categories.filter((c) => c.isActive).length;
   const productCount = categories.reduce((sum, c) => sum + c.productCount, 0);
@@ -153,9 +154,10 @@ export default function CategoryListPage() {
       <div className="shrink-0">
         <Pagination
           total={shown.length}
-          limit={PAGE_SIZE}
+          limit={limit}
           offset={offset}
-          onPageChange={(page) => setOffset(page * PAGE_SIZE)}
+          onPageChange={(page) => setOffset(page * limit)}
+          onLimitChange={(next) => { setLimit(next); setOffset(0); }}
         />
       </div>
 
