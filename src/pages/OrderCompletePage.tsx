@@ -62,9 +62,14 @@ export default function OrderCompletePage() {
             {order.orderNumber}
           </span>
           <span className="text-kiosk-sm text-ash">
-            {formatCurrency(order.summary.total)} · {order.summary.itemCount} item
-            {order.summary.itemCount === 1 ? '' : 's'}
+            {formatCurrency(order.summary.amountDue ?? order.summary.total)} ·{' '}
+            {order.summary.itemCount} item{order.summary.itemCount === 1 ? '' : 's'}
           </span>
+          {Boolean(order.summary.couponDiscount) && (
+            <span className="mt-1 text-kiosk-xs font-medium text-leaf">
+              Coupon saved you {formatCurrency(order.summary.couponDiscount ?? 0)}
+            </span>
+          )}
         </div>
       </div>
 

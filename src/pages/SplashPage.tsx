@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { fetchCategories } from '@/redux/slices/categoriesSlice';
 import { APP } from '@/constants/app.constants';
-import { PATHS } from '@/routes/paths';
+import { ADMIN_PATHS, PATHS } from '@/routes/paths';
 
 /** How many category chips fit on one line before it starts to read as a list. */
 const MAX_TEASERS = 5;
@@ -36,13 +36,21 @@ export default function SplashPage() {
 
   return (
     <div className="relative h-full w-full bg-ink">
-      {/* Staff entry — deliberately small and out of the customer's path. */}
-      <button
-        onClick={() => navigate(PATHS.orders)}
-        className="press absolute right-6 top-6 z-20 rounded-full bg-white/10 px-5 py-3 font-display text-kiosk-xs font-bold text-white/60 transition-colors hover:bg-white/20 hover:text-white"
-      >
-        Orders
-      </button>
+      {/* Staff entries — deliberately small and out of the customer's path. */}
+      <div className="absolute right-6 top-6 z-20 flex gap-2">
+        <button
+          onClick={() => navigate(PATHS.orders)}
+          className="press rounded-full bg-white/10 px-5 py-3 font-display text-kiosk-xs font-bold text-white/60 transition-colors hover:bg-white/20 hover:text-white"
+        >
+          Orders
+        </button>
+        <button
+          onClick={() => navigate(ADMIN_PATHS.campaigns)}
+          className="press rounded-full bg-white/10 px-5 py-3 font-display text-kiosk-xs font-bold text-white/60 transition-colors hover:bg-white/20 hover:text-white"
+        >
+          Coupons
+        </button>
+      </div>
 
       <button
         onClick={() => navigate(PATHS.orderType)}

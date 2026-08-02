@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
-import { PATHS } from './paths';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ADMIN_PATHS, PATHS } from './paths';
 import { OrderTypeGuard } from './OrderTypeGuard';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 
@@ -13,11 +13,29 @@ const PaymentPage = lazy(() => import('@/pages/PaymentPage'));
 const OrderCompletePage = lazy(() => import('@/pages/OrderCompletePage'));
 const OrdersPage = lazy(() => import('@/pages/OrdersPage'));
 
+/* Back office. Lazy like everything else, so a customer ordering a burger never
+   downloads the coupon admin. */
+const AdminLayout = lazy(() =>
+  import('@/layouts/AdminLayout').then((m) => ({ default: m.AdminLayout })),
+);
+const CampaignListPage = lazy(() => import('@/pages/admin/CampaignListPage'));
+const CampaignFormPage = lazy(() => import('@/pages/admin/CampaignFormPage'));
+const GenerateCouponsPage = lazy(() => import('@/pages/admin/GenerateCouponsPage'));
+const CouponListPage = lazy(() => import('@/pages/admin/CouponListPage'));
+const CouponDetailPage = lazy(() => import('@/pages/admin/CouponDetailPage'));
+const CouponHistoryPage = lazy(() => import('@/pages/admin/CouponHistoryPage'));
+
 export function AppRoutes() {
   const location = useLocation();
+
+  /* Keying on the path remounts each kiosk screen so its entrance animation
+     replays. The admin section is a nested layout, though, and remounting it
+     on every click would tear the sidebar down with it — so it keys as one. */
+  const routeKey = location.pathname.startsWith(ADMIN_PATHS.root) ? 'admin' : location.pathname;
+
   return (
     <Suspense fallback={<LoadingScreen />}>
-      <Routes location={location} key={location.pathname}>
+      <Routes location={location} key={routeKey}>
         <Route path={PATHS.splash} element={<SplashPage />} />
         <Route path={PATHS.orderType} element={<OrderTypePage />} />
         <Route path={PATHS.menu} element={<OrderTypeGuard><MenuPage /></OrderTypeGuard>} />
@@ -26,6 +44,19 @@ export function AppRoutes() {
         <Route path={PATHS.payment} element={<OrderTypeGuard><PaymentPage /></OrderTypeGuard>} />
         <Route path={PATHS.complete} element={<OrderCompletePage />} />
         <Route path={PATHS.orders} element={<OrdersPage />} />
+
+        {/* Back office — its own layout, and no OrderTypeGuard: an admin has
+            not chosen dine-in or take-away and should not be asked to. */}
+        <Route path={ADMIN_PATHS.root} element={<AdminLayout />}>
+          <Route index element={<Navigate to={ADMIN_PATHS.campaigns} replace />} />
+          <Route path="campaigns" element={<CampaignListPage />} />
+          <Route path="campaigns/new" element={<CampaignFormPage />} />
+          <Route path="campaigns/:campaignId" element={<CampaignFormPage />} />
+          <Route path="campaigns/:campaignId/generate" element={<GenerateCouponsPage />} />
+          <Route path="coupons" element={<CouponListPage />} />
+          <Route path="coupons/:couponCode" element={<CouponDetailPage />} />
+          <Route path="history" element={<CouponHistoryPage />} />
+        </Route>
       </Routes>
     </Suspense>
   );

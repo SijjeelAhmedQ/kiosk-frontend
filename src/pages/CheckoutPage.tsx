@@ -6,6 +6,7 @@ import { selectCartSummary } from '@/redux/selectors';
 import { OrderLayout } from '@/layouts/OrderLayout';
 import { Button } from '@/components/common/Button';
 import { StepBar } from '@/components/common/StepBar';
+import { CouponEntry } from '@/components/controls/CouponEntry';
 import { PAYMENT_METHODS } from '@/constants/order.constants';
 import type { PaymentMethod } from '@/types';
 import { formatCurrency } from '@/utils/currency';
@@ -20,7 +21,14 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { subtotal, tax, total, itemCount } = useAppSelector(selectCartSummary);
+  const appliedCoupon = useAppSelector((s) => s.couponRedemption.applied);
   const [method, setLocal] = useState<PaymentMethod | null>(null);
+
+  /* An estimate only — the server recomputes the draw when the coupon is
+     redeemed, and caps it at what the order actually owes. Capping here too
+     keeps the button from promising a discount bigger than the order. */
+  const discount = appliedCoupon ? Math.min(appliedCoupon.applicableAmount, total) : 0;
+  const dueNow = Math.max(0, total - discount);
 
   const proceed = () => {
     if (!method) return;
@@ -90,17 +98,35 @@ export default function CheckoutPage() {
               <span className="font-medium tabular-nums text-charcoal">{formatCurrency(tax)}</span>
             </div>
 
+            {discount > 0 && (
+              <div className="mt-2 flex justify-between text-kiosk-sm text-leaf animate-fade-in">
+                <span>Coupon</span>
+                <span className="font-medium tabular-nums">−{formatCurrency(discount)}</span>
+              </div>
+            )}
+
             <div className="my-5 h-px bg-mist" />
 
             <div className="flex items-baseline justify-between">
-              <span className="font-display text-kiosk-lg font-bold text-ink">Total</span>
-              <span className="font-display text-kiosk-2xl font-extrabold tabular-nums text-ink">
-                {formatCurrency(total)}
+              <span className="font-display text-kiosk-lg font-bold text-ink">
+                {discount > 0 ? 'To pay' : 'Total'}
+              </span>
+              <span className="flex items-baseline gap-3">
+                {discount > 0 && (
+                  <span className="font-display text-kiosk-base font-bold tabular-nums text-ash line-through">
+                    {formatCurrency(total)}
+                  </span>
+                )}
+                <span className="font-display text-kiosk-2xl font-extrabold tabular-nums text-ink">
+                  {formatCurrency(dueNow)}
+                </span>
               </span>
             </div>
 
+            <CouponEntry orderTotal={total} />
+
             <Button size="xl" fullWidth className="mt-7" disabled={!method} onClick={proceed}>
-              {method ? `Pay ${formatCurrency(total)}` : 'Pick a payment method'}
+              {method ? `Pay ${formatCurrency(dueNow)}` : 'Pick a payment method'}
             </Button>
             <Button variant="secondary" size="lg" fullWidth className="mt-3" onClick={() => navigate(PATHS.cart)}>
               Back to order

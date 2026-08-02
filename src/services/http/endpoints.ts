@@ -10,4 +10,19 @@ export const ENDPOINTS = {
   orderDetail: (orderId: number) => `/orders/${orderId}`,
   orderByNumber: (orderNumber: string) => `/orders/number/${orderNumber}`,
   payments: '/payments',
+
+  // Campaigns — the admin side of coupon management.
+  campaigns: '/campaigns',
+  campaignDetail: (id: number) => `/campaigns/${id}`,
+  campaignStatus: (id: number) => `/campaigns/${id}/status`,
+  campaignCoupons: (id: number) => `/campaigns/${id}/coupons`,
+
+  // Coupons. /history sits above /:code on the server, so a coupon can never
+  // be codenamed "history" and shadow it.
+  coupons: '/coupons',
+  couponHistory: '/coupons/history',
+  couponValidate: '/coupons/validate',
+  couponRedeem: '/coupons/redeem',
+  couponDetail: (code: string) => `/coupons/${encodeURIComponent(code)}`,
+  couponCancel: (code: string) => `/coupons/${encodeURIComponent(code)}/cancel`,
 } as const;

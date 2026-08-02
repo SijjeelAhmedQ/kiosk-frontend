@@ -9,11 +9,18 @@ export interface OrderSummary {
   tax: number;
   total: number;
   itemCount: number;
+
+  /** Taken off by coupons. Only moves once a coupon is redeemed after placing. */
+  couponDiscount?: number;
+  /** total - couponDiscount. This, not total, is what the payment charges. */
+  amountDue?: number;
 }
 
 export type OrderStatus = 'placed' | 'paid' | 'payment_failed' | 'cancelled';
 
 export interface PlacedOrder {
+  /** Needed to redeem a coupon against the order just placed. */
+  orderId: number;
   orderNumber: string;
   orderType: OrderType;
   lines: CartLine[];
@@ -21,6 +28,19 @@ export interface PlacedOrder {
   paymentMethod: PaymentMethod;
   placedAt: string;
   status?: OrderStatus;
+}
+
+/**
+ * What the client posts to place an order.
+ *
+ * `summary` is sent for traceability only — the database re-prices the whole
+ * cart from dbo.Products, so a tampered kiosk cannot change what is charged.
+ */
+export interface PlaceOrderInput {
+  orderType: OrderType;
+  paymentMethod: PaymentMethod;
+  lines: CartLine[];
+  summary: OrderSummary;
 }
 
 /** A payment attempt recorded against an order. */
@@ -40,7 +60,6 @@ export interface OrderLineDetail extends CartLine {
 
 /** A past order as the staff history screen shows it. */
 export interface OrderDetail extends PlacedOrder {
-  orderId: number;
   businessDate: string;
   taxRate: number;
   kioskId: string;
@@ -59,6 +78,8 @@ export interface OrderListItem {
   subtotal: number;
   tax: number;
   total: number;
+  couponDiscount: number;
+  amountDue: number;
   itemCount: number;
   kioskId: string;
   placedAt: string;

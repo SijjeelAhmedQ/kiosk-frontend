@@ -10,3 +10,18 @@ export const PATHS = {
 } as const;
 
 export type PathKey = keyof typeof PATHS;
+
+/**
+ * Back office. Separate from PATHS because these screens are not part of the
+ * customer's journey — they have their own layout, and no OrderTypeGuard.
+ */
+export const ADMIN_PATHS = {
+  root: '/admin',
+  campaigns: '/admin/campaigns',
+  campaignNew: '/admin/campaigns/new',
+  campaignEdit: (id: number | string) => `/admin/campaigns/${id}`,
+  campaignGenerate: (id: number | string) => `/admin/campaigns/${id}/generate`,
+  coupons: '/admin/coupons',
+  couponDetail: (code: string) => `/admin/coupons/${encodeURIComponent(code)}`,
+  history: '/admin/history',
+} as const;

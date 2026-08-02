@@ -18,7 +18,24 @@
       "PowerShell(try { $r = Invoke-WebRequest 'http://localhost:5173/' -UseBasicParsing -TimeoutSec 8; \"dev server: UP \\($\\($r.StatusCode\\)\\)\" } catch { \"dev server: DOWN\" })",
       "PowerShell(node \"C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\a021213f-9017-4493-94f8-039191f5a966\\\\scratchpad\\\\sniff-test.mjs\")",
       "PowerShell(sqlcmd -S \"localhost\\\\SQLEXPRESS\" -d FriendsKitchen -E -Q $q 2>&1)",
-      "PowerShell(npx tsc --noEmit -p tsconfig.json)"
+      "PowerShell(npx tsc --noEmit -p tsconfig.json)",
+      "Bash(./.venv/Scripts/python.exe scripts/deploy_db.py 02 04 06 07 08)",
+      "Bash(./.venv/Scripts/python.exe -c ' *)",
+      "Bash(./.venv/Scripts/python.exe scripts/deploy_db.py 08)",
+      "Bash(curl -s -X POST http://127.0.0.1:8011/api/v1/campaigns -H 'Content-Type: application/json' -d '{\"name\":\"API Smoke Test\",\"description\":\"created over http\",\"couponType\":\"value\",\"startDate\":\"2026-08-01\",\"expiryDate\":\"2026-12-31\",\"isActive\":true}')",
+      "Bash(curl -s -X POST http://127.0.0.1:8011/api/v1/campaigns -H 'Content-Type: application/json' -d '{\"name\":\"Bad\",\"couponType\":\"value\",\"startDate\":\"2026-12-31\",\"expiryDate\":\"2026-01-01\"}')",
+      "Bash(curl -s -X POST http://127.0.0.1:8011/api/v1/campaigns -H 'Content-Type: application/json' -d '{\"name\":\"API Smoke Test\",\"couponType\":\"value\",\"startDate\":\"2026-08-01\",\"expiryDate\":\"2026-12-31\"}')",
+      "Bash(curl -s 'http://127.0.0.1:8011/api/v1/campaigns?couponType=value&limit=3')",
+      "Bash(curl -s -X POST http://127.0.0.1:8011/api/v1/campaigns/5/coupons -H 'Content-Type: application/json' -d '{\"quantity\":3,\"amount\":750,\"codePrefix\":\"SMOKE\"}')",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\)['data']; print\\(' total',d['total'],'value',d['redeemedValue']\\); [print\\(' ',i['couponCode'],i['orderNumber'],i['redeemedAmount']\\) for i in d['items']]\")",
+      "Bash(python -c \"import json,sys; s=json.load\\(sys.stdin\\)['data']['summary']; print\\(' ',s\\)\")",
+      "PowerShell(Get-CimInstance *)",
+      "Bash(npx eslint *)",
+      "Bash(npx vite *)",
+      "Bash(./.venv/Scripts/python.exe scripts/deploy_db.py)",
+      "Bash(curl -s -X POST http://127.0.0.1:8014/api/v1/coupons/validate -H 'Content-Type: application/json' -d '{\"couponCode\":\"GIFT-DEMO01000\",\"orderAmount\":2109,\"allowPartial\":true}')",
+      "Bash(python -c \"import json,sys; s=json.load\\(sys.stdin\\)['data']['summary']; print\\('5. receipt  -> ',s\\)\")",
+      "PowerShell(Get-Process *)"
     ]
   }
 }

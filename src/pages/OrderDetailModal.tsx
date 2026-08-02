@@ -103,11 +103,25 @@ export function OrderDetailModal({ order, onClose }: Props) {
           <div className="mt-6 rounded-2xl bg-paper px-6 py-5 shadow-soft">
             <Row label={`Subtotal · ${summary.itemCount} item${summary.itemCount === 1 ? '' : 's'}`} value={summary.subtotal} />
             <Row label={`Tax (${(order.taxRate * 100).toFixed(2)}%)`} value={summary.tax} />
+            {Boolean(summary.couponDiscount) && (
+              <Row label="Coupon" value={-(summary.couponDiscount ?? 0)} />
+            )}
             <div className="my-4 h-px bg-mist" />
             <div className="flex items-baseline justify-between">
-              <span className="font-display text-kiosk-lg font-bold text-ink">Total</span>
-              <span className="font-display text-kiosk-xl font-extrabold tabular-nums text-ink">
-                {formatCurrency(summary.total)}
+              {/* Total is what the food cost; when a coupon was used, what was
+                  charged is the smaller number underneath it. */}
+              <span className="font-display text-kiosk-lg font-bold text-ink">
+                {summary.couponDiscount ? 'Charged' : 'Total'}
+              </span>
+              <span className="flex items-baseline gap-3">
+                {Boolean(summary.couponDiscount) && (
+                  <span className="font-display text-kiosk-sm font-bold tabular-nums text-ash line-through">
+                    {formatCurrency(summary.total)}
+                  </span>
+                )}
+                <span className="font-display text-kiosk-xl font-extrabold tabular-nums text-ink">
+                  {formatCurrency(summary.amountDue ?? summary.total)}
+                </span>
               </span>
             </div>
           </div>
