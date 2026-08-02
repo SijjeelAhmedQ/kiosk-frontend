@@ -15,19 +15,21 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
-  type Column,
-  CouponTypeBadge,
-  DataTable,
+  CopyButton,
   DateRangeFilter,
   Field,
+  ListRow,
+  ListView,
   PageBody,
   PageHeader,
   Pagination,
+  RowTile,
   Select,
   Stat,
   type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
+import { COUPON_TYPE_ICON } from '@/utils/couponDisplay';
 import { formatWhen } from '@/utils/orderDisplay';
 import { ADMIN_PATHS } from '@/routes/paths';
 
@@ -84,73 +86,6 @@ export default function CouponHistoryPage() {
 
   const filtered = Boolean(debouncedSearch || campaignId || range.from || range.to);
 
-  const columns: Column<CouponHistoryItem>[] = [
-    {
-      key: 'when',
-      header: 'When',
-      width: 'w-52',
-      render: (h) => (
-        <span className="whitespace-nowrap text-xs text-ash">{formatWhen(h.redeemedDate)}</span>
-      ),
-    },
-    {
-      key: 'coupon',
-      header: 'Coupon',
-      render: (h) => (
-        <div className="min-w-0">
-          <code className="font-mono text-sm font-semibold text-ink">{h.couponCode}</code>
-          <p className="mt-0.5 truncate text-xs text-ash">{h.campaignName}</p>
-        </div>
-      ),
-    },
-    { key: 'type', header: 'Type', width: 'w-32', render: (h) => <CouponTypeBadge type={h.couponType} /> },
-    {
-      key: 'order',
-      header: 'Order',
-      width: 'w-28',
-      render: (h) =>
-        h.orderNumber ? (
-          <span className="font-mono text-sm text-ink">#{h.orderNumber}</span>
-        ) : (
-          <span className="text-ash">—</span>
-        ),
-    },
-    {
-      key: 'amount',
-      header: 'Redeemed',
-      align: 'right',
-      width: 'w-32',
-      render: (h) => (
-        <span className="tabular-nums font-semibold text-ink">
-          {formatCurrency(h.redeemedAmount)}
-        </span>
-      ),
-    },
-    {
-      key: 'balance',
-      header: 'Balance after',
-      align: 'right',
-      width: 'w-36',
-      render: (h) =>
-        h.remainingBalance === null ? (
-          <span className="text-ash">—</span>
-        ) : (
-          <span className="tabular-nums text-charcoal">{formatCurrency(h.remainingBalance)}</span>
-        ),
-    },
-    {
-      key: 'terminal',
-      header: 'Terminal',
-      width: 'w-36',
-      render: (h) => (
-        <span className="text-xs text-ash">
-          {h.terminalId}
-          {h.customerId && <span className="block">{h.customerId}</span>}
-        </span>
-      ),
-    },
-  ];
-
   return (
     <PageBody>
       <PageHeader
@@ -183,12 +118,16 @@ export default function CouponHistoryPage() {
         </div>
       </div>
 
-      <DataTable
-        columns={columns}
+      <ListView
         rows={history}
         rowKey={(h) => h.historyId}
         loading={historyLoading}
-        onRowClick={(h) => navigate(ADMIN_PATHS.couponDetail(h.couponCode))}
+        renderRow={(h) => (
+          <RedemptionCard
+            item={h}
+            onOpen={() => navigate(ADMIN_PATHS.couponDetail(h.couponCode))}
+          />
+        )}
         empty={
           <EmptyState
             icon="📊"
@@ -210,5 +149,66 @@ export default function CouponHistoryPage() {
         noun="redemptions"
       />
     </PageBody>
+  );
+}
+
+/**
+ * One redemption as a card.
+ *
+ * A ledger entry, so the money leads on the right and the balance it left
+ * behind sits under it — the two numbers are only meaningful together, which a
+ * pair of columns at opposite ends of a wide table never quite managed.
+ */
+function RedemptionCard({ item, onOpen }: { item: CouponHistoryItem; onOpen: () => void }) {
+  return (
+    <ListRow
+      accent="bg-leaf"
+      openLabel={`Open coupon ${item.couponCode}`}
+      onOpen={onOpen}
+      lead={<RowTile>{COUPON_TYPE_ICON[item.couponType]}</RowTile>}
+      title={
+        <>
+          <code className="font-mono text-base font-bold tracking-tight text-ink">
+            {item.couponCode}
+          </code>
+          <CopyButton value={item.couponCode} label="coupon code" />
+          {item.orderNumber && (
+            <span className="rounded-full bg-cream px-3 py-1 font-mono text-xs font-bold text-charcoal">
+              #{item.orderNumber}
+            </span>
+          )}
+        </>
+      }
+      subtitle={item.campaignName}
+      meta={
+        <>
+          <span>{formatWhen(item.redeemedDate)}</span>
+          <span className="opacity-70">· {item.terminalId}</span>
+          {item.customerId && <span className="opacity-70">· {item.customerId}</span>}
+        </>
+      }
+      trailing={
+        // The amount and what it left behind are only meaningful together, so
+        // they sit side by side and carry the width the card would otherwise
+        // waste between the code and the far edge.
+        <div className="flex items-center gap-10">
+          <div className="w-48 text-left">
+            <p className="text-xs text-ash">Balance after</p>
+            <p className="mt-1.5 text-sm font-semibold tabular-nums text-charcoal">
+              {item.remainingBalance === null
+                ? 'No balance to carry'
+                : formatCurrency(item.remainingBalance)}
+            </p>
+          </div>
+
+          <div className="w-32">
+            <p className="text-xs text-ash">Redeemed</p>
+            <p className="mt-1.5 font-display text-lg font-extrabold tabular-nums text-leaf">
+              −{formatCurrency(item.redeemedAmount)}
+            </p>
+          </div>
+        </div>
+      }
+    />
   );
 }

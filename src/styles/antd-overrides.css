@@ -49,26 +49,6 @@
   background: transparent !important;
 }
 
-/* A table that owns the page's height keeps its header in view while the rows
-   move under it. Done with position:sticky on a single table rather than
-   antd's scroll={{ y }}, which splits the header into a second table and then
-   needs every column pinned to an explicit width to stay lined up. */
-/* The card is the scroll container, so nothing between it and the header may
-   clip or scroll — a sticky cell anchors to the nearest scrolling ancestor. */
-.admin-table--sticky .ant-table,
-.admin-table--sticky .ant-table-container,
-.admin-table--sticky .ant-table-content {
-  overflow: visible;
-}
-
-.admin-table--sticky .ant-table-thead > tr > th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  /* The theme leaves headers transparent; a sticky one has rows behind it. */
-  background: #ffffff !important;
-}
-
 /* --- Pagination --------------------------------------------------------- */
 
 /* Page numbers read as numbers: same display face and tabular figures as the

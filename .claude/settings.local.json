@@ -50,7 +50,29 @@
       "PowerShell($dir = \"C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\4e5d639c-8424-4fc5-b702-b4f7e2b623d7\\\\scratchpad\"; $bak = \"$dir\\\\FriendsKitchen_pre_datetime.bak\"; sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -b -Q \"BACKUP DATABASE FriendsKitchen TO DISK = N'$bak' WITH INIT, FORMAT, NAME = N'FriendsKitchen pre-datetime migration'\"; if \\($?\\) { Get-Item $bak | Select-Object FullName, @{n='MB';e={[math]::Round\\($_.Length/1MB,1\\)}} | Format-List })",
       "PowerShell(sqlcmd *)",
       "PowerShell($bak = \"C:\\\\Program Files\\\\Microsoft SQL Server\\\\MSSQL17.SQLEXPRESS\\\\MSSQL\\\\Backup\\\\FriendsKitchen_pre_datetime.bak\"; sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -b -Q \"BACKUP DATABASE FriendsKitchen TO DISK = N'$bak' WITH INIT, FORMAT, NAME = N'FriendsKitchen pre-datetime migration'\"; if \\($?\\) { Get-Item $bak | Select-Object FullName, @{n='MB';e={[math]::Round\\($_.Length/1MB,1\\)}}, LastWriteTime | Format-List })",
-      "Bash(./.venv/Scripts/python.exe -)"
+      "Bash(./.venv/Scripts/python.exe -)",
+      "PowerShell($paths = @\\(\"C:\\\\Program Files \\(x86\\)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\",\"C:\\\\Program Files\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\"\\); foreach \\($p in $paths\\) { if \\(Test-Path $p\\) { $p } })",
+      "Bash(curl -s -o /dev/null -w \"api=%{http_code}\\\\n\" \"http://localhost:8000/api/v1/coupons?limit=2\")",
+      "Bash(curl -s -o /dev/null -w \"vite=%{http_code}\\\\n\" \"http://127.0.0.1:5173/admin/coupons\")",
+      "Bash(curl -s \"http://localhost:8000/api/v1/coupons?limit=2\")",
+      "PowerShell($edge = \"C:\\\\Program Files \\(x86\\)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\"; $out = \"C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\4e5d639c-8424-4fc5-b702-b4f7e2b623d7\\\\scratchpad\"; $profile = \"$out\\\\edgeprofile\"; foreach \\($r in @\\(@\\(\"coupons2\",\"/admin/coupons\"\\), @\\(\"history2\",\"/admin/history\"\\)\\)\\) { $name = $r[0]; $path = $r[1]; & $edge --headless=new --disable-gpu --no-first-run --user-data-dir=\"$profile\" --window-size=1440,900 --virtual-time-budget=9000 --screenshot=\"$out\\\\$name.png\" \"http://127.0.0.1:5173$path\" 2>$null | Out-Null }; \"done\")",
+      "Bash(curl -s -w \"\\\\nHTTP=%{http_code}\\\\n\" \"http://localhost:8000/api/v1/coupons?limit=3\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP=%{http_code}\\\\n\" \"http://localhost:8000/api/v1/campaigns?limit=3\")",
+      "PowerShell($bak = \"C:\\\\Program Files\\\\Microsoft SQL Server\\\\MSSQL17.SQLEXPRESS\\\\MSSQL\\\\Backup\\\\FriendsKitchen_pre_datetime.bak\"; sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -h -1 -W -s \" | \" -Q \"SET NOCOUNT ON; RESTORE FILELISTONLY FROM DISK = N'$bak'\" | Select-Object -First 5)",
+      "PowerShell($bak = \"C:\\\\Program Files\\\\Microsoft SQL Server\\\\MSSQL17.SQLEXPRESS\\\\MSSQL\\\\Backup\\\\FriendsKitchen_pre_datetime.bak\"; sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -b -Q \"ALTER DATABASE FriendsKitchen SET SINGLE_USER WITH ROLLBACK IMMEDIATE; RESTORE DATABASE FriendsKitchen FROM DISK = N'$bak' WITH REPLACE, RECOVERY; ALTER DATABASE FriendsKitchen SET MULTI_USER;\"; \"RESTORE_EXIT=$LASTEXITCODE\")",
+      "PowerShell(cd \"D:\\\\other apps\\\\kiosk-backend\"; foreach \\($f in @\\(\"sql\\\\06_coupons_schema.sql\",\"sql\\\\07_coupons_procedures.sql\",\"sql\\\\08_coupons_seed.sql\"\\)\\) { sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -b -i $f | Select-Object -Last 4; \"  -> $f exit=$LASTEXITCODE\" })",
+      "PowerShell($edge = \"C:\\\\Program Files \\(x86\\)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\"; $out = \"C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\4e5d639c-8424-4fc5-b702-b4f7e2b623d7\\\\scratchpad\"; $profile = \"$out\\\\edgeprofile\"; foreach \\($r in @\\(@\\(\"c3\",\"/admin/coupons\"\\), @\\(\"h3\",\"/admin/history\"\\), @\\(\"cam3\",\"/admin/campaigns\"\\)\\)\\) { & $edge --headless=new --disable-gpu --no-first-run --user-data-dir=\"$profile\" --window-size=1440,900 --virtual-time-budget=9000 --screenshot=\"$out\\\\$\\($r[0]\\).png\" \"http://127.0.0.1:5173$\\($r[1]\\)\" 2>$null | Out-Null }; \"done\")",
+      "PowerShell(Out-Null *)",
+      "Bash(npm ls *)",
+      "Bash(curl -s -o /dev/null -w \"vite=%{http_code}\\\\n\" \"http://127.0.0.1:5173/admin/history\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('browserHash =', d['browserHash']\\); print\\('optimized deps =', len\\(d['optimized']\\)\\)\")",
+      "Bash(curl -s -o /dev/null -w \"vite5174=%{http_code}\\\\n\" \"http://127.0.0.1:5174/admin/history\")",
+      "Bash(curl -s -o /dev/null -w \"api8000=%{http_code}\\\\n\" --max-time 5 \"http://localhost:8000/api/v1/coupon-history?limit=2\")",
+      "Bash(curl -s -o /dev/null -w \"health=%{http_code}\\\\n\" --max-time 5 \"http://localhost:8000/health\")",
+      "Bash(rm -rf node_modules/.vite)",
+      "Bash(curl -s -o /dev/null -w \"vite=%{http_code}\\\\n\" \"http://127.0.0.1:5174/admin/coupons\")",
+      "Bash(grep -iv \"^$\")",
+      "Bash(curl -s -o /dev/null -w \"vite5175=%{http_code}\\\\n\" \"http://127.0.0.1:5175/admin/coupons\")"
     ]
   }
 }

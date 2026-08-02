@@ -15,16 +15,16 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
-  type Column,
   CopyButton,
   CouponStatusBadge,
-  CouponTypeBadge,
-  DataTable,
   DateRangeFilter,
   Field,
+  ListRow,
+  ListView,
   PageBody,
   PageHeader,
   Pagination,
+  RowTile,
   Select,
   Stat,
   type SelectOption,
@@ -33,10 +33,12 @@ import { formatCurrency } from '@/utils/currency';
 import {
   COUPON_STATUS_STYLES,
   COUPON_STATUSES,
+  COUPON_TYPE_ICON,
   formatDayTime,
   relativeWhen,
   spentFraction,
 } from '@/utils/couponDisplay';
+import { formatWhen } from '@/utils/orderDisplay';
 import { ADMIN_PATHS } from '@/routes/paths';
 
 /* '' is a real option in these lists, not a placeholder — it is the value the
@@ -107,115 +109,62 @@ export default function CouponListPage() {
 
   const filtered = Boolean(debouncedSearch || campaignId || status || type || range.from || range.to);
 
-  const columns: Column<Coupon>[] = [
-    {
-      key: 'code',
-      header: 'Code',
-      render: (c) => (
-        <div className="flex min-w-0 items-center gap-2">
-          <div className="min-w-0">
-            <code className="font-mono text-sm font-semibold text-ink">{c.couponCode}</code>
-            <p className="mt-0.5 truncate text-xs text-ash">{c.campaignName}</p>
-          </div>
-          <CopyButton value={c.couponCode} label="coupon code" />
-        </div>
-      ),
-    },
-    { key: 'type', header: 'Type', width: 'w-32', render: (c) => <CouponTypeBadge type={c.couponType} /> },
-    {
-      key: 'worth',
-      header: 'Worth',
-      width: 'w-56',
-      render: (c) =>
-        c.couponType === 'value' ? (
-          <ValueBar original={c.originalAmount} remaining={c.remainingBalance} />
-        ) : (
-          <span className="truncate text-sm text-charcoal">{c.productName ?? '—'}</span>
-        ),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      width: 'w-40',
-      render: (c) => <CouponStatusBadge status={c.status} />,
-    },
-    {
-      key: 'expiry',
-      header: 'Expires',
-      width: 'w-44',
-      render: (c) => (
-        <span className="whitespace-nowrap text-xs text-ash">
-          {formatDayTime(c.expiryDate)}
-          <span className="ml-1.5 opacity-70">({relativeWhen(c.expiryDate)})</span>
-        </span>
-      ),
-    },
-    {
-      key: 'used',
-      header: 'Used',
-      align: 'right',
-      width: 'w-24',
-      render: (c) => <span className="tabular-nums text-charcoal">{c.redemptionCount}</span>,
-    },
-  ];
-
   return (
-    <PageBody fill>
-      {/* Everything above the table keeps its height; the table absorbs the
-          rest and scrolls, so the page itself never does. */}
-      <div className="shrink-0">
-        <PageHeader
-          title="Coupons"
-          subtitle="Every code issued, and what is left on it. Codes are matched from the start, so typing the prefix is enough."
-        />
+    <PageBody>
+      <PageHeader
+        title="Coupons"
+        subtitle="Every code issued, and what is left on it. Codes are matched from the start, so typing the prefix is enough."
+      />
 
-        <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
+      <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
 
-        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label="Coupons" value={String(total)} />
-          <Stat label="Issued value" value={formatCurrency(issuedValue)} />
-          <Stat label="Redeemed" value={formatCurrency(redeemedValue)} tone="text-leaf" />
-          <Stat label="Outstanding" value={formatCurrency(remainingValue)} tone="text-amber-dark" />
-        </div>
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat label="Coupons" value={String(total)} />
+        <Stat label="Issued value" value={formatCurrency(issuedValue)} />
+        <Stat label="Redeemed" value={formatCurrency(redeemedValue)} tone="text-leaf" />
+        <Stat label="Outstanding" value={formatCurrency(remainingValue)} tone="text-amber-dark" />
+      </div>
 
-        <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
-          <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
+      <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
+        <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Field label="Campaign">
-              <Select value={campaignId} onChange={setCampaignId} options={campaignOptions} />
-            </Field>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Campaign">
+            <Select value={campaignId} onChange={setCampaignId} options={campaignOptions} />
+          </Field>
 
-            <Field label="Status">
-              <Select<CouponStatus | ''>
-                value={status}
-                onChange={setStatus}
-                options={STATUS_OPTIONS}
-              />
-            </Field>
-
-            <Field label="Type">
-              <Select<CouponType | ''> value={type} onChange={setType} options={TYPE_OPTIONS} />
-            </Field>
-
-            <DateRangeFilter
-              from={range.from}
-              to={range.to}
-              onChange={setRange}
-              fromLabel="Issued from"
-              toLabel="Issued to"
+          <Field label="Status">
+            <Select<CouponStatus | ''>
+              value={status}
+              onChange={setStatus}
+              options={STATUS_OPTIONS}
             />
-          </div>
+          </Field>
+
+          <Field label="Type">
+            <Select<CouponType | ''> value={type} onChange={setType} options={TYPE_OPTIONS} />
+          </Field>
+
+          <DateRangeFilter
+            from={range.from}
+            to={range.to}
+            onChange={setRange}
+            fromLabel="Issued from"
+            toLabel="Issued to"
+          />
         </div>
       </div>
 
-      <DataTable
-        fill
-        columns={columns}
+      <ListView
         rows={items}
         rowKey={(c) => c.couponId}
         loading={loading}
-        onRowClick={(c) => navigate(ADMIN_PATHS.couponDetail(c.couponCode))}
+        renderRow={(c) => (
+          <CouponCard
+            coupon={c}
+            onOpen={() => navigate(ADMIN_PATHS.couponDetail(c.couponCode))}
+          />
+        )}
         empty={
           <EmptyState
             icon="🎟️"
@@ -229,16 +178,84 @@ export default function CouponListPage() {
         }
       />
 
-      <div className="shrink-0">
-        <Pagination
-          total={total}
-          limit={query.limit ?? COUPON_PAGE_SIZE}
-          offset={query.offset ?? 0}
-          onPageChange={(page) => dispatch(setCouponPage(page))}
-          noun="coupons"
-        />
-      </div>
+      <Pagination
+        total={total}
+        limit={query.limit ?? COUPON_PAGE_SIZE}
+        offset={query.offset ?? 0}
+        onPageChange={(page) => dispatch(setCouponPage(page))}
+        noun="coupons"
+      />
     </PageBody>
+  );
+}
+
+/**
+ * One coupon as a card.
+ *
+ * The code leads, because it is what someone is holding a printout of and
+ * matching against the screen — so it gets the size a heading gets, with the
+ * copy button next to it rather than buried in a column.
+ */
+function CouponCard({ coupon, onOpen }: { coupon: Coupon; onOpen: () => void }) {
+  const isValue = coupon.couponType === 'value';
+
+  return (
+    <ListRow
+      accent={COUPON_STATUS_STYLES[coupon.status].accent}
+      openLabel={`Open coupon ${coupon.couponCode}`}
+      onOpen={onOpen}
+      lead={<RowTile>{COUPON_TYPE_ICON[coupon.couponType]}</RowTile>}
+      title={
+        <>
+          <code className="font-mono text-base font-bold tracking-tight text-ink">
+            {coupon.couponCode}
+          </code>
+          <CopyButton value={coupon.couponCode} label="coupon code" />
+          <CouponStatusBadge status={coupon.status} />
+        </>
+      }
+      subtitle={coupon.campaignName}
+      meta={
+        <>
+          <span>Issued {formatWhen(coupon.issuedAt)}</span>
+          {coupon.customerId && <span className="opacity-70">· {coupon.customerId}</span>}
+          {coupon.redemptionCount > 0 && (
+            <span className="rounded-full bg-cream px-2 py-0.5 tabular-nums">
+              used ×{coupon.redemptionCount}
+            </span>
+          )}
+        </>
+      }
+      trailing={
+        // Two columns rather than one: what the coupon is worth and when it
+        // stops being worth it are the two questions asked of this list, and
+        // side by side they fill the card instead of hugging its right edge.
+        <div className="flex items-center gap-8">
+          <div className="w-44 text-left">
+            {isValue ? (
+              <ValueBar original={coupon.originalAmount} remaining={coupon.remainingBalance} />
+            ) : (
+              <>
+                <p className="truncate text-sm font-semibold text-ink">
+                  {coupon.productName ?? 'Item off the menu'}
+                </p>
+                <p className="mt-1.5 text-xs text-ash">one free item</p>
+              </>
+            )}
+          </div>
+
+          {/* Wide enough for "04-Aug-2026, 4:59 am" on one line — broken over
+              three it stops reading as a moment in time. */}
+          <div className="w-48">
+            <p className="text-xs text-ash">Expires</p>
+            <p className="mt-1.5 whitespace-nowrap text-sm font-semibold tabular-nums text-charcoal">
+              {formatDayTime(coupon.expiryDate)}
+            </p>
+            <p className="mt-1 text-xs text-ash">{relativeWhen(coupon.expiryDate)}</p>
+          </div>
+        </div>
+      }
+    />
   );
 }
 

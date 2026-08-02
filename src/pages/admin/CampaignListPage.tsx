@@ -18,16 +18,22 @@ import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
   CampaignStateBadge,
-  type Column,
   CouponTypeBadge,
-  DataTable,
+  ListRow,
+  ListView,
   PageBody,
   PageHeader,
   Pagination,
+  RowTile,
 } from '@/components/admin';
 import { Modal } from '@/components/common/Modal';
 import { formatCurrency } from '@/utils/currency';
-import { formatDayTime } from '@/utils/couponDisplay';
+import {
+  CAMPAIGN_STATE_STYLES,
+  COUPON_TYPE_ICON,
+  formatDayTime,
+  relativeWhen,
+} from '@/utils/couponDisplay';
 import { cn } from '@/utils/cn';
 import { ADMIN_PATHS } from '@/routes/paths';
 
@@ -80,82 +86,6 @@ export default function CampaignListPage() {
     if (deleteCampaign.fulfilled.match(result)) setPendingDelete(null);
   };
 
-  const columns: Column<Campaign>[] = [
-    {
-      key: 'name',
-      header: 'Campaign',
-      render: (c) => (
-        <div className="min-w-0">
-          <p className="truncate font-display text-sm font-bold text-ink">{c.name}</p>
-          {c.description && <p className="mt-0.5 truncate text-xs text-ash">{c.description}</p>}
-        </div>
-      ),
-    },
-    { key: 'type', header: 'Type', width: 'w-32', render: (c) => <CouponTypeBadge type={c.couponType} /> },
-    { key: 'state', header: 'Status', width: 'w-32', render: (c) => <CampaignStateBadge state={c.state} /> },
-    {
-      key: 'window',
-      header: 'Runs',
-      width: 'w-52',
-      render: (c) => (
-        <span className="whitespace-nowrap text-xs text-ash">
-          {formatDayTime(c.startDate)} → {formatDayTime(c.expiryDate)}
-        </span>
-      ),
-    },
-    {
-      key: 'coupons',
-      header: 'Coupons',
-      align: 'right',
-      width: 'w-32',
-      render: (c) => (
-        <span className="tabular-nums">
-          <span className="font-semibold text-ink">{c.redeemedCount}</span>
-          <span className="text-ash"> / {c.couponCount}</span>
-        </span>
-      ),
-    },
-    {
-      key: 'value',
-      header: 'Value left',
-      align: 'right',
-      width: 'w-36',
-      render: (c) =>
-        c.couponType === 'value' ? (
-          <span className="tabular-nums font-semibold text-ink">
-            {formatCurrency(c.remainingValue)}
-          </span>
-        ) : (
-          <span className="text-ash">—</span>
-        ),
-    },
-    {
-      key: 'actions',
-      header: '',
-      align: 'right',
-      width: 'w-72',
-      render: (c) => (
-        // Row clicks open the editor, so every button here has to stop the event.
-        <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-          <RowAction onClick={() => navigate(ADMIN_PATHS.campaignGenerate(c.campaignId))}>
-            Generate
-          </RowAction>
-          <RowAction
-            onClick={() =>
-              void dispatch(setCampaignActive({ campaignId: c.campaignId, isActive: !c.isActive }))
-            }
-            disabled={saving}
-          >
-            {c.isActive ? 'Deactivate' : 'Activate'}
-          </RowAction>
-          <RowAction tone="danger" onClick={() => setPendingDelete(c)}>
-            Delete
-          </RowAction>
-        </div>
-      ),
-    },
-  ];
-
   return (
     <PageBody>
       <PageHeader
@@ -182,12 +112,22 @@ export default function CampaignListPage() {
         <FilterRow options={TYPE_FILTERS} value={type} onChange={setType} />
       </div>
 
-      <DataTable
-        columns={columns}
+      <ListView
         rows={items}
         rowKey={(c) => c.campaignId}
         loading={loading}
-        onRowClick={(c) => navigate(ADMIN_PATHS.campaignEdit(c.campaignId))}
+        renderRow={(c) => (
+          <CampaignCard
+            campaign={c}
+            saving={saving}
+            onOpen={() => navigate(ADMIN_PATHS.campaignEdit(c.campaignId))}
+            onGenerate={() => navigate(ADMIN_PATHS.campaignGenerate(c.campaignId))}
+            onToggleActive={() =>
+              void dispatch(setCampaignActive({ campaignId: c.campaignId, isActive: !c.isActive }))
+            }
+            onDelete={() => setPendingDelete(c)}
+          />
+        )}
         empty={
           <EmptyState
             icon="🎯"
@@ -239,6 +179,96 @@ export default function CampaignListPage() {
         </div>
       </Modal>
     </PageBody>
+  );
+}
+
+interface CampaignCardProps {
+  campaign: Campaign;
+  saving: boolean;
+  onOpen: () => void;
+  onGenerate: () => void;
+  onToggleActive: () => void;
+  onDelete: () => void;
+}
+
+/**
+ * One campaign as a card.
+ *
+ * The window is the thing an admin actually scans for now that it carries a
+ * time, so it gets its own line rather than a column squeezed to `w-52` — and
+ * the relative phrase beside it answers "is this the one running right now?"
+ * without any date arithmetic in the reader's head.
+ */
+function CampaignCard({
+  campaign,
+  saving,
+  onOpen,
+  onGenerate,
+  onToggleActive,
+  onDelete,
+}: CampaignCardProps) {
+  const isValue = campaign.couponType === 'value';
+  // How much of the campaign has been taken up — the one number that says
+  // whether it is working, and the same bar language the coupon rows use.
+  const redeemedFraction =
+    campaign.couponCount > 0 ? campaign.redeemedCount / campaign.couponCount : 0;
+
+  return (
+    <ListRow
+      accent={CAMPAIGN_STATE_STYLES[campaign.state].accent}
+      openLabel={`Edit ${campaign.name}`}
+      onOpen={onOpen}
+      lead={<RowTile>{COUPON_TYPE_ICON[campaign.couponType]}</RowTile>}
+      title={
+        <>
+          <p className="truncate font-display text-base font-extrabold text-ink">{campaign.name}</p>
+          <CampaignStateBadge state={campaign.state} />
+          <CouponTypeBadge type={campaign.couponType} />
+        </>
+      }
+      subtitle={campaign.description || undefined}
+      meta={
+        <>
+          <span>
+            {formatDayTime(campaign.startDate)} → {formatDayTime(campaign.expiryDate)}
+          </span>
+          <span className="opacity-70">
+            ({campaign.state === 'scheduled'
+              ? `starts ${relativeWhen(campaign.startDate)}`
+              : `ends ${relativeWhen(campaign.expiryDate)}`}
+            )
+          </span>
+        </>
+      }
+      trailing={
+        <div className="w-40">
+          <p className="tabular-nums text-sm">
+            <span className="font-display font-extrabold text-ink">{campaign.redeemedCount}</span>
+            <span className="text-ash"> / {campaign.couponCount} redeemed</span>
+          </p>
+          <span className="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-mist">
+            <span
+              className="block h-full rounded-full bg-leaf transition-all duration-300"
+              style={{ width: `${Math.round(redeemedFraction * 100)}%` }}
+            />
+          </span>
+          <p className="mt-2 text-xs text-ash">
+            {isValue ? `${formatCurrency(campaign.remainingValue)} left` : 'No balance to carry'}
+          </p>
+        </div>
+      }
+      actions={
+        <>
+          <RowAction onClick={onGenerate}>Generate</RowAction>
+          <RowAction onClick={onToggleActive} disabled={saving}>
+            {campaign.isActive ? 'Deactivate' : 'Activate'}
+          </RowAction>
+          <RowAction tone="danger" onClick={onDelete}>
+            Delete
+          </RowAction>
+        </>
+      }
+    />
   );
 }
 

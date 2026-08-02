@@ -4,6 +4,7 @@ import { productApi } from '@/services/api/productApi';
 import { MEAL_UPGRADE_PRICE } from '@/constants/order.constants';
 import { formatCurrency, formatCalories } from '@/utils/currency';
 import { unitPriceOf } from '@/utils/priceCalculator';
+import { defaultSelection, pickedInGroup, unsatisfiedGroups } from '@/utils/modifierRules';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 import { ProductImage } from '@/components/cards/ProductImage';
@@ -45,6 +46,10 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
         if (cancelled) return;
         setGroups(data.groups);
         setAvailable(data.modifiers);
+        // Required groups (a size, say) start on their cheapest option, so the
+        // item is always in an orderable state — the server refuses a line that
+        // is missing one.
+        setSelected(defaultSelection(data.groups, data.modifiers));
       })
       .catch(() => {
         // Options unavailable — the plain item can still be ordered.
@@ -75,6 +80,9 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
         next[modId] = true;
         return next;
       }
+      // A group that is already at its ceiling takes no more — the order would
+      // come back rejected rather than simply ignoring the extra pick.
+      if (!prev[modId] && pickedInGroup(group, prev) >= group.max) return prev;
       return { ...prev, [modId]: !prev[modId] };
     });
   };
@@ -96,7 +104,14 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
     close();
   };
 
-  const onAddPressed = () => (product.isMealEligible ? setStep('meal') : commit(false));
+  // Defaults normally cover these, so this only bites when someone clears a
+  // required multi-select — but it is what keeps a rejectable line out of the cart.
+  const unmet = unsatisfiedGroups(groups, selected);
+
+  const onAddPressed = () => {
+    if (unmet.length) return;
+    return product.isMealEligible ? setStep('meal') : commit(false);
+  };
 
   return (
     <Modal open={!!product} onClose={close}>
@@ -192,11 +207,18 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
             ))}
           </div>
 
-          <div className="flex items-center gap-5 bg-paper px-8 py-6 shadow-bar">
-            <QuantitySelector value={qty} onChange={setQty} />
-            <Button size="xl" fullWidth onClick={onAddPressed}>
-              Add to order · {formatCurrency(previewUnit * qty)}
-            </Button>
+          <div className="bg-paper px-8 py-6 shadow-bar">
+            {unmet.length > 0 && (
+              <p className="mb-4 text-center text-kiosk-sm font-bold text-flame animate-fade-in">
+                Choose {unmet.map((g) => g.name.toLowerCase()).join(' and ')} to continue
+              </p>
+            )}
+            <div className="flex items-center gap-5">
+              <QuantitySelector value={qty} onChange={setQty} />
+              <Button size="xl" fullWidth onClick={onAddPressed} disabled={unmet.length > 0}>
+                Add to order · {formatCurrency(previewUnit * qty)}
+              </Button>
+            </div>
           </div>
         </div>
       ) : (

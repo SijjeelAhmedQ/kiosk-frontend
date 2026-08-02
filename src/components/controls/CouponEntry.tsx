@@ -3,8 +3,10 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { clearCoupon, dismissCouponReason, validateCoupon } from '@/redux/slices/couponRedemptionSlice';
 import { addLine } from '@/redux/slices/cartSlice';
 import { selectCartLines } from '@/redux/selectors';
+import { productApi } from '@/services/api/productApi';
 import { Button } from '@/components/common/Button';
 import { Spinner } from '@/components/common/LoadingScreen';
+import { defaultLineModifiers } from '@/utils/modifierRules';
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/utils/cn';
 
@@ -50,6 +52,13 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
     if (validation.couponType === 'product' && validation.productId) {
       const alreadyInCart = cartLines.some((line) => line.productId === validation.productId);
       if (!alreadyInCart) {
+        // Nobody picks options for this one, so it has to arrive with whatever
+        // its required groups demand — a free shake still needs a size, and the
+        // order is refused outright without one.
+        const options = await productApi
+          .getProductModifiers(validation.productId)
+          .catch(() => ({ groups: [], modifiers: [] }));
+
         dispatch(
           addLine({
             productId: validation.productId,
@@ -59,7 +68,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
             quantity: 1,
             isMeal: false,
             mealUpcharge: 0,
-            modifiers: [],
+            modifiers: defaultLineModifiers(options.groups, options.modifiers),
           }),
         );
       }

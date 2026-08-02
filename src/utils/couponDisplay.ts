@@ -1,13 +1,30 @@
 import type { CampaignState, CouponStatus, CouponType } from '@/types';
 import { APP } from '@/constants/app.constants';
 
-/** Coupon status → the pill the admin screens show. Mirrors STATUS_STYLES for orders. */
-export const COUPON_STATUS_STYLES: Record<CouponStatus, { label: string; className: string }> = {
-  unused: { label: 'Unused', className: 'bg-mist text-charcoal' },
-  partially_redeemed: { label: 'Partly used', className: 'bg-amber-soft text-amber-dark' },
-  fully_redeemed: { label: 'Fully redeemed', className: 'bg-leaf-soft text-leaf' },
-  expired: { label: 'Expired', className: 'bg-flame-soft text-flame' },
-  cancelled: { label: 'Cancelled', className: 'bg-mist text-ash' },
+/**
+ * Coupon status → the pill the admin screens show, and the rail down the left
+ * of its card. Mirrors STATUS_STYLES for orders.
+ *
+ * `accent` is the pill's colour at full strength: the two are the same signal,
+ * so they are declared together and can never drift apart.
+ */
+export const COUPON_STATUS_STYLES: Record<
+  CouponStatus,
+  { label: string; className: string; accent: string }
+> = {
+  unused: { label: 'Unused', className: 'bg-mist text-charcoal', accent: 'bg-ash/40' },
+  partially_redeemed: {
+    label: 'Partly used',
+    className: 'bg-amber-soft text-amber-dark',
+    accent: 'bg-amber',
+  },
+  fully_redeemed: {
+    label: 'Fully redeemed',
+    className: 'bg-leaf-soft text-leaf',
+    accent: 'bg-leaf',
+  },
+  expired: { label: 'Expired', className: 'bg-flame-soft text-flame', accent: 'bg-flame' },
+  cancelled: { label: 'Cancelled', className: 'bg-mist text-ash', accent: 'bg-ash/40' },
 };
 
 /**
@@ -15,11 +32,18 @@ export const COUPON_STATUS_STYLES: Record<CouponStatus, { label: string; classNa
  * switch someone threw, and it silently stops every coupon in the campaign from
  * being redeemed, so it should stand out in a list.
  */
-export const CAMPAIGN_STATE_STYLES: Record<CampaignState, { label: string; className: string }> = {
-  running: { label: 'Running', className: 'bg-leaf-soft text-leaf' },
-  scheduled: { label: 'Scheduled', className: 'bg-amber-soft text-amber-dark' },
-  expired: { label: 'Ended', className: 'bg-mist text-ash' },
-  inactive: { label: 'Inactive', className: 'bg-flame-soft text-flame' },
+export const CAMPAIGN_STATE_STYLES: Record<
+  CampaignState,
+  { label: string; className: string; accent: string }
+> = {
+  running: { label: 'Running', className: 'bg-leaf-soft text-leaf', accent: 'bg-leaf' },
+  scheduled: {
+    label: 'Scheduled',
+    className: 'bg-amber-soft text-amber-dark',
+    accent: 'bg-amber',
+  },
+  expired: { label: 'Ended', className: 'bg-mist text-ash', accent: 'bg-ash/40' },
+  inactive: { label: 'Inactive', className: 'bg-flame-soft text-flame', accent: 'bg-flame' },
 };
 
 export const COUPON_TYPE_LABEL: Record<CouponType, string> = {

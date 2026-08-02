@@ -21,17 +21,15 @@ interface DataTableProps<T> {
   loading?: boolean;
   /** Shown instead of the table body when there are no rows. */
   empty?: ReactNode;
-  /**
-   * Claim the height left over by the rest of the page and scroll the rows
-   * inside it, with the header pinned. Needs an ancestor that constrains the
-   * height — <PageBody fill> is the one that does.
-   */
-  fill?: boolean;
 }
 
 /**
- * The one table the back office uses — antd's Table underneath, themed in
+ * The back office's one table — antd's Table underneath, themed in
  * src/theme/antdTheme.ts so it reads as the same plain list it always did.
+ *
+ * The list screens are cards now (see ListView); what is left here is the
+ * coupon ledger, where the rows really are homogeneous money movements read in
+ * sequence, and columns that line up are the point.
  *
  * Still deliberately plain: no sorting, no column resizing, no virtualisation.
  * The lists it renders are server-paged at 10–15 rows, so none of that would do
@@ -51,11 +49,8 @@ export function DataTable<T extends object>({
   onRowClick,
   loading,
   empty,
-  fill,
 }: DataTableProps<T>) {
-  // The spinner and the empty state stand in for the table, so they have to
-  // take up the same room it would — otherwise a filled page jumps on reload.
-  const surface = cn('rounded-xl3 bg-paper shadow-soft', fill && 'min-h-0 flex-1');
+  const surface = 'rounded-xl3 bg-paper shadow-soft';
 
   if (loading && rows.length === 0) {
     return (
@@ -84,13 +79,7 @@ export function DataTable<T extends object>({
   }));
 
   return (
-    <div
-      className={cn(
-        'admin-table rounded-xl3 bg-paper shadow-soft',
-        // Sideways when it has to, both ways when it owns the page's height.
-        fill ? 'admin-table--sticky min-h-0 flex-1 overflow-auto' : 'overflow-x-auto',
-      )}
-    >
+    <div className="admin-table overflow-x-auto rounded-xl3 bg-paper shadow-soft">
       <ConfigProvider
         // Rows only light up when there is somewhere to click through to.
         theme={{ components: { Table: { rowHoverBg: onRowClick ? '#F4F4F7' : 'transparent' } } }}
