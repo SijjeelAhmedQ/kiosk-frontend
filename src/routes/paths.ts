@@ -17,6 +17,16 @@ export type PathKey = keyof typeof PATHS;
  */
 export const ADMIN_PATHS = {
   root: '/admin',
+
+  // The menu.
+  categories: '/admin/categories',
+  categoryNew: '/admin/categories/new',
+  categoryEdit: (id: string) => `/admin/categories/${encodeURIComponent(id)}`,
+  products: '/admin/products',
+  productNew: '/admin/products/new',
+  productEdit: (id: string) => `/admin/products/${encodeURIComponent(id)}`,
+
+  // Coupons.
   campaigns: '/admin/campaigns',
   campaignNew: '/admin/campaigns/new',
   campaignEdit: (id: number | string) => `/admin/campaigns/${id}`,

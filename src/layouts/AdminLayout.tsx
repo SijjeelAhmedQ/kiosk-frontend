@@ -12,10 +12,18 @@ import { ADMIN_PATHS, PATHS } from '@/routes/paths';
  * same product.
  */
 
+/* Two groups, because they are two jobs: keeping the menu right, and running
+   the promotions on top of it. Someone doing one is rarely doing the other. */
 const NAV = [
-  { to: ADMIN_PATHS.campaigns, label: 'Campaigns', icon: '🎯' },
-  { to: ADMIN_PATHS.coupons, label: 'Coupons', icon: '🎟️' },
-  { to: ADMIN_PATHS.history, label: 'Redemptions', icon: '📊' },
+  { group: 'Menu', items: [
+    { to: ADMIN_PATHS.products, label: 'Products', icon: '🍔' },
+    { to: ADMIN_PATHS.categories, label: 'Categories', icon: '🗂️' },
+  ] },
+  { group: 'Coupons', items: [
+    { to: ADMIN_PATHS.campaigns, label: 'Campaigns', icon: '🎯' },
+    { to: ADMIN_PATHS.coupons, label: 'Coupons', icon: '🎟️' },
+    { to: ADMIN_PATHS.history, label: 'Redemptions', icon: '📊' },
+  ] },
 ] as const;
 
 export function AdminLayout() {
@@ -26,25 +34,30 @@ export function AdminLayout() {
       <aside className="flex w-[260px] shrink-0 flex-col border-r border-mist bg-paper">
         <div className="px-6 py-7">
           <p className="font-display text-base font-extrabold leading-tight text-ink">{APP.name}</p>
-          <p className="mt-1 text-xs uppercase tracking-[0.14em] text-ash">Coupon admin</p>
+          <p className="mt-1 text-xs uppercase tracking-[0.14em] text-ash">Back office</p>
         </div>
 
-        <nav className="flex flex-col gap-1 px-3">
-          {NAV.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-2xl px-4 py-3 font-display text-sm font-bold',
-                  'transition-colors duration-150',
-                  isActive ? 'bg-amber text-ink shadow-brand' : 'text-charcoal hover:bg-cream',
-                )
-              }
-            >
-              <span className="text-base leading-none">{item.icon}</span>
-              {item.label}
-            </NavLink>
+        <nav className="flex flex-col gap-5 px-3">
+          {NAV.map((section) => (
+            <div key={section.group} className="flex flex-col gap-1">
+              <p className="px-4 pb-1 font-display text-xs font-bold text-ash">{section.group}</p>
+              {section.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 rounded-2xl px-4 py-3 font-display text-sm font-bold',
+                      'transition-colors duration-150',
+                      isActive ? 'bg-amber text-ink shadow-brand' : 'text-charcoal hover:bg-cream',
+                    )
+                  }
+                >
+                  <span className="text-base leading-none">{item.icon}</span>
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 
@@ -63,7 +76,7 @@ export function AdminLayout() {
             className="press flex items-center gap-3 rounded-2xl px-4 py-3 text-left font-display text-sm font-bold text-ash transition-colors hover:bg-cream"
           >
             <span className="text-base leading-none">↩</span>
-            Back to kiosk
+            Back to order
           </button>
         </div>
       </aside>

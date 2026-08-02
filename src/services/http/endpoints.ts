@@ -11,6 +11,15 @@ export const ENDPOINTS = {
   orderByNumber: (orderNumber: string) => `/orders/number/${orderNumber}`,
   payments: '/payments',
 
+  /* Menu maintenance. Under /admin so the kiosk's own /categories and /products
+     keep their shape — the admin list carries inactive rows, which would be a
+     bug if the menu ever read it by accident. */
+  adminCategories: '/admin/categories',
+  adminCategoryDetail: (id: string) => `/admin/categories/${encodeURIComponent(id)}`,
+  adminProducts: '/admin/products',
+  adminProductDetail: (id: string) => `/admin/products/${encodeURIComponent(id)}`,
+  adminProductStatus: (id: string) => `/admin/products/${encodeURIComponent(id)}/status`,
+
   // Campaigns — the admin side of coupon management.
   campaigns: '/campaigns',
   campaignDetail: (id: number) => `/campaigns/${id}`,

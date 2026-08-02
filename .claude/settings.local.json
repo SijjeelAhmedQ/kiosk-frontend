@@ -77,7 +77,11 @@
       "Bash(./.venv/Scripts/python.exe scripts/smoke_test.py)",
       "Bash(./.venv/Scripts/python.exe scripts/coupon_smoke_test.py)",
       "PowerShell($c = Get-NetTCPConnection -LocalPort 5173 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"5173 busy \\(pid $\\($c[0].OwningProcess\\)\\)\" } else { \"5173 free\" })",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "Bash(curl -s -o /dev/null -w \"admin_categories=%{http_code}\\\\n\" \"http://localhost:8000/api/v1/admin/categories\")",
+      "Bash(curl -s \"http://localhost:8000/api/v1/admin/categories\")",
+      "Bash(curl -s -o /dev/null -w \"api8001=%{http_code}\\\\n\" \"http://localhost:8001/api/v1/admin/products\")",
+      "Bash(./.venv/Scripts/python.exe scripts/catalog_smoke_test.py http://127.0.0.1:8001)"
     ]
   }
 }

@@ -18,6 +18,10 @@ const OrdersPage = lazy(() => import('@/pages/OrdersPage'));
 const AdminLayout = lazy(() =>
   import('@/layouts/AdminLayout').then((m) => ({ default: m.AdminLayout })),
 );
+const CategoryListPage = lazy(() => import('@/pages/admin/CategoryListPage'));
+const CategoryFormPage = lazy(() => import('@/pages/admin/CategoryFormPage'));
+const ProductListPage = lazy(() => import('@/pages/admin/ProductListPage'));
+const ProductFormPage = lazy(() => import('@/pages/admin/ProductFormPage'));
 const CampaignListPage = lazy(() => import('@/pages/admin/CampaignListPage'));
 const CampaignFormPage = lazy(() => import('@/pages/admin/CampaignFormPage'));
 const GenerateCouponsPage = lazy(() => import('@/pages/admin/GenerateCouponsPage'));
@@ -48,7 +52,17 @@ export function AppRoutes() {
         {/* Back office — its own layout, and no OrderTypeGuard: an admin has
             not chosen dine-in or take-away and should not be asked to. */}
         <Route path={ADMIN_PATHS.root} element={<AdminLayout />}>
-          <Route index element={<Navigate to={ADMIN_PATHS.campaigns} replace />} />
+          <Route index element={<Navigate to={ADMIN_PATHS.products} replace />} />
+
+          {/* The menu. "new" is declared before ":id", or a category could be
+              called "new" and shadow the create form. */}
+          <Route path="categories" element={<CategoryListPage />} />
+          <Route path="categories/new" element={<CategoryFormPage />} />
+          <Route path="categories/:categoryId" element={<CategoryFormPage />} />
+          <Route path="products" element={<ProductListPage />} />
+          <Route path="products/new" element={<ProductFormPage />} />
+          <Route path="products/:productId" element={<ProductFormPage />} />
+
           <Route path="campaigns" element={<CampaignListPage />} />
           <Route path="campaigns/new" element={<CampaignFormPage />} />
           <Route path="campaigns/:campaignId" element={<CampaignFormPage />} />
