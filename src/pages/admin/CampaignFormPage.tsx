@@ -193,7 +193,7 @@ export default function CampaignFormPage() {
       <AlertBanner message={error} onDismiss={() => dispatch(clearCampaignError())} />
 
       {isEdit && current && (
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mb-6 grid max-w-[46rem] grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat label="Coupons" value={String(current.couponCount)} />
           <Stat label="Fully redeemed" value={String(current.redeemedCount)} />
           <Stat label="Issued value" value={formatCurrency(current.issuedValue)} />
@@ -201,7 +201,13 @@ export default function CampaignFormPage() {
         </div>
       )}
 
-      <form onSubmit={submit} className="flex flex-col gap-5 rounded-xl3 bg-paper p-7 shadow-soft">
+      {/* Capped: stretched across the whole page, a 120-character name field
+          gets a 1000px input and the eye has to travel the width of the screen
+          between a label and its value. */}
+      <form
+        onSubmit={submit}
+        className="flex max-w-[46rem] flex-col gap-5 rounded-xl3 bg-paper p-7 shadow-soft"
+      >
         <Field label="Campaign name" required error={errors.name}>
           <TextInput
             value={form.name}

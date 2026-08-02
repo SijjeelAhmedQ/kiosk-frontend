@@ -327,12 +327,18 @@ export function DateRangeFilter({
   );
 }
 
-/** A labelled number for the filter rails and detail headers. */
+/**
+ * A labelled number for the page headers.
+ *
+ * On paper, not cream: every one of these sits directly on the back office's
+ * cream background, where a cream tile is no tile at all — the figures read as
+ * loose text with nothing holding them.
+ */
 export function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
-    <div className="flex flex-col rounded-2xl bg-cream px-4 py-3 leading-none">
+    <div className="flex flex-col rounded-2xl bg-paper px-4 py-3.5 leading-none shadow-soft">
       <span className="text-xs text-ash">{label}</span>
-      <span className={cn('mt-2 font-display text-base font-extrabold tabular-nums text-ink', tone)}>
+      <span className={cn('mt-2 font-display text-lg font-extrabold tabular-nums text-ink', tone)}>
         {value}
       </span>
     </div>

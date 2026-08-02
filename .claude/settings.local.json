@@ -73,7 +73,11 @@
       "Bash(curl -s -o /dev/null -w \"vite=%{http_code}\\\\n\" \"http://127.0.0.1:5174/admin/coupons\")",
       "Bash(grep -iv \"^$\")",
       "Bash(curl -s -o /dev/null -w \"vite5175=%{http_code}\\\\n\" \"http://127.0.0.1:5175/admin/coupons\")",
-      "PowerShell(cd \"D:\\\\other apps\\\\kiosk-backend\"; foreach \\($f in @\\(\"sql\\\\06_coupons_schema.sql\",\"sql\\\\07_coupons_procedures.sql\"\\)\\) { sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -b -I -i $f | Select-Object -Last 2; \"  -> $f exit=$LASTEXITCODE\" })"
+      "PowerShell(cd \"D:\\\\other apps\\\\kiosk-backend\"; foreach \\($f in @\\(\"sql\\\\06_coupons_schema.sql\",\"sql\\\\07_coupons_procedures.sql\"\\)\\) { sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -b -I -i $f | Select-Object -Last 2; \"  -> $f exit=$LASTEXITCODE\" })",
+      "Bash(./.venv/Scripts/python.exe scripts/smoke_test.py)",
+      "Bash(./.venv/Scripts/python.exe scripts/coupon_smoke_test.py)",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 5173 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"5173 busy \\(pid $\\($c[0].OwningProcess\\)\\)\" } else { \"5173 free\" })",
+      "PowerShell(New-Item *)"
     ]
   }
 }

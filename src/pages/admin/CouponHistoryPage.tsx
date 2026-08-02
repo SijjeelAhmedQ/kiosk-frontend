@@ -95,7 +95,9 @@ export default function CouponHistoryPage() {
 
       <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
 
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* Two figures, not four — stretched over a four-column grid they read
+          as a row that failed to load. */}
+      <div className="mb-5 grid max-w-[34rem] grid-cols-2 gap-3">
         <Stat label="Redemptions" value={String(historyTotal)} />
         <Stat label="Value redeemed" value={formatCurrency(historyValue)} tone="text-leaf" />
       </div>

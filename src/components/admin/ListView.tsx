@@ -127,7 +127,14 @@ export function ListRow({
         <div className="pointer-events-none relative shrink-0 text-right leading-none">{trailing}</div>
       )}
 
-      {actions && <div className="relative flex shrink-0 flex-wrap gap-2">{actions}</div>}
+      {/* A fixed column, not a shrink-to-fit one: "Deactivate" is wider than
+          "Activate", and without this the buttons — and everything left of
+          them — step in and out row by row down the list. */}
+      {actions && (
+        <div className="relative flex w-[17.5rem] shrink-0 flex-wrap justify-end gap-2">
+          {actions}
+        </div>
+      )}
 
       {onOpen && (
         <span className="pointer-events-none relative shrink-0 text-lg text-ash transition-transform duration-200 group-hover:translate-x-1">
