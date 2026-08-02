@@ -1,7 +1,10 @@
 export const APP = {
   name: 'Friends Kitchen',
   tagline: 'Flame-grilled · Made to order',
-  taxRate: 0.0825,               // 8.25%
+  /* The basket's estimate while the order is being built. The server prices the
+     order for real from AppSettings.TaxRate — keep the two in step, or the
+     customer is shown one total and charged another. */
+  taxRate: 0.15,                 // 15%
   currency: (import.meta.env.VITE_CURRENCY as string) ?? 'PKR',
   locale: 'en-PK',
   idleTimeoutMs: Number(import.meta.env.VITE_IDLE_TIMEOUT_MS ?? 90000),
