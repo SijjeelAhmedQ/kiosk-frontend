@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setActiveCategory } from '@/redux/slices/categoriesSlice';
 import { CategoryCard } from '@/components/cards/CategoryCard';
+import { PATHS } from '@/routes/paths';
 import { cn } from '@/utils/cn';
 
 interface SidebarProps {
@@ -15,6 +17,7 @@ interface SidebarProps {
  */
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { items, activeId } = useAppSelector((s) => s.categories);
 
   return (
@@ -34,20 +37,46 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         />
       ))}
 
-      {/* Anchored at the bottom of the rail so it never competes with the categories. */}
-      <button
-        onClick={onToggle}
-        aria-label={collapsed ? 'Show category names' : 'Shrink to icons'}
-        title={collapsed ? 'Show category names' : 'Shrink to icons'}
-        className={cn(
-          'press mt-auto flex shrink-0 items-center gap-3 rounded-2xl bg-cream text-ash transition-colors hover:text-ink',
-          collapsed ? 'h-12 justify-center' : 'h-12 px-4',
-        )}
-      >
-        <Chevron className={cn('h-5 w-5 transition-transform duration-300 ease-spring', collapsed && 'rotate-180')} />
-        {!collapsed && <span className="font-display text-kiosk-xs font-bold">Collapse</span>}
-      </button>
+      {/* Anchored at the bottom of the rail so neither competes with the categories.
+          Back sits above Collapse: leaving the menu is the rarer tap, but it is a
+          navigation, and the toggle is only a view preference. */}
+      <div className="mt-auto flex shrink-0 flex-col gap-2 border-t border-mist pt-3">
+        <button
+          onClick={() => navigate(PATHS.splash)}
+          aria-label="Back to start"
+          title="Back to start"
+          className={cn(
+            'press flex shrink-0 items-center gap-3 rounded-2xl bg-cream text-ash transition-colors hover:text-ink',
+            collapsed ? 'h-12 justify-center' : 'h-12 px-4',
+          )}
+        >
+          <ArrowLeft className="h-5 w-5" />
+          {!collapsed && <span className="font-display text-kiosk-xs font-bold">Back</span>}
+        </button>
+
+        <button
+          onClick={onToggle}
+          aria-label={collapsed ? 'Show category names' : 'Shrink to icons'}
+          title={collapsed ? 'Show category names' : 'Shrink to icons'}
+          className={cn(
+            'press flex shrink-0 items-center gap-3 rounded-2xl bg-cream text-ash transition-colors hover:text-ink',
+            collapsed ? 'h-12 justify-center' : 'h-12 px-4',
+          )}
+        >
+          <Chevron className={cn('h-5 w-5 transition-transform duration-300 ease-spring', collapsed && 'rotate-180')} />
+          {!collapsed && <span className="font-display text-kiosk-xs font-bold">Collapse</span>}
+        </button>
+      </div>
     </aside>
+  );
+}
+
+function ArrowLeft({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M19 12H5" />
+      <path d="m12 19-7-7 7-7" />
+    </svg>
   );
 }
 
