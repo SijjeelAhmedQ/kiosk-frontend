@@ -9,6 +9,7 @@ import { StepBar } from '@/components/common/StepBar';
 import { CouponEntry } from '@/components/controls/CouponEntry';
 import { PAYMENT_METHODS } from '@/constants/order.constants';
 import type { PaymentMethod } from '@/types';
+import { couponDiscount } from '@/utils/couponDiscount';
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/utils/cn';
 import { PATHS } from '@/routes/paths';
@@ -26,8 +27,9 @@ export default function CheckoutPage() {
 
   /* An estimate only — the server recomputes the draw when the coupon is
      redeemed, and caps it at what the order actually owes. Capping here too
-     keeps the button from promising a discount bigger than the order. */
-  const discount = appliedCoupon ? Math.min(appliedCoupon.applicableAmount, total) : 0;
+     keeps the button from promising a discount bigger than the order. A free
+     item comes off with its tax; see utils/couponDiscount. */
+  const discount = couponDiscount(appliedCoupon, total);
   const dueNow = Math.max(0, total - discount);
 
   const proceed = () => {

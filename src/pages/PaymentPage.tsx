@@ -8,6 +8,7 @@ import { clearCoupon, redeemCoupon } from '@/redux/slices/couponRedemptionSlice'
 import { selectCartLines, selectCartSummary } from '@/redux/selectors';
 import { orderApi } from '@/services/api/orderApi';
 import { Button } from '@/components/common/Button';
+import { couponDiscount } from '@/utils/couponDiscount';
 import { formatCurrency } from '@/utils/currency';
 import type { ApiError } from '@/types';
 import { PATHS } from '@/routes/paths';
@@ -24,9 +25,7 @@ export default function PaymentPage() {
   const coupon = useAppSelector((s) => s.couponRedemption);
   const [error, setError] = useState<string | null>(null);
   // What the terminal is being asked for, once any coupon has come off.
-  const [charging, setCharging] = useState(
-    total - (coupon.applied ? Math.min(coupon.applied.applicableAmount, total) : 0),
-  );
+  const [charging, setCharging] = useState(total - couponDiscount(coupon.applied, total));
   // Placing an order is not idempotent, and StrictMode runs effects twice in
   // dev — without this guard the customer is charged for two orders.
   const started = useRef(false);
@@ -52,8 +51,15 @@ export default function PaymentPage() {
         if (coupon.applied && coupon.status === 'applied') {
           const redemption = await dispatch(redeemCoupon({ orderId: placed.orderId }));
           if (redeemCoupon.fulfilled.match(redemption)) {
-            discount = redemption.payload.redeemedAmount;
-            setCharging(redemption.payload.amountDue);
+            /* The server draws the free item's shelf price, so its `amountDue`
+               still carries the tax on a line the customer is not paying for.
+               Take that tax off too — a free item is free, tax and all. */
+            discount = couponDiscount(
+              coupon.applied,
+              placed.summary.total,
+              redemption.payload.redeemedAmount,
+            );
+            setCharging(Math.max(0, placed.summary.total - discount));
           } else {
             // The coupon lapsed between checkout and here. Rather than strand
             // the customer, the order stands and the full amount is charged.

@@ -7,6 +7,7 @@ import { productApi } from '@/services/api/productApi';
 import { Button } from '@/components/common/Button';
 import { Spinner } from '@/components/common/LoadingScreen';
 import { defaultLineModifiers } from '@/utils/modifierRules';
+import { couponDiscount } from '@/utils/couponDiscount';
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/utils/cn';
 
@@ -79,7 +80,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
     // The estimate was worked out against the total at the time it was applied;
     // the server caps the real draw at what the order owes, so cap the display
     // the same way rather than promising more than the order is worth.
-    const discount = Math.min(applied.applicableAmount, orderTotal);
+    const discount = couponDiscount(applied, orderTotal);
 
     return (
       <div className="mt-5 rounded-2xl bg-leaf-soft p-5 animate-fade-in">
@@ -92,6 +93,13 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
                 : `Coupon applied — ${formatCurrency(discount)} off`}
             </p>
             <p className="mt-1 truncate font-mono text-kiosk-xs text-leaf/80">{applied.couponCode}</p>
+            {/* Spelling out "tax included" because the free line still shows in
+                the subtotal above — otherwise the discount looks short. */}
+            {applied.couponType === 'product' && (
+              <p className="mt-1.5 text-kiosk-xs text-leaf/80">
+                {formatCurrency(discount)} off, tax included
+              </p>
+            )}
             {applied.couponType === 'value' && applied.remainingBalance !== null && (
               <p className="mt-1.5 text-kiosk-xs text-leaf/80">
                 {formatCurrency(Math.max(0, applied.remainingBalance - discount))} will be left on it
