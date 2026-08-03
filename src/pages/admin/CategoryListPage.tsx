@@ -9,21 +9,23 @@ import {
   updateCategory,
 } from '@/redux/slices/catalogAdminSlice';
 import { Button } from '@/components/common/Button';
-import { EmptyState } from '@/components/common/EmptyState';
 import { Modal } from '@/components/common/Modal';
 import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
+  EmptyPanel,
   imageSrc,
   ListRow,
   ListView,
   PageBody,
   PageHeader,
   Pagination,
+  RowAction,
   RowTile,
   Stat,
+  StatRow,
+  Toolbar,
 } from '@/components/admin';
-import { cn } from '@/utils/cn';
 import { ADMIN_PATHS } from '@/routes/paths';
 
 const PAGE_SIZE = 15;
@@ -97,6 +99,8 @@ export default function CategoryListPage() {
           left and scrolls inside itself. */}
       <div className="shrink-0">
         <PageHeader
+          eyebrow="Menu"
+          icon="🗂️"
           title="Categories"
           subtitle="The sections the kiosk groups the menu into. A category has to exist before anything can be put in it."
           actions={
@@ -108,14 +112,24 @@ export default function CategoryListPage() {
 
         <AlertBanner message={error} onDismiss={() => dispatch(clearCatalogError())} />
 
-        <div className="mb-5 grid max-w-[34rem] grid-cols-2 gap-3">
-          <Stat label="Categories" value={`${activeCount} of ${categories.length} active`} />
-          <Stat label="Products in them" value={String(productCount)} />
-        </div>
+        <StatRow className="max-w-[34rem] grid-cols-2">
+          <Stat
+            icon="🗂️"
+            label="Categories"
+            value={`${activeCount} of ${categories.length} active`}
+            hint={`${categories.length - activeCount} hidden from the kiosk`}
+          />
+          <Stat
+            icon="🍔"
+            label="Products in them"
+            value={String(productCount)}
+            hint="across every section"
+          />
+        </StatRow>
 
-        <div className="mb-5">
+        <Toolbar>
           <SearchBar value={search} onChange={setSearch} placeholder="Search categories…" />
-        </div>
+        </Toolbar>
       </div>
 
       <ListView
@@ -134,7 +148,7 @@ export default function CategoryListPage() {
           />
         )}
         empty={
-          <EmptyState
+          <EmptyPanel
             icon="🗂️"
             title={search ? 'No matching categories' : 'No categories yet'}
             message={
@@ -276,35 +290,3 @@ function CategoryCard({
   );
 }
 
-/** Same pill as the campaign list's row actions — one vocabulary for both. */
-function RowAction({
-  tone = 'default',
-  disabled,
-  onClick,
-  title,
-  children,
-}: {
-  tone?: 'default' | 'danger';
-  disabled?: boolean;
-  onClick: () => void;
-  title?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      title={title}
-      onClick={onClick}
-      className={cn(
-        'press rounded-full px-3.5 py-2 font-display text-xs font-bold transition-colors duration-150',
-        'disabled:pointer-events-none disabled:opacity-40',
-        tone === 'danger'
-          ? 'bg-flame-soft text-flame hover:bg-flame hover:text-white'
-          : 'bg-cream text-charcoal hover:bg-mist',
-      )}
-    >
-      {children}
-    </button>
-  );
-}

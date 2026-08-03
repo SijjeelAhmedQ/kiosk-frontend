@@ -11,11 +11,11 @@ import {
 } from '@/redux/slices/catalogAdminSlice';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/common/Button';
-import { EmptyState } from '@/components/common/EmptyState';
 import { Modal } from '@/components/common/Modal';
 import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
+  EmptyPanel,
   Field,
   imageSrc,
   ListRow,
@@ -23,9 +23,12 @@ import {
   PageBody,
   PageHeader,
   Pagination,
+  RowAction,
   RowTile,
   Select,
   Stat,
+  StatRow,
+  Toolbar,
   type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
@@ -144,6 +147,8 @@ export default function ProductListPage() {
           the top of it every time is what makes that tiring. */}
       <div className="shrink-0">
         <PageHeader
+          eyebrow="Menu"
+          icon="🍔"
           title="Products"
           subtitle="Everything the kiosk can sell. Hiding a product takes it off the menu and leaves the history alone."
           actions={
@@ -155,14 +160,23 @@ export default function ProductListPage() {
 
         <AlertBanner message={error} onDismiss={() => dispatch(clearCatalogError())} />
 
-        <div className="mb-5 flex flex-wrap items-end gap-3">
-          <div className="grid max-w-[34rem] flex-1 grid-cols-2 gap-3">
-            <Stat label="Matching" value={String(products.length)} />
-            <Stat label="On the menu" value={String(onMenu)} tone="text-leaf" />
-          </div>
-        </div>
+        <StatRow className="max-w-[34rem] grid-cols-2">
+          <Stat
+            icon="🍔"
+            label="Matching"
+            value={String(products.length)}
+            hint={filtered ? 'with these filters' : 'products in the menu'}
+          />
+          <Stat
+            icon="✅"
+            label="On the menu"
+            value={String(onMenu)}
+            tone="text-leaf"
+            hint={`${products.length - onMenu} hidden`}
+          />
+        </StatRow>
 
-        <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
+        <Toolbar>
           <SearchBar
             value={search}
             onChange={setSearch}
@@ -177,7 +191,7 @@ export default function ProductListPage() {
               <Select<ActiveFilter> value={active} onChange={setActive} options={ACTIVE_OPTIONS} />
             </Field>
           </div>
-        </div>
+        </Toolbar>
       </div>
 
       <ListView
@@ -195,7 +209,7 @@ export default function ProductListPage() {
           />
         )}
         empty={
-          <EmptyState
+          <EmptyPanel
             icon="🍔"
             title={filtered ? 'No matching products' : 'No products yet'}
             message={
@@ -345,34 +359,3 @@ function ProductCard({ product, saving, onOpen, onToggleActive, onDelete }: Prod
   );
 }
 
-function RowAction({
-  tone = 'default',
-  disabled,
-  onClick,
-  title,
-  children,
-}: {
-  tone?: 'default' | 'danger';
-  disabled?: boolean;
-  onClick: () => void;
-  title?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      title={title}
-      onClick={onClick}
-      className={cn(
-        'press rounded-full px-3.5 py-2 font-display text-xs font-bold transition-colors duration-150',
-        'disabled:pointer-events-none disabled:opacity-40',
-        tone === 'danger'
-          ? 'bg-flame-soft text-flame hover:bg-flame hover:text-white'
-          : 'bg-cream text-charcoal hover:bg-mist',
-      )}
-    >
-      {children}
-    </button>
-  );
-}

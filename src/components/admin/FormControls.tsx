@@ -327,20 +327,50 @@ export function DateRangeFilter({
   );
 }
 
+interface StatProps {
+  label: string;
+  value: string;
+  /** A text colour class for the figure — a redeemed total goes green. */
+  tone?: string;
+  /** One glyph, in a tile. Gives the figure something to be recognised by. */
+  icon?: ReactNode;
+  /** A quieter line under the figure — what it is counting, or of what. */
+  hint?: ReactNode;
+}
+
 /**
  * A labelled number for the page headers.
  *
  * On paper, not cream: every one of these sits directly on the back office's
  * cream background, where a cream tile is no tile at all — the figures read as
  * loose text with nothing holding them.
+ *
+ * The glyph is what makes a row of four scannable. Four bare numbers under four
+ * short labels all look alike at a glance, and these are read at a glance.
  */
-export function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
+export function Stat({ label, value, tone, icon, hint }: StatProps) {
   return (
-    <div className="flex flex-col rounded-2xl bg-paper px-4 py-3.5 leading-none shadow-soft">
-      <span className="text-xs text-ash">{label}</span>
-      <span className={cn('mt-2 font-display text-lg font-extrabold tabular-nums text-ink', tone)}>
-        {value}
-      </span>
+    <div className="flex items-center gap-3.5 rounded-2xl bg-paper px-4 py-3.5 shadow-soft ring-1 ring-ink/[0.04] transition-shadow duration-200 ease-smooth hover:shadow-card">
+      {icon && (
+        <span
+          aria-hidden="true"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-cream text-xl leading-none"
+        >
+          {icon}
+        </span>
+      )}
+      <div className="flex min-w-0 flex-col leading-none">
+        <span className="truncate text-xs text-ash">{label}</span>
+        <span
+          className={cn(
+            'mt-2 truncate font-display text-lg font-extrabold tabular-nums text-ink',
+            tone,
+          )}
+        >
+          {value}
+        </span>
+        {hint && <span className="mt-1.5 truncate text-[0.7rem] leading-none text-ash">{hint}</span>}
+      </div>
     </div>
   );
 }

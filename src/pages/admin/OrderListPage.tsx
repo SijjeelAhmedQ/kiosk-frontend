@@ -8,11 +8,11 @@ import type {
 } from '@/types';
 import { orderApi } from '@/services/api/orderApi';
 import { useDebounce } from '@/hooks/useDebounce';
-import { EmptyState } from '@/components/common/EmptyState';
 import { Spinner } from '@/components/common/LoadingScreen';
 import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
+  EmptyPanel,
   Field,
   ListRow,
   ListView,
@@ -22,6 +22,8 @@ import {
   RowTile,
   Select,
   Stat,
+  StatRow,
+  Toolbar,
   type SelectOption,
 } from '@/components/admin';
 import { OrderDetailModal } from '@/pages/OrderDetailModal';
@@ -38,6 +40,13 @@ const RANGE_OPTIONS: SelectOption<Range>[] = [
   { value: 'week', label: 'Last 7 days' },
   { value: 'all', label: 'All time' },
 ];
+
+/** The same three periods, phrased to sit under a figure rather than in a menu. */
+const RANGE_LABEL: Record<Range, string> = {
+  today: 'today',
+  week: 'last 7 days',
+  all: 'all time',
+};
 
 type StatusChoice = '' | OrderStatus;
 
@@ -135,18 +144,31 @@ export default function OrderListPage() {
     <PageBody fill>
       <div className="shrink-0">
         <PageHeader
+          eyebrow="Sales"
+          icon="🧾"
           title="Orders"
           subtitle="Every ticket the kiosk has taken, newest first. Open one to see its lines and what was paid."
         />
 
         <AlertBanner message={error} onDismiss={() => setError(null)} />
 
-        <div className="mb-5 grid max-w-[34rem] grid-cols-2 gap-3">
-          <Stat label="Orders" value={String(total)} />
-          <Stat label="Revenue" value={formatCurrency(revenue)} tone="text-leaf" />
-        </div>
+        <StatRow className="max-w-[34rem] grid-cols-2">
+          <Stat
+            icon="🧾"
+            label="Orders"
+            value={String(total)}
+            hint={activeNumber ? 'matching this ticket' : RANGE_LABEL[range]}
+          />
+          <Stat
+            icon="💰"
+            label="Revenue"
+            value={formatCurrency(revenue)}
+            tone="text-leaf"
+            hint="across these orders"
+          />
+        </StatRow>
 
-        <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
+        <Toolbar>
           <SearchBar value={search} onChange={setSearch} placeholder="Search by ticket number…" />
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -165,7 +187,7 @@ export default function OrderListPage() {
               <Select<StatusChoice> value={status} onChange={setStatus} options={STATUS_OPTIONS} />
             </Field>
           </div>
-        </div>
+        </Toolbar>
       </div>
 
       <ListView
@@ -175,7 +197,7 @@ export default function OrderListPage() {
         loading={loading}
         renderRow={(o) => <OrderCard order={o} onOpen={() => void openDetail(o.orderId)} />}
         empty={
-          <EmptyState
+          <EmptyPanel
             icon={activeNumber ? '🔍' : '🧾'}
             title={activeNumber ? `No order #${activeNumber}` : 'No orders here'}
             message={
@@ -238,10 +260,17 @@ function OrderCard({ order, onOpen }: { order: OrderListItem; onOpen: () => void
       subtitle={order.itemsPreview || '—'}
       meta={<span>{formatWhen(order.placedAt)}</span>}
       trailing={
-        <div className="w-32">
+        <div className="w-36">
           <p className="font-display text-lg font-extrabold tabular-nums text-ink">
             {formatCurrency(order.total)}
           </p>
+          {/* Already on the row — and "why is this ticket cheaper than its
+              lines" is the question the list gets asked about most. */}
+          {order.couponDiscount > 0 && (
+            <p className="mt-1 font-display text-xs font-bold tabular-nums text-leaf">
+              −{formatCurrency(order.couponDiscount)} coupon
+            </p>
+          )}
           <p className="mt-1.5 text-xs text-ash">
             {order.itemCount} item{order.itemCount === 1 ? '' : 's'}
           </p>

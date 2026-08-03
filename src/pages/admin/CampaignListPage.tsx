@@ -14,18 +14,20 @@ import {
 } from '@/redux/slices/campaignsSlice';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/common/Button';
-import { EmptyState } from '@/components/common/EmptyState';
 import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
   CampaignStateBadge,
   CouponTypeBadge,
+  EmptyPanel,
   ListRow,
   ListView,
   PageBody,
   PageHeader,
   Pagination,
+  RowAction,
   RowTile,
+  Toolbar,
 } from '@/components/admin';
 import { Modal } from '@/components/common/Modal';
 import { formatCurrency } from '@/utils/currency';
@@ -93,6 +95,8 @@ export default function CampaignListPage() {
           scrolls inside itself. */}
       <div className="shrink-0">
         <PageHeader
+          eyebrow="Coupons"
+          icon="🎯"
           title="Campaigns"
           subtitle="Every coupon belongs to a campaign. Deactivating one stops all of its coupons at once."
           actions={
@@ -104,17 +108,22 @@ export default function CampaignListPage() {
 
         <AlertBanner message={error} onDismiss={() => dispatch(clearCampaignError())} />
 
-        <div className="mb-5 flex flex-wrap items-center gap-3">
-          <div className="min-w-[260px] flex-1">
-            <SearchBar
-              value={search}
-              onChange={setSearch}
-              placeholder="Search campaigns by name or description…"
-            />
+        <Toolbar>
+          {/* Search and both segmented filters on one line — this page has no
+              figures above it, so the chrome should not grow a second row it
+              does not need. */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="min-w-[260px] flex-1">
+              <SearchBar
+                value={search}
+                onChange={setSearch}
+                placeholder="Search campaigns by name or description…"
+              />
+            </div>
+            <FilterRow options={STATUS_FILTERS} value={status} onChange={setStatus} />
+            <FilterRow options={TYPE_FILTERS} value={type} onChange={setType} />
           </div>
-          <FilterRow options={STATUS_FILTERS} value={status} onChange={setStatus} />
-          <FilterRow options={TYPE_FILTERS} value={type} onChange={setType} />
-        </div>
+        </Toolbar>
       </div>
 
       <ListView
@@ -135,7 +144,7 @@ export default function CampaignListPage() {
           />
         )}
         empty={
-          <EmptyState
+          <EmptyPanel
             icon="🎯"
             title={search || status !== 'all' || type !== 'all' ? 'No matching campaigns' : 'No campaigns yet'}
             message={
@@ -249,14 +258,21 @@ function CampaignCard({
         </>
       }
       trailing={
-        <div className="w-40">
-          <p className="tabular-nums text-sm">
-            <span className="font-display font-extrabold text-ink">{campaign.redeemedCount}</span>
-            <span className="text-ash"> / {campaign.couponCount} redeemed</span>
-          </p>
-          <span className="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-mist">
+        <div className="w-44 text-left">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="tabular-nums text-sm">
+              <span className="font-display font-extrabold text-ink">{campaign.redeemedCount}</span>
+              <span className="text-ash"> / {campaign.couponCount}</span>
+            </p>
+            {/* The share, spelled out: 3/40 and 30/40 draw very similar bars at
+                this width, and the number settles it without a second look. */}
+            <span className="font-display text-xs font-bold tabular-nums text-ash">
+              {Math.round(redeemedFraction * 100)}%
+            </span>
+          </div>
+          <span className="mt-2 block h-2 w-full overflow-hidden rounded-full bg-mist">
             <span
-              className="block h-full rounded-full bg-leaf transition-all duration-300"
+              className="block h-full rounded-full bg-leaf transition-all duration-500 ease-smooth"
               style={{ width: `${Math.round(redeemedFraction * 100)}%` }}
             />
           </span>
@@ -290,7 +306,9 @@ function FilterRow<T extends string>({
   onChange: (value: T) => void;
 }) {
   return (
-    <div className="flex shrink-0 gap-1.5 rounded-full bg-paper p-1.5 shadow-soft">
+    // Inside the toolbar card now, so it sits on cream rather than carrying its
+    // own shadow — a card inside a card reads as a mistake.
+    <div className="flex shrink-0 gap-1 rounded-full bg-cream p-1 ring-1 ring-inset ring-ink/[0.04]">
       {options.map((option) => (
         <button
           key={option.value}
@@ -298,7 +316,9 @@ function FilterRow<T extends string>({
           onClick={() => onChange(option.value)}
           className={cn(
             'press rounded-full px-4 py-2 font-display text-xs font-bold transition-colors duration-150',
-            option.value === value ? 'bg-ink text-white' : 'text-charcoal hover:bg-cream',
+            option.value === value
+              ? 'bg-ink text-white shadow-soft'
+              : 'text-charcoal hover:bg-paper',
           )}
         >
           {option.label}
@@ -308,31 +328,3 @@ function FilterRow<T extends string>({
   );
 }
 
-function RowAction({
-  tone = 'default',
-  disabled,
-  onClick,
-  children,
-}: {
-  tone?: 'default' | 'danger';
-  disabled?: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className={cn(
-        'press rounded-full px-3.5 py-2 font-display text-xs font-bold transition-colors duration-150',
-        'disabled:pointer-events-none disabled:opacity-40',
-        tone === 'danger'
-          ? 'bg-flame-soft text-flame hover:bg-flame hover:text-white'
-          : 'bg-cream text-charcoal hover:bg-mist',
-      )}
-    >
-      {children}
-    </button>
-  );
-}

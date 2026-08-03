@@ -34,8 +34,21 @@ export function Pagination({
 }: PaginationProps) {
   if (total === 0) return null;
 
+  // "Showing 16–30 of 214" — the pager says which page you are on, not how far
+  // through the rows that puts you, and the second question is the one asked.
+  const first = offset + 1;
+  const last = Math.min(offset + limit, total);
+
   return (
-    <div className="flex flex-wrap items-center justify-end gap-4 px-1 py-4">
+    <div className="flex flex-wrap items-center justify-between gap-4 px-1 py-4">
+      <p className="text-xs text-ash">
+        Showing{' '}
+        <span className="font-display font-bold tabular-nums text-charcoal">
+          {first}–{last}
+        </span>{' '}
+        of <span className="font-display font-bold tabular-nums text-charcoal">{total}</span>
+      </p>
+
       <AntPagination
         current={Math.floor(offset / limit) + 1}
         pageSize={limit}

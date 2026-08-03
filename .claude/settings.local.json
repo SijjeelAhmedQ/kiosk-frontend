@@ -95,7 +95,9 @@
       "PowerShell(Get-ChildItem *)",
       "PowerShell(Test-Path *)",
       "PowerShell(npx tsc --noEmit; if \\($?\\) { \"typecheck OK\" })",
-      "PowerShell(npx vite build 2>&1 | Select-Object -Last 2)"
+      "PowerShell(npx vite build 2>&1 | Select-Object -Last 2)",
+      "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --window-size=1680,1050 --screenshot=C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/81e7ff8b-99a8-48bd-a6b6-06adec9faa6a/scratchpad/orders.png --virtual-time-budget=6000 http://localhost:5173/admin/orders)",
+      "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --window-size=1680,1050 --screenshot=C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/81e7ff8b-99a8-48bd-a6b6-06adec9faa6a/scratchpad/campaigns2.png --virtual-time-budget=6000 http://localhost:5173/admin/campaigns)"
     ]
   }
 }

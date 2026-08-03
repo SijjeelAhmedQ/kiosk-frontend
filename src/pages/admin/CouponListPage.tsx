@@ -12,7 +12,6 @@ import {
 } from '@/redux/slices/couponsSlice';
 import { campaignApi } from '@/services/api/campaignApi';
 import { useDebounce } from '@/hooks/useDebounce';
-import { EmptyState } from '@/components/common/EmptyState';
 import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
@@ -20,6 +19,7 @@ import {
   CouponStatusBadge,
   CouponTypeBadge,
   DateRangeFilter,
+  EmptyPanel,
   Field,
   ListRow,
   ListView,
@@ -29,6 +29,8 @@ import {
   RowTile,
   Select,
   Stat,
+  StatRow,
+  Toolbar,
   type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
@@ -118,20 +120,34 @@ export default function CouponListPage() {
           what is left, which is why the filters are one row rather than two. */}
       <div className="shrink-0">
         <PageHeader
+          eyebrow="Coupons"
+          icon="🎟️"
           title="Coupons"
           subtitle="Every code issued, and what is left on it. Codes are matched from the start, so typing the prefix is enough."
         />
 
         <AlertBanner message={error} onDismiss={() => dispatch(clearCouponError())} />
 
-        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label="Coupons" value={String(total)} />
-          <Stat label="Issued value" value={formatCurrency(issuedValue)} />
-          <Stat label="Redeemed" value={formatCurrency(redeemedValue)} tone="text-leaf" />
-          <Stat label="Outstanding" value={formatCurrency(remainingValue)} tone="text-amber-dark" />
-        </div>
+        <StatRow className="grid-cols-2 sm:grid-cols-4">
+          <Stat icon="🎟️" label="Coupons" value={String(total)} hint="matching the filters" />
+          <Stat icon="🏷️" label="Issued value" value={formatCurrency(issuedValue)} hint="face value" />
+          <Stat
+            icon="✅"
+            label="Redeemed"
+            value={formatCurrency(redeemedValue)}
+            tone="text-leaf"
+            hint="already spent"
+          />
+          <Stat
+            icon="⏳"
+            label="Outstanding"
+            value={formatCurrency(remainingValue)}
+            tone="text-amber-dark"
+            hint="still owed to customers"
+          />
+        </StatRow>
 
-        <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
+        <Toolbar>
           <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -159,7 +175,7 @@ export default function CouponListPage() {
               toLabel="Issued to"
             />
           </div>
-        </div>
+        </Toolbar>
       </div>
 
       <ListView
@@ -174,7 +190,7 @@ export default function CouponListPage() {
           />
         )}
         empty={
-          <EmptyState
+          <EmptyPanel
             icon="🎟️"
             title={filtered ? 'No matching coupons' : 'No coupons yet'}
             message={
@@ -275,13 +291,18 @@ function ValueBar({ original, remaining }: { original: number | null; remaining:
   const spent = spentFraction(original, remaining);
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="tabular-nums text-sm">
-        <span className="font-semibold text-ink">{formatCurrency(remaining ?? 0)}</span>
-        <span className="text-ash"> / {formatCurrency(original ?? 0)}</span>
-      </span>
-      <span className="block h-1.5 w-full overflow-hidden rounded-full bg-mist">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="tabular-nums text-sm">
+          <span className="font-semibold text-ink">{formatCurrency(remaining ?? 0)}</span>
+          <span className="text-ash"> / {formatCurrency(original ?? 0)}</span>
+        </span>
+        <span className="font-display text-xs font-bold tabular-nums text-ash">
+          {Math.round((1 - spent) * 100)}%
+        </span>
+      </div>
+      <span className="block h-2 w-full overflow-hidden rounded-full bg-mist">
         <span
-          className="block h-full rounded-full bg-amber transition-all duration-300"
+          className="block h-full rounded-full bg-amber transition-all duration-500 ease-smooth"
           style={{ width: `${Math.round((1 - spent) * 100)}%` }}
         />
       </span>

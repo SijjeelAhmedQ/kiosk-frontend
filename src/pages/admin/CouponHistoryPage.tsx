@@ -12,13 +12,13 @@ import {
 } from '@/redux/slices/couponsSlice';
 import { campaignApi } from '@/services/api/campaignApi';
 import { useDebounce } from '@/hooks/useDebounce';
-import { EmptyState } from '@/components/common/EmptyState';
 import { SearchBar } from '@/components/controls/SearchBar';
 import {
   AlertBanner,
   CopyButton,
   CouponTypeBadge,
   DateRangeFilter,
+  EmptyPanel,
   Field,
   ListRow,
   ListView,
@@ -28,6 +28,8 @@ import {
   RowTile,
   Select,
   Stat,
+  StatRow,
+  Toolbar,
   type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
@@ -94,6 +96,8 @@ export default function CouponHistoryPage() {
           left and scrolls inside itself. */}
       <div className="shrink-0">
         <PageHeader
+          eyebrow="Coupons"
+          icon="📊"
           title="Redemptions"
           subtitle="Every time a coupon paid for something, newest first."
         />
@@ -102,12 +106,23 @@ export default function CouponHistoryPage() {
 
         {/* Two figures, not four — stretched over a four-column grid they read
             as a row that failed to load. */}
-        <div className="mb-5 grid max-w-[34rem] grid-cols-2 gap-3">
-          <Stat label="Redemptions" value={String(historyTotal)} />
-          <Stat label="Value redeemed" value={formatCurrency(historyValue)} tone="text-leaf" />
-        </div>
+        <StatRow className="max-w-[34rem] grid-cols-2">
+          <Stat
+            icon="📊"
+            label="Redemptions"
+            value={String(historyTotal)}
+            hint={filtered ? 'matching the filters' : 'since the kiosk opened'}
+          />
+          <Stat
+            icon="💸"
+            label="Value redeemed"
+            value={formatCurrency(historyValue)}
+            tone="text-leaf"
+            hint="taken off customer bills"
+          />
+        </StatRow>
 
-        <div className="mb-5 flex flex-col gap-4 rounded-xl3 bg-paper p-5 shadow-soft">
+        <Toolbar>
           <SearchBar value={search} onChange={setSearch} placeholder="Search by coupon code…" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Field label="Campaign">
@@ -123,7 +138,7 @@ export default function CouponHistoryPage() {
               />
             </div>
           </div>
-        </div>
+        </Toolbar>
       </div>
 
       <ListView
@@ -138,7 +153,7 @@ export default function CouponHistoryPage() {
           />
         )}
         empty={
-          <EmptyState
+          <EmptyPanel
             icon="📊"
             title={filtered ? 'No matching redemptions' : 'Nothing redeemed yet'}
             message={
