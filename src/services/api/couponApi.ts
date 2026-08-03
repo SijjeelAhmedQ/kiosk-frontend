@@ -5,6 +5,7 @@ import type {
   CouponHistoryQuery,
   CouponListPage,
   CouponListQuery,
+  CouponCartLineInput,
   CouponRedeemInput,
   CouponRedemption,
   CouponValidation,
@@ -29,15 +30,20 @@ export const couponApi = {
    * `allowPartial` must match what the eventual `redeem` call will pass —
    * otherwise a ₹500 coupon on a ₹2000 order reads as invalid here and is
    * then accepted at redemption.
+   *
+   * `cartLines` decides product coupons: one is applicable only if a product it
+   * is valid for is in the cart. Send the cart as it stands, and re-validate
+   * whenever it changes — the answer depends on it.
    */
   validate: async (
     couponCode: string,
     orderAmount?: number,
     allowPartial = false,
+    cartLines: CouponCartLineInput[] = [],
   ): Promise<CouponValidation> => {
     const { data } = await axiosClient.post<{ data: CouponValidation }>(
       ENDPOINTS.couponValidate,
-      { couponCode, orderAmount, allowPartial },
+      { couponCode, orderAmount, allowPartial, cartLines },
     );
     return data.data;
   },

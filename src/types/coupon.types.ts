@@ -210,6 +210,22 @@ export interface CouponValidation {
 
   /** What the coupon would take off, were it used right now. */
   applicableAmount: number;
+
+  /** Product coupons: which cart products the discount landed on, and how many
+      units it covered. Empty when the coupon is not applicable. */
+  matchedProductIds: string[];
+  matchedQuantity: number;
+}
+
+/**
+ * What the kiosk tells the server is in the cart when validating.
+ *
+ * Quantities only — the server prices every line from the menu, so there is
+ * nothing here worth tampering with.
+ */
+export interface CouponCartLineInput {
+  productId: string;
+  quantity: number;
 }
 
 export interface CouponRedeemInput {

@@ -1,12 +1,8 @@
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { clearCoupon, dismissCouponReason, validateCoupon } from '@/redux/slices/couponRedemptionSlice';
-import { addLine } from '@/redux/slices/cartSlice';
-import { selectCartLines } from '@/redux/selectors';
-import { productApi } from '@/services/api/productApi';
 import { Button } from '@/components/common/Button';
 import { Spinner } from '@/components/common/LoadingScreen';
-import { defaultLineModifiers } from '@/utils/modifierRules';
 import { couponDiscount } from '@/utils/couponDiscount';
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/utils/cn';
@@ -26,14 +22,15 @@ interface CouponEntryProps {
  * Applying a coupon here only *validates* it — nothing is spent until the order
  * exists and PaymentPage redeems it. That is what makes "Back to order" safe.
  *
- * A product coupon adds its free item to the cart on the spot, per the spec. The
- * item goes in at full price and the redemption discounts it back off, so the
- * order lines still record what was actually served.
+ * A product coupon is judged against the cart the customer actually built: it
+ * applies only if one of the products it is valid for is already in there, and
+ * comes back as "Coupon is not applicable." otherwise. Nothing is added to the
+ * cart on the customer's behalf — a coupon that silently put a burger in the
+ * order would be selling them the burger, not discounting one.
  */
 export function CouponEntry({ orderTotal }: CouponEntryProps) {
   const dispatch = useAppDispatch();
   const { status, applied, reason, error } = useAppSelector((s) => s.couponRedemption);
-  const cartLines = useAppSelector(selectCartLines);
   const [code, setCode] = useState('');
 
   const busy = status === 'validating';
@@ -42,38 +39,11 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
     const couponCode = normalise(code).trim();
     if (!couponCode || busy) return;
 
+    // The thunk reads the cart itself, so what gets validated is the live cart.
     const result = await dispatch(validateCoupon({ couponCode, orderAmount: orderTotal }));
     if (!validateCoupon.fulfilled.match(result) || !result.payload.valid) return;
 
-    const validation = result.payload;
     setCode('');
-
-    // A product coupon is only worth anything if its item is in the order, so
-    // put it there rather than making the customer go and find it.
-    if (validation.couponType === 'product' && validation.productId) {
-      const alreadyInCart = cartLines.some((line) => line.productId === validation.productId);
-      if (!alreadyInCart) {
-        // Nobody picks options for this one, so it has to arrive with whatever
-        // its required groups demand — a free shake still needs a size, and the
-        // order is refused outright without one.
-        const options = await productApi
-          .getProductModifiers(validation.productId)
-          .catch(() => ({ groups: [], modifiers: [] }));
-
-        dispatch(
-          addLine({
-            productId: validation.productId,
-            name: validation.productName ?? 'Free item',
-            image: validation.productImage ?? '',
-            basePrice: validation.productPrice ?? 0,
-            quantity: 1,
-            isMeal: false,
-            mealUpcharge: 0,
-            modifiers: defaultLineModifiers(options.groups, options.modifiers),
-          }),
-        );
-      }
-    }
   };
 
   if (applied) {

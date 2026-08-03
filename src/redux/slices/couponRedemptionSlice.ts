@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import type { AppliedCoupon, CouponRedemption, CouponValidation } from '@/types';
+import type { AppliedCoupon, CartLine, CouponRedemption, CouponValidation } from '@/types';
 import { couponApi } from '@/services/api/couponApi';
+import { decrementLine, removeLine, clearCart } from '@/redux/slices/cartSlice';
 import { errorMessage } from '@/utils/apiError';
 
 /**
@@ -48,12 +49,20 @@ const initialState: CouponRedemptionState = {
 export const validateCoupon = createAsyncThunk<
   CouponValidation,
   { couponCode: string; orderAmount?: number },
-  { rejectValue: string }
->('couponRedemption/validate', async ({ couponCode, orderAmount }, { rejectWithValue }) => {
+  { state: { cart: { lines: CartLine[] } }; rejectValue: string }
+>('couponRedemption/validate', async ({ couponCode, orderAmount }, { getState, rejectWithValue }) => {
+  // Read the cart here rather than taking it from the caller: a product coupon
+  // is judged against what is in the cart, so it has to be the live cart and
+  // not whatever the component happened to render with.
+  const cartLines = getState().cart.lines.map((line) => ({
+    productId: line.productId,
+    quantity: line.quantity,
+  }));
+
   try {
     // `true` matches the redeem below: the kiosk lets a small coupon pay what
     // it can, so validation has to judge it the same way.
-    return await couponApi.validate(couponCode, orderAmount, true);
+    return await couponApi.validate(couponCode, orderAmount, true, cartLines);
   } catch (err) {
     // Only network/server faults land here — an expired or spent coupon comes
     // back as a successful response with valid: false.
@@ -141,7 +150,23 @@ const couponRedemptionSlice = createSlice({
            and the customer pays the full amount rather than being stuck. */
         s.status = 'failed';
         s.error = a.payload ?? 'The coupon could not be applied to this order.';
-      });
+      })
+
+     /* A product coupon was judged against the cart, so taking things out of
+        the cart can make it inapplicable — and a validated coupon still showing
+        "Cheeseburger is on us" after the cheeseburger is gone is a promise the
+        redemption will refuse to keep.
+
+        Only the mutations that can *remove* something invalidate it: adding or
+        incrementing a line can never turn an applicable coupon inapplicable.
+        Dropping it costs the customer one re-entry; leaving it stale costs them
+        a failed redemption at the payment screen. */
+     .addMatcher(
+        (a) => (
+          removeLine.match(a) || decrementLine.match(a) || clearCart.match(a)
+        ),
+        (s) => (s.status === 'applied' && s.applied?.couponType === 'product' ? initialState : s),
+      );
   },
 });
 

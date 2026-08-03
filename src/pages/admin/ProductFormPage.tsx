@@ -38,7 +38,6 @@ const BADGE_OPTIONS: SelectOption<BadgeChoice>[] = [
 ];
 
 interface FormState {
-  id: string;
   categoryId: string;
   name: string;
   description: string;
@@ -52,7 +51,6 @@ interface FormState {
 }
 
 const blankForm: FormState = {
-  id: '',
   categoryId: '',
   name: '',
   description: '',
@@ -67,16 +65,13 @@ const blankForm: FormState = {
 
 type Errors = Partial<Record<keyof FormState, string>>;
 
-const ID_PATTERN = /^[A-Za-z0-9_-]+$/;
-
-const slugify = (name: string): string =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 50);
-
-/** Create and edit, one form — same as the campaign and category pages. */
+/**
+ * Create and edit, one form — same as the campaign and category pages.
+ *
+ * There is no id field: the API generates the id from the name. It is stamped
+ * on every order line the product is ever sold on and can never change, so it
+ * is not something to leave to whoever is filling in the form.
+ */
 export default function ProductFormPage() {
   const { productId } = useParams<{ productId: string }>();
   const isEdit = Boolean(productId);
@@ -88,7 +83,6 @@ export default function ProductFormPage() {
   const [form, setForm] = useState<FormState>(blankForm);
   const [errors, setErrors] = useState<Errors>({});
   const [image, setImage] = useState<string | undefined>(undefined);
-  const [idTouched, setIdTouched] = useState(false);
 
   useEffect(() => {
     dispatch(clearCatalogError());
@@ -101,7 +95,6 @@ export default function ProductFormPage() {
   useEffect(() => {
     if (isEdit && currentProduct && currentProduct.id === productId) {
       setForm({
-        id: currentProduct.id,
         categoryId: currentProduct.categoryId,
         name: currentProduct.name,
         description: currentProduct.description,
@@ -113,7 +106,6 @@ export default function ProductFormPage() {
         sortOrder: currentProduct.sortOrder,
         isActive: currentProduct.isActive,
       });
-      setIdTouched(true);
     }
   }, [isEdit, currentProduct, productId]);
 
@@ -135,16 +127,9 @@ export default function ProductFormPage() {
     setErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
-  const onNameChange = (name: string) => {
-    setForm((prev) => ({ ...prev, name, id: !isEdit && !idTouched ? slugify(name) : prev.id }));
-    setErrors((prev) => ({ ...prev, name: undefined, id: undefined }));
-  };
-
   const validate = (): boolean => {
     const next: Errors = {};
     if (!form.name.trim()) next.name = 'Give the product a name.';
-    if (!form.id.trim()) next.id = 'Give the product an id.';
-    else if (!ID_PATTERN.test(form.id)) next.id = 'Letters, digits, dashes and underscores only.';
     if (!form.categoryId) next.categoryId = 'Pick the category it belongs to.';
     if (!Number.isFinite(form.price) || form.price < 0) next.price = 'A price of zero or more.';
     if (!Number.isFinite(form.calories) || form.calories < 0) next.calories = 'Zero or more.';
@@ -159,7 +144,7 @@ export default function ProductFormPage() {
     const result = isEdit
       ? await dispatch(
           updateProduct({
-            id: form.id,
+            id: productId!,
             input: {
               categoryId: form.categoryId,
               name: form.name.trim(),
@@ -179,7 +164,6 @@ export default function ProductFormPage() {
         )
       : await dispatch(
           createProduct({
-            id: form.id.trim(),
             categoryId: form.categoryId,
             name: form.name.trim(),
             description: form.description.trim(),
@@ -246,26 +230,7 @@ export default function ProductFormPage() {
             maxLength={120}
             placeholder="Big Mac"
             invalid={Boolean(errors.name)}
-            onChange={(e) => onNameChange(e.target.value)}
-          />
-        </Field>
-
-        <Field
-          label="Id"
-          required
-          error={errors.id}
-          hint={isEdit ? 'Fixed once the product exists.' : 'Filled in from the name. Permanent.'}
-        >
-          <TextInput
-            value={form.id}
-            maxLength={50}
-            disabled={isEdit}
-            placeholder="p_burger_001"
-            invalid={Boolean(errors.id)}
-            onChange={(e) => {
-              setIdTouched(true);
-              update('id', e.target.value);
-            }}
+            onChange={(e) => update('name', e.target.value)}
           />
         </Field>
 

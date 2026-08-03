@@ -97,7 +97,19 @@
       "PowerShell(npx tsc --noEmit; if \\($?\\) { \"typecheck OK\" })",
       "PowerShell(npx vite build 2>&1 | Select-Object -Last 2)",
       "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --window-size=1680,1050 --screenshot=C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/81e7ff8b-99a8-48bd-a6b6-06adec9faa6a/scratchpad/orders.png --virtual-time-budget=6000 http://localhost:5173/admin/orders)",
-      "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --window-size=1680,1050 --screenshot=C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/81e7ff8b-99a8-48bd-a6b6-06adec9faa6a/scratchpad/campaigns2.png --virtual-time-budget=6000 http://localhost:5173/admin/campaigns)"
+      "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --window-size=1680,1050 --screenshot=C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/81e7ff8b-99a8-48bd-a6b6-06adec9faa6a/scratchpad/campaigns2.png --virtual-time-budget=6000 http://localhost:5173/admin/campaigns)",
+      "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --window-size=1680,900 --screenshot=C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/81e7ff8b-99a8-48bd-a6b6-06adec9faa6a/scratchpad/cat-edit.png --virtual-time-budget=6000 http://localhost:5173/admin/categories/burgers)",
+      "Bash(grep -n \"^/\\\\* =\\\\|^CREATE OR ALTER\\\\|^GO$\" sql/09_catalog_admin.sql)",
+      "Bash(./.venv/Scripts/python.exe scripts/deploy_db.py 09)",
+      "Bash(./.venv/Scripts/python.exe \"C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/81e7ff8b-99a8-48bd-a6b6-06adec9faa6a/scratchpad/id_test.py\")",
+      "Bash(PYTHONIOENCODING=utf-8 ./.venv/Scripts/python.exe \"C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/81e7ff8b-99a8-48bd-a6b6-06adec9faa6a/scratchpad/id_test.py\")",
+      "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --window-size=1680,860 --screenshot=C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/81e7ff8b-99a8-48bd-a6b6-06adec9faa6a/scratchpad/cat-new3.png --virtual-time-budget=6000 http://localhost:5173/admin/categories/new)",
+      "Bash(awk 'NR>=708 && NR<=940' sql/07_coupons_procedures.sql)",
+      "Bash(python -c \"import app.main; from app.schemas.coupon import CartLineIn, CouponValidateIn, CouponValidation; v=CouponValidateIn\\(couponCode='X'\\); print\\('cartLines default:', v.cartLines\\); print\\('ok'\\)\")",
+      "Bash(./.venv/Scripts/python.exe scripts/deploy_db.py 07)",
+      "Bash(curl -s -m 5 http://127.0.0.1:8000/health)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(echo \"tsc-exit=$?\")"
     ]
   }
 }

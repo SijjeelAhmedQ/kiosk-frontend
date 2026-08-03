@@ -23,32 +23,23 @@ import {
 import { ADMIN_PATHS } from '@/routes/paths';
 
 interface FormState {
-  id: string;
   name: string;
   icon: string;
   sortOrder: number;
   isActive: boolean;
 }
 
-const blankForm: FormState = { id: '', name: '', icon: '', sortOrder: 0, isActive: true };
+const blankForm: FormState = { name: '', icon: '', sortOrder: 0, isActive: true };
 
 type Errors = Partial<Record<keyof FormState, string>>;
 
-/** Ids go in the URL and into every product row, so keep them boring. */
-const ID_PATTERN = /^[A-Za-z0-9_-]+$/;
-
-/** "Grilled Favourites" -> "grilled_favourites", so nobody has to invent one. */
-const slugify = (name: string): string =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 50);
-
 /**
  * Create and edit share this page, the way the campaign form does. The only
- * differences are that the id locks once it exists — it is a foreign key by
- * then — and that editing knows how many products would be affected.
+ * difference is that editing knows how many products would be affected.
+ *
+ * There is no id field. The API generates the id from the name and it can never
+ * change afterwards, so there is nothing here for anyone to fill in or get
+ * wrong — see sql/09_catalog_admin.sql.
  */
 export default function CategoryFormPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -62,8 +53,6 @@ export default function CategoryFormPage() {
   const [errors, setErrors] = useState<Errors>({});
   /** undefined until the picker is touched — see the imgBase64 rule in the API. */
   const [image, setImage] = useState<string | undefined>(undefined);
-  /** Stops the slug overwriting an id somebody typed on purpose. */
-  const [idTouched, setIdTouched] = useState(false);
 
   useEffect(() => {
     dispatch(clearCatalogError());
@@ -75,13 +64,11 @@ export default function CategoryFormPage() {
   useEffect(() => {
     if (isEdit && currentCategory && currentCategory.id === categoryId) {
       setForm({
-        id: currentCategory.id,
         name: currentCategory.name,
         icon: currentCategory.icon,
         sortOrder: currentCategory.sortOrder,
         isActive: currentCategory.isActive,
       });
-      setIdTouched(true);
     }
   }, [isEdit, currentCategory, categoryId]);
 
@@ -90,20 +77,9 @@ export default function CategoryFormPage() {
     setErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
-  const onNameChange = (name: string) => {
-    setForm((prev) => ({
-      ...prev,
-      name,
-      id: !isEdit && !idTouched ? slugify(name) : prev.id,
-    }));
-    setErrors((prev) => ({ ...prev, name: undefined, id: undefined }));
-  };
-
   const validate = (): boolean => {
     const next: Errors = {};
     if (!form.name.trim()) next.name = 'Give the category a name.';
-    if (!form.id.trim()) next.id = 'Give the category an id.';
-    else if (!ID_PATTERN.test(form.id)) next.id = 'Letters, digits, dashes and underscores only.';
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -115,7 +91,7 @@ export default function CategoryFormPage() {
     const result = isEdit
       ? await dispatch(
           updateCategory({
-            id: form.id,
+            id: categoryId!,
             input: {
               name: form.name.trim(),
               icon: form.icon,
@@ -128,7 +104,6 @@ export default function CategoryFormPage() {
         )
       : await dispatch(
           createCategory({
-            id: form.id.trim(),
             name: form.name.trim(),
             icon: form.icon,
             sortOrder: form.sortOrder,
@@ -160,7 +135,7 @@ export default function CategoryFormPage() {
         title={isEdit ? 'Edit category' : 'New category'}
         subtitle={
           isEdit
-            ? 'The id cannot change — every product in this category points at it.'
+            ? 'Changes show on the kiosk immediately. Nothing in the category moves.'
             : 'A section of the menu. Products are added to it afterwards.'
         }
         backTo={ADMIN_PATHS.categories}
@@ -190,30 +165,7 @@ export default function CategoryFormPage() {
             maxLength={100}
             placeholder="Burgers"
             invalid={Boolean(errors.name)}
-            onChange={(e) => onNameChange(e.target.value)}
-          />
-        </Field>
-
-        <Field
-          label="Id"
-          required
-          error={errors.id}
-          hint={
-            isEdit
-              ? 'Fixed once products point at it.'
-              : 'Filled in from the name. Change it now if you want something else — it is permanent.'
-          }
-        >
-          <TextInput
-            value={form.id}
-            maxLength={50}
-            disabled={isEdit}
-            placeholder="burgers"
-            invalid={Boolean(errors.id)}
-            onChange={(e) => {
-              setIdTouched(true);
-              update('id', e.target.value);
-            }}
+            onChange={(e) => update('name', e.target.value)}
           />
         </Field>
 

@@ -42,8 +42,14 @@ export interface ProductAdmin extends Omit<Product, 'modifierGroupIds' | 'badge'
    That is what lets a save which never opened the picker keep the photo.
    --------------------------------------------------------------------------- */
 
+/**
+ * No `id`: the API generates it from the name.
+ *
+ * It is permanent from the moment it is written — it sits in URLs, in every
+ * product row and on every order line — and only the database can check that it
+ * is free and take it in the same breath. See sql/09_catalog_admin.sql.
+ */
 export interface CategoryCreateInput {
-  id: string;
   name: string;
   icon: string;
   image?: string | null;
@@ -61,8 +67,8 @@ export interface CategoryUpdateInput {
   isActive?: boolean | null;
 }
 
+/** No `id` — the API generates it, the same as CategoryCreateInput. */
 export interface ProductCreateInput {
-  id: string;
   categoryId: string;
   name: string;
   description: string;
