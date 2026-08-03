@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { clearCoupon, dismissCouponReason, validateCoupon } from '@/redux/slices/couponRedemptionSlice';
+import {
+  clearCoupon,
+  dismissCouponNotice,
+  rejectCoupon,
+  validateCoupon,
+} from '@/redux/slices/couponRedemptionSlice';
 import { Button } from '@/components/common/Button';
 import { Spinner } from '@/components/common/LoadingScreen';
+import { COUPON_CODE_REQUIRED } from '@/utils/couponMessage';
 import { couponDiscount } from '@/utils/couponDiscount';
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/utils/cn';
@@ -30,14 +36,22 @@ interface CouponEntryProps {
  */
 export function CouponEntry({ orderTotal }: CouponEntryProps) {
   const dispatch = useAppDispatch();
-  const { status, applied, reason, error } = useAppSelector((s) => s.couponRedemption);
+  const { status, applied, notice } = useAppSelector((s) => s.couponRedemption);
   const [code, setCode] = useState('');
 
   const busy = status === 'validating';
 
   const apply = async () => {
     const couponCode = normalise(code).trim();
-    if (!couponCode || busy) return;
+    if (busy) return;
+
+    /* Enter on an empty field used to do nothing at all, which reads as a
+       broken kiosk rather than a missing code. The button stays disabled — this
+       is only for the keypad path. */
+    if (!couponCode) {
+      dispatch(rejectCoupon(COUPON_CODE_REQUIRED));
+      return;
+    }
 
     // The thunk reads the cart itself, so what gets validated is the live cart.
     const result = await dispatch(validateCoupon({ couponCode, orderAmount: orderTotal }));
@@ -99,17 +113,23 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
           className={cn(
             'flex h-16 min-w-0 flex-1 items-center rounded-full bg-mist px-5 transition-all duration-200',
             'focus-within:bg-paper focus-within:shadow-card',
+            /* The message below says what went wrong; the ring says where. The
+               fill stays as it was — a field the customer is being asked to
+               retype should still look like somewhere to type. */
+            notice && 'ring-2 ring-flame/50',
           )}
         >
           <input
             value={code}
             onChange={(e) => {
               setCode(normalise(e.target.value));
-              if (reason || error) dispatch(dismissCouponReason());
+              if (notice) dispatch(dismissCouponNotice());
             }}
             onKeyDown={(e) => { if (e.key === 'Enter') void apply(); }}
             placeholder="Enter code"
             aria-label="Coupon code"
+            aria-invalid={Boolean(notice)}
+            aria-describedby={notice ? 'coupon-notice' : undefined}
             autoComplete="off"
             spellCheck={false}
             className="w-full bg-transparent font-mono text-kiosk-sm font-semibold uppercase tracking-wide text-charcoal outline-none placeholder:font-sans placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:text-ash"
@@ -127,11 +147,23 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
         </Button>
       </div>
 
-      {(reason || error) && (
-        <p role="alert" className="mt-2.5 flex items-start gap-2 text-kiosk-xs font-medium text-flame animate-fade-in">
-          <span className="leading-none">⚠️</span>
-          <span>{reason ?? error}</span>
-        </p>
+      {/* A refusal is read standing up, at arm's length, by someone who wants to
+          get on with it: the reason large enough to read at a glance, and what
+          to do about it directly under it. */}
+      {notice && (
+        <div
+          id="coupon-notice"
+          role="alert"
+          className="mt-2.5 flex items-start gap-2.5 rounded-2xl bg-flame-soft px-4 py-3 animate-fade-in"
+        >
+          <span className="mt-0.5 text-kiosk-sm leading-none">⚠️</span>
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-kiosk-sm font-bold text-flame-dark">{notice.title}</p>
+            {notice.hint && (
+              <p className="mt-1 text-kiosk-xs leading-snug text-flame-dark/80">{notice.hint}</p>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

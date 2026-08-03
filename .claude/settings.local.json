@@ -109,7 +109,9 @@
       "Bash(./.venv/Scripts/python.exe scripts/deploy_db.py 07)",
       "Bash(curl -s -m 5 http://127.0.0.1:8000/health)",
       "Bash(echo \"exit=$?\")",
-      "Bash(echo \"tsc-exit=$?\")"
+      "Bash(echo \"tsc-exit=$?\")",
+      "PowerShell(npx tsc --noEmit)",
+      "PowerShell(npx eslint src/utils/couponMessage.ts src/components/controls/CouponEntry.tsx src/redux/slices/couponRedemptionSlice.ts)"
     ]
   }
 }

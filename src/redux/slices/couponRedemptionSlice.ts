@@ -1,8 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AppliedCoupon, CartLine, CouponRedemption, CouponValidation } from '@/types';
 import { couponApi } from '@/services/api/couponApi';
 import { decrementLine, removeLine, clearCart } from '@/redux/slices/cartSlice';
-import { errorMessage } from '@/utils/apiError';
+import type { CouponNotice } from '@/utils/couponMessage';
+import {
+  COUPON_CHECK_FAILED,
+  COUPON_REDEEM_FAILED,
+  couponFailure,
+  couponRejection,
+} from '@/utils/couponMessage';
 
 /**
  * The coupon the customer is using on *this* order.
@@ -30,10 +37,14 @@ type RedemptionStatus =
 interface CouponRedemptionState {
   status: RedemptionStatus;
   applied: AppliedCoupon | null;
-  /** Why the code was refused — shown to the customer verbatim. */
-  reason: string | null;
-  /** A transport or server failure, as opposed to an unusable coupon. */
-  error: string | null;
+  /**
+   * Why the code did not go on — shown under the field verbatim.
+   *
+   * One field for both a refused coupon and a failed request, because the
+   * customer is reading the same line either way; `status` already says which
+   * of the two it was for anything that needs to know.
+   */
+  notice: CouponNotice | null;
   /** What is left to pay once the coupon has been taken off. */
   amountDue: number | null;
 }
@@ -41,15 +52,14 @@ interface CouponRedemptionState {
 const initialState: CouponRedemptionState = {
   status: 'idle',
   applied: null,
-  reason: null,
-  error: null,
+  notice: null,
   amountDue: null,
 };
 
 export const validateCoupon = createAsyncThunk<
   CouponValidation,
   { couponCode: string; orderAmount?: number },
-  { state: { cart: { lines: CartLine[] } }; rejectValue: string }
+  { state: { cart: { lines: CartLine[] } }; rejectValue: CouponNotice }
 >('couponRedemption/validate', async ({ couponCode, orderAmount }, { getState, rejectWithValue }) => {
   // Read the cart here rather than taking it from the caller: a product coupon
   // is judged against what is in the cart, so it has to be the live cart and
@@ -66,17 +76,17 @@ export const validateCoupon = createAsyncThunk<
   } catch (err) {
     // Only network/server faults land here — an expired or spent coupon comes
     // back as a successful response with valid: false.
-    return rejectWithValue(errorMessage(err, 'Could not check that coupon.'));
+    return rejectWithValue(couponFailure(err, COUPON_CHECK_FAILED));
   }
 });
 
 export const redeemCoupon = createAsyncThunk<
   CouponRedemption,
   { orderId: number },
-  { state: { couponRedemption: CouponRedemptionState }; rejectValue: string }
+  { state: { couponRedemption: CouponRedemptionState }; rejectValue: CouponNotice }
 >('couponRedemption/redeem', async ({ orderId }, { getState, rejectWithValue }) => {
   const applied = getState().couponRedemption.applied;
-  if (!applied) return rejectWithValue('No coupon has been applied.');
+  if (!applied) return rejectWithValue({ title: 'No coupon has been applied.' });
 
   try {
     return await couponApi.redeem({
@@ -87,7 +97,7 @@ export const redeemCoupon = createAsyncThunk<
       allowPartial: true,
     });
   } catch (err) {
-    return rejectWithValue(errorMessage(err, 'The coupon could not be applied to this order.'));
+    return rejectWithValue(couponFailure(err, COUPON_REDEEM_FAILED));
   }
 });
 
@@ -98,28 +108,36 @@ const couponRedemptionSlice = createSlice({
     /** Called when the order finishes or is abandoned — coupons never carry
         over from one customer to the next. */
     clearCoupon: () => initialState,
-    dismissCouponReason: (s) => {
-      s.reason = null;
-      s.error = null;
+    /** Typing again clears the last refusal — see CouponEntry. */
+    dismissCouponNotice: (s) => {
+      s.notice = null;
       if (s.status === 'rejected' || s.status === 'failed') s.status = 'idle';
+    },
+    /** Applying an empty field, which never reaches the API. */
+    rejectCoupon: (s, a: PayloadAction<CouponNotice>) => {
+      s.status = 'rejected';
+      s.applied = null;
+      s.notice = a.payload;
     },
   },
   extraReducers: (b) => {
     b.addCase(validateCoupon.pending, (s) => {
         s.status = 'validating';
-        s.reason = null;
-        s.error = null;
+        s.notice = null;
       })
      .addCase(validateCoupon.fulfilled, (s, a) => {
         const v = a.payload;
         if (!v.valid) {
           s.status = 'rejected';
           s.applied = null;
-          s.reason = v.reasonMessage ?? 'That coupon cannot be used.';
+          /* The server's own `reasonMessage` is the fallback inside here, not
+             the message: it is written to be correct, and the customer needs
+             one that names the item, the date or the balance involved. */
+          s.notice = couponRejection(v, a.meta.arg.orderAmount);
           return;
         }
         s.status = 'applied';
-        s.reason = null;
+        s.notice = null;
         s.applied = {
           couponCode: v.couponCode,
           couponType: v.couponType!,
@@ -133,10 +151,10 @@ const couponRedemptionSlice = createSlice({
      .addCase(validateCoupon.rejected, (s, a) => {
         s.status = 'rejected';
         s.applied = null;
-        s.error = a.payload ?? 'Could not check that coupon.';
+        s.notice = a.payload ?? COUPON_CHECK_FAILED;
       })
 
-     .addCase(redeemCoupon.pending, (s) => { s.status = 'redeeming'; s.error = null; })
+     .addCase(redeemCoupon.pending, (s) => { s.status = 'redeeming'; s.notice = null; })
      .addCase(redeemCoupon.fulfilled, (s, a) => {
         s.status = 'redeemed';
         s.amountDue = a.payload.amountDue;
@@ -149,7 +167,7 @@ const couponRedemptionSlice = createSlice({
         /* The order is already placed at this point, so the coupon is dropped
            and the customer pays the full amount rather than being stuck. */
         s.status = 'failed';
-        s.error = a.payload ?? 'The coupon could not be applied to this order.';
+        s.notice = a.payload ?? COUPON_REDEEM_FAILED;
       })
 
      /* A product coupon was judged against the cart, so taking things out of
@@ -170,6 +188,6 @@ const couponRedemptionSlice = createSlice({
   },
 });
 
-export const { clearCoupon, dismissCouponReason } = couponRedemptionSlice.actions;
+export const { clearCoupon, dismissCouponNotice, rejectCoupon } = couponRedemptionSlice.actions;
 
 export default couponRedemptionSlice.reducer;
