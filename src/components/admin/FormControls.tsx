@@ -4,6 +4,7 @@ import { DatePicker, Input, Select as AntSelect, Switch, type InputProps } from 
 import type { TextAreaProps } from 'antd/es/input';
 import { cn } from '@/utils/cn';
 import { toInstant } from '@/utils/couponDisplay';
+import { disabledTimesAt } from '@/utils/instantBounds';
 
 /**
  * Form controls for the back office.
@@ -219,6 +220,11 @@ interface DateTimeInputProps extends Omit<DateInputProps, 'value' | 'onChange'> 
  * The admin picks in their own timezone and the value leaves as UTC, which is
  * what the column stores. Seconds are zeroed and the string is cut to the
  * API's exact shape so these values stay directly comparable — see toInstant.
+ *
+ * `min` and `max` are instants, and they bound the clock as well as the
+ * calendar: on the boundary day the hours and minutes past the bound are
+ * disabled too. Nothing outside the window can be picked, so nothing has to be
+ * taken back afterwards.
  */
 export function DateTimeInput({
   value,
@@ -240,9 +246,6 @@ export function DateTimeInput({
       format={`${ISO} ${TIME}`}
       value={value ? dayjs(value) : null}
       onChange={(day) => onChange(day ? toInstant(day.second(0).millisecond(0).toDate()) : '')}
-      // Day granularity only. The exact instant is checked by the form and by
-      // the database; disabling half a day's worth of minutes in the picker
-      // would buy very little for a lot of fiddly code.
       disabledDate={
         min || max
           ? (day) =>
@@ -250,6 +253,8 @@ export function DateTimeInput({
               Boolean(max && day.isAfter(dayjs(max), 'day'))
           : undefined
       }
+      // The other half of the same bound: the boundary day is only half open.
+      disabledTime={min || max ? (day) => disabledTimesAt(day, min, max) : undefined}
       placeholder={`${ISO.toLowerCase()} h:mm am`}
       disabled={disabled}
       allowClear={allowClear}

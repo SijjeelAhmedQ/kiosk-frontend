@@ -26,7 +26,9 @@ import {
   type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
-import { endOfDayInstant, formatDayTime, startOfTodayInstant } from '@/utils/couponDisplay';
+import { formatDayTime } from '@/utils/couponDisplay';
+import { defaultWindow } from '@/utils/campaignWindow';
+import { laterOf } from '@/utils/instantBounds';
 import { ADMIN_PATHS } from '@/routes/paths';
 
 interface FormState {
@@ -42,10 +44,9 @@ const blankForm: FormState = {
   name: '',
   description: '',
   couponType: 'value',
-  // Opens at the start of today and closes at the end of the day 90 days out —
-  // both ends are instants now, so the defaults have to name a time.
-  startDate: startOfTodayInstant(),
-  expiryDate: endOfDayInstant(90),
+  // Opens at the start of today and closes at the end of the day two months
+  // out — both ends are instants, so the defaults have to name a time.
+  ...defaultWindow(),
   isActive: true,
 };
 
@@ -108,6 +109,7 @@ export default function CampaignFormPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: undefined }));
   };
+
 
   const validate = (): boolean => {
     const next: Errors = {};
@@ -244,12 +246,20 @@ export default function CampaignFormPage() {
           />
         </Field>
 
+        {/* Each end bounds the other, calendar and clock both: the days past
+            its partner are greyed out, and on the partner's own day so are the
+            hours and minutes. Neither field ever changes on its own — what
+            cannot be picked is simply not offered. */}
         <div className="grid gap-5 sm:grid-cols-2">
           <Field
             label="Starts"
             required
             error={errors.startDate}
-            hint="Your local time. A campaign can open part-way through a day."
+            hint={
+              form.expiryDate
+                ? `Your local time. Cannot be later than ${formatDayTime(form.expiryDate)}.`
+                : 'Your local time. A campaign can open part-way through a day.'
+            }
           >
             <DateTimeInput
               value={form.startDate}
@@ -267,12 +277,17 @@ export default function CampaignFormPage() {
             hint={
               expiryFloor && !errors.expiryDate
                 ? `Cannot be earlier than ${formatDayTime(expiryFloor)} — coupons already run to then.`
-                : 'The last moment a coupon in this campaign can be redeemed.'
+                : form.startDate
+                  ? `The last moment a coupon can be redeemed. Not before ${formatDayTime(form.startDate)}.`
+                  : 'The last moment a coupon in this campaign can be redeemed.'
             }
           >
             <DateTimeInput
               value={form.expiryDate}
-              min={form.startDate || undefined}
+              /* Two lower bounds meet here: the start of the window, and — once
+                 coupons exist — the date they were printed to run to. The later
+                 of the two is the one that binds. */
+              min={laterOf(form.startDate || undefined, expiryFloor)}
               allowClear={false}
               invalid={Boolean(errors.expiryDate)}
               onChange={(value) => update('expiryDate', value)}

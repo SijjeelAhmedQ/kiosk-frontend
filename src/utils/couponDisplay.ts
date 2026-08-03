@@ -124,20 +124,9 @@ export const formatDayTime = (iso: string): string => {
   return `${formatDay(iso)}, ${formatTime(iso)}`;
 };
 
-/** Local start of today, as an instant. The default campaign start. */
-export const startOfTodayInstant = (): string => {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
-  return toInstant(date);
-};
-
-/** The last minute of the day `days` from today, local, as an instant. */
-export const endOfDayInstant = (days: number): string => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  date.setHours(23, 59, 0, 0);
-  return toInstant(date);
-};
+/* The campaign window's own arithmetic — defaults, month maths and keeping the
+   two ends in order — lives in utils/campaignWindow.ts, which builds on
+   toInstant above. */
 
 /**
  * "in 4h" / "in 12 days" / "20 min ago" — context for a window end.
