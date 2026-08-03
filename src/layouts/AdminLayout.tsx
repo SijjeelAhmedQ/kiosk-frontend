@@ -16,17 +16,17 @@ import { ADMIN_PATHS, PATHS } from '@/routes/paths';
    menu right, and running the promotions on top of it. Orders leads — it is the
    one opened every day, the others only when something changes. */
 const NAV = [
-  { group: 'Sales', items: [
-    { to: ADMIN_PATHS.orders, label: 'Orders', icon: '🧾' },
-  ] },
   { group: 'Menu', items: [
-    { to: ADMIN_PATHS.products, label: 'Products', icon: '🍔' },
     { to: ADMIN_PATHS.categories, label: 'Categories', icon: '🗂️' },
+    { to: ADMIN_PATHS.products, label: 'Products', icon: '🍔' },
   ] },
   { group: 'Coupons', items: [
     { to: ADMIN_PATHS.campaigns, label: 'Campaigns', icon: '🎯' },
     { to: ADMIN_PATHS.coupons, label: 'Coupons', icon: '🎟️' },
     { to: ADMIN_PATHS.history, label: 'Redemptions', icon: '📊' },
+  ] },
+  { group: 'Sales', items: [
+    { to: ADMIN_PATHS.orders, label: 'Orders', icon: '🧾' },
   ] },
 ] as const;
 
