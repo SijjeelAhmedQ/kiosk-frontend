@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setActiveCategory } from '@/redux/slices/categoriesSlice';
+import { setSearch } from '@/redux/slices/productsSlice';
 import { CategoryCard } from '@/components/cards/CategoryCard';
 import { PATHS } from '@/routes/paths';
 import { cn } from '@/utils/cn';
@@ -19,6 +20,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { items, activeId } = useAppSelector((s) => s.categories);
+  /* A search spans every category, so leaving one tile lit says the grid is
+     filtered to it when it is not. Nothing is selected while searching. */
+  const searching = useAppSelector((s) => Boolean(s.products.search));
 
   return (
     <aside
@@ -31,9 +35,15 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <CategoryCard
           key={c.id}
           category={c}
-          active={c.id === activeId}
+          active={!searching && c.id === activeId}
           collapsed={collapsed}
-          onSelect={(id) => dispatch(setActiveCategory(id))}
+          /* Clearing the query is what makes the tap do something: while a
+             search is running the grid ignores the category entirely, so
+             picking one without this is a tap with no visible effect. */
+          onSelect={(id) => {
+            dispatch(setActiveCategory(id));
+            dispatch(setSearch(''));
+          }}
         />
       ))}
 

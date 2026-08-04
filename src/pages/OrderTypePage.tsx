@@ -54,10 +54,17 @@ export default function OrderTypePage() {
             <span className="font-display text-[3.5rem] font-extrabold leading-none tracking-[-0.03em] text-ink">
               {o.label}
             </span>
-            <span className="max-w-[340px] text-center text-kiosk-base text-ash">{BLURB[o.value]}</span>
+            {/* Two lines' worth of height on both halves whether the blurb wraps
+                or not — otherwise one column's icon and title sit lower than the
+                other's, and the split screen reads as misaligned. */}
+            <span className="flex min-h-[3.75rem] max-w-[26rem] items-start justify-center text-center text-kiosk-base text-ash">
+              {BLURB[o.value]}
+            </span>
           </div>
 
-          <span className="mt-4 flex h-16 items-center rounded-full bg-mist px-12 font-display text-kiosk-base font-bold text-charcoal transition-colors duration-300 group-hover:bg-amber group-hover:text-ink">
+          {/* Amber at rest, not on hover — a touch panel has no hover, so a
+              grey-until-hover CTA is simply a grey CTA. */}
+          <span className="mt-4 flex h-16 items-center rounded-full bg-amber px-12 font-display text-kiosk-base font-bold text-ink shadow-brand transition-colors duration-300 group-hover:bg-amber-hover">
             Choose
           </span>
         </button>

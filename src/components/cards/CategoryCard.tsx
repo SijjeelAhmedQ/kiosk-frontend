@@ -46,7 +46,9 @@ export function CategoryCard({ category, active, onSelect, collapsed = false }: 
         className={cn(
           'font-display transition-colors duration-200',
           collapsed
-            ? 'w-full truncate text-center text-[0.8rem] font-bold leading-tight'
+            ? // Two lines rather than an ellipsis — the rail is narrow enough that
+              // "Sweets & Treats" truncated to "Sweets & Tr…" tells you nothing.
+              'line-clamp-2 w-full break-words text-center text-[0.8rem] font-bold leading-tight'
             : 'truncate text-kiosk-sm font-bold',
           active ? 'text-white' : 'text-ash group-hover:text-ink',
         )}

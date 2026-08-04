@@ -261,15 +261,23 @@ function OrderCard({ order, onOpen }: { order: OrderListItem; onOpen: () => void
       meta={<span>{formatWhen(order.placedAt)}</span>}
       trailing={
         <div className="w-36">
+          {/* What the customer actually paid — `total` is the pre-coupon figure,
+              so on a discounted ticket it is not the number staff need. The
+              detail modal reads the same way. */}
           <p className="font-display text-lg font-extrabold tabular-nums text-ink">
-            {formatCurrency(order.total)}
+            {formatCurrency(order.amountDue)}
           </p>
           {/* Already on the row — and "why is this ticket cheaper than its
               lines" is the question the list gets asked about most. */}
           {order.couponDiscount > 0 && (
-            <p className="mt-1 font-display text-xs font-bold tabular-nums text-leaf">
-              −{formatCurrency(order.couponDiscount)} coupon
-            </p>
+            <>
+              <p className="font-display text-xs font-semibold tabular-nums text-ash line-through">
+                {formatCurrency(order.total)}
+              </p>
+              <p className="mt-1 font-display text-xs font-bold tabular-nums text-leaf">
+                −{formatCurrency(order.couponDiscount)} coupon
+              </p>
+            </>
           )}
           <p className="mt-1.5 text-xs text-ash">
             {order.itemCount} item{order.itemCount === 1 ? '' : 's'}

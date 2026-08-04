@@ -31,7 +31,12 @@ export default function CheckoutPage() {
   const dispatch = useAppDispatch();
   const { subtotal, tax, total, itemCount } = useAppSelector(selectCartSummary);
   const appliedCoupon = useAppSelector((s) => s.couponRedemption.applied);
-  const [method, setLocal] = useState<PaymentMethod | null>(null);
+  /* Pre-selected when the kiosk only offers one way to pay — making the
+     customer tap the single option just to enable the button is a step that
+     carries no decision. */
+  const [method, setLocal] = useState<PaymentMethod | null>(
+    PAYMENT_METHODS.length === 1 ? PAYMENT_METHODS[0].value : null,
+  );
 
   /* An estimate only — the server recomputes the draw when the coupon is
      redeemed, and caps it at what the order actually owes. Capping here too
