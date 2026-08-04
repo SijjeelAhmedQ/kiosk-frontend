@@ -153,7 +153,18 @@
       "Bash(powershell -NoProfile -Command 'Get-Process msedge -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '\\\\''*Edge*'\\\\'' } | Stop-Process -Force -ErrorAction SilentlyContinue')",
       "Bash(python scripts/deploy_db.py 07)",
       "Bash(./.venv/Scripts/python.exe \"C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/4aefc26c-c93c-40d3-ba17-168f3d8b3ed1/scratchpad/check_coupon_tax.py\")",
-      "Bash(./.venv/Scripts/python.exe \"C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/4aefc26c-c93c-40d3-ba17-168f3d8b3ed1/scratchpad/check_coupon_partial.py\")"
+      "Bash(./.venv/Scripts/python.exe \"C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/4aefc26c-c93c-40d3-ba17-168f3d8b3ed1/scratchpad/check_coupon_partial.py\")",
+      "Bash(curl -s -m 5 http://localhost:8000/api/v1/health)",
+      "Bash(curl -s -m 5 -o /dev/null -w \"%{http_code}\" http://localhost:8000/docs)",
+      "Bash(curl -s -m 10 http://localhost:8000/openapi.json -o openapi.json)",
+      "Bash(curl -s -m 10 \"http://localhost:8000/api/v1/products\")",
+      "Bash(curl -s -m 10 \"http://localhost:8000/api/v1/settings\")",
+      "Bash(python -c \"import json,sys; print\\(json.dumps\\(json.load\\(sys.stdin\\)['data'],indent=1\\)[:800]\\)\")",
+      "Bash(python e2e_003_setup.py)",
+      "Bash(curl -s -X DELETE http://localhost:8000/api/v1/campaigns/38 -w \"\\\\n[%{http_code}]\\\\n\")",
+      "Bash(python e2e_001.py)",
+      "Bash(python e2e_002.py)",
+      "Bash(python e2e_003_verify.py)"
     ]
   }
 }
