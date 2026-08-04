@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setMethod } from '@/redux/slices/paymentSlice';
@@ -13,6 +13,7 @@ import { couponDiscount } from '@/utils/couponDiscount';
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/utils/cn';
 import { PATHS } from '@/routes/paths';
+import { dismissCouponNotice } from '@/redux/slices/couponRedemptionSlice';
 
 const HINT: Record<string, string> = {
   counter: 'Pay the cashier when you collect',
@@ -59,6 +60,9 @@ export default function CheckoutPage() {
     dispatch(setMethod(settleAs));
     navigate(PATHS.payment);
   };
+useEffect(() => {
+  dispatch(dismissCouponNotice())
+}, [])
 
   return (
     <OrderLayout showSidebar={false} showBasket={false}>
