@@ -150,7 +150,10 @@
       "Bash(npm run *)",
       "Bash(npm i *)",
       "Bash(taskkill //F //FI \"PID eq $\\(curl -s http://127.0.0.1:9222/json/version >/dev/null && echo 0\\)\")",
-      "Bash(powershell -NoProfile -Command 'Get-Process msedge -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '\\\\''*Edge*'\\\\'' } | Stop-Process -Force -ErrorAction SilentlyContinue')"
+      "Bash(powershell -NoProfile -Command 'Get-Process msedge -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '\\\\''*Edge*'\\\\'' } | Stop-Process -Force -ErrorAction SilentlyContinue')",
+      "Bash(python scripts/deploy_db.py 07)",
+      "Bash(./.venv/Scripts/python.exe \"C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/4aefc26c-c93c-40d3-ba17-168f3d8b3ed1/scratchpad/check_coupon_tax.py\")",
+      "Bash(./.venv/Scripts/python.exe \"C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/4aefc26c-c93c-40d3-ba17-168f3d8b3ed1/scratchpad/check_coupon_partial.py\")"
     ]
   }
 }

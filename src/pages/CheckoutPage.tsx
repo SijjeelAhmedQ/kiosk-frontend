@@ -40,8 +40,8 @@ export default function CheckoutPage() {
 
   /* An estimate only — the server recomputes the draw when the coupon is
      redeemed, and caps it at what the order actually owes. Capping here too
-     keeps the button from promising a discount bigger than the order. A free
-     item comes off with its tax; see utils/couponDiscount. */
+     keeps the button from promising a discount bigger than the order. The
+     server quotes a free item with its tax already on it. */
   const discount = couponDiscount(appliedCoupon, total);
   const dueNow = Math.max(0, total - discount);
 

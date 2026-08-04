@@ -51,9 +51,10 @@ export default function PaymentPage() {
         if (coupon.applied && coupon.status === 'applied') {
           const redemption = await dispatch(redeemCoupon({ orderId: placed.orderId }));
           if (redeemCoupon.fulfilled.match(redemption)) {
-            /* The server draws the free item's shelf price, so its `amountDue`
-               still carries the tax on a line the customer is not paying for.
-               Take that tax off too — a free item is free, tax and all. */
+            /* What the server actually drew, tax on a free line included. The
+               till charges `Total - CouponDiscount` off its own row, so taking
+               the redemption's own number is what keeps this screen and the
+               receipt saying the same thing as the payment. */
             discount = couponDiscount(
               coupon.applied,
               placed.summary.total,
