@@ -9,6 +9,7 @@ import {
   generateCoupons,
 } from '@/redux/slices/campaignsSlice';
 import { fetchProducts } from '@/redux/slices/productsSlice';
+import { fetchCategories } from '@/redux/slices/categoriesSlice';
 import { Button } from '@/components/common/Button';
 import { Spinner } from '@/components/common/LoadingScreen';
 import {
@@ -21,6 +22,7 @@ import {
   Select,
   Stat,
   TextInput,
+  type SelectGroup,
   type SelectOption,
 } from '@/components/admin';
 import { formatCurrency } from '@/utils/currency';
@@ -47,6 +49,7 @@ export default function GenerateCouponsPage() {
   const dispatch = useAppDispatch();
   const { current, lastGenerated, loading, saving, error } = useAppSelector((s) => s.campaigns);
   const products = useAppSelector((s) => s.products.items);
+  const categories = useAppSelector((s) => s.categories.items);
 
   const [quantity, setQuantity] = useState(10);
   const [amount, setAmount] = useState(500);
@@ -61,7 +64,8 @@ export default function GenerateCouponsPage() {
     dispatch(clearGeneratedCoupons());
     void dispatch(fetchCampaign(numericId));
     if (products.length === 0) void dispatch(fetchProducts());
-  }, [dispatch, numericId, products.length]);
+    if (categories.length === 0) void dispatch(fetchCategories());
+  }, [dispatch, numericId, products.length, categories.length]);
 
   const isProduct = current?.couponType === 'product';
 
@@ -70,16 +74,36 @@ export default function GenerateCouponsPage() {
     if (current && !expiryDate) setExpiryDate(current.expiryDate);
   }, [current, expiryDate]);
 
-  const productOptions = useMemo<SelectOption<string>[]>(
-    () =>
-      [...products]
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((product) => ({
-          value: String(product.id),
-          label: `${product.name} — ${formatCurrency(product.price)}`,
-        })),
-    [products],
-  );
+  /**
+   * The menu, by category and in menu order — a flat list of every product is
+   * long enough that "which section is this in" is the first thing you lose.
+   * Each row still answers to its category name when typed, so searching
+   * "dessert" narrows to the desserts without scrolling to find them.
+   */
+  const productGroups = useMemo<SelectGroup<string>[]>(() => {
+    const byCategory = new Map<string, SelectOption<string>[]>();
+
+    for (const product of [...products].sort((a, b) => a.name.localeCompare(b.name))) {
+      const categoryName = categories.find((c) => c.id === product.categoryId)?.name ?? 'Other';
+      const rows = byCategory.get(categoryName) ?? [];
+      rows.push({
+        value: String(product.id),
+        label: `${product.name} — ${formatCurrency(product.price)}`,
+        searchText: `${product.name} ${categoryName}`,
+      });
+      byCategory.set(categoryName, rows);
+    }
+
+    // Categories first, in the order the menu shows them; anything whose
+    // category has gone missing falls into the group it was given above.
+    const ordered = categories.map((c) => c.name).filter((name) => byCategory.has(name));
+    const leftovers = [...byCategory.keys()].filter((name) => !ordered.includes(name));
+
+    return [...ordered, ...leftovers].map((name) => ({
+      label: name,
+      options: byCategory.get(name) ?? [],
+    }));
+  }, [products, categories]);
 
   const validate = (): boolean => {
     const next: Errors = {};
@@ -190,13 +214,13 @@ export default function GenerateCouponsPage() {
               label="Free item"
               required
               error={errors.productId}
-              hint="Each coupon is good for one of these, and can only be redeemed once."
+              hint="Each coupon is good for one of these, and can only be redeemed once. Type to search by item or category."
             >
               <Select
                 value={productId}
                 invalid={Boolean(errors.productId)}
                 onChange={setProductId}
-                options={[{ value: '', label: 'Choose an item…' }, ...productOptions]}
+                options={[{ value: '', label: 'Choose an item…' }, ...productGroups]}
               />
             </Field>
           ) : (

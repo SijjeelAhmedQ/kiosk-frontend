@@ -16,4 +16,5 @@ export {
   DateRangeFilter,
   Stat,
   type SelectOption,
+  type SelectGroup,
 } from './FormControls';

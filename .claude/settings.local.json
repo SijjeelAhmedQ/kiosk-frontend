@@ -111,7 +111,20 @@
       "Bash(echo \"exit=$?\")",
       "Bash(echo \"tsc-exit=$?\")",
       "PowerShell(npx tsc --noEmit)",
-      "PowerShell(npx eslint src/utils/couponMessage.ts src/components/controls/CouponEntry.tsx src/redux/slices/couponRedemptionSlice.ts)"
+      "PowerShell(npx eslint src/utils/couponMessage.ts src/components/controls/CouponEntry.tsx src/redux/slices/couponRedemptionSlice.ts)",
+      "Bash(netstat -ano)",
+      "Bash(node -e \"console.log\\(typeof WebSocket\\)\")",
+      "Bash('/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe' --headless=new --disable-gpu --remote-debugging-port=9222 --user-data-dir=C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/6cfa2a6b-7d27-4715-b871-eaa5026c774f/scratchpad/edge-profile about:blank)",
+      "Bash(curl -s http://127.0.0.1:9222/json/version)",
+      "Bash(node shot.mjs open.png \"http://localhost:5173/admin/campaigns/28/generate\")",
+      "Bash(node shot.mjs search.png \"http://localhost:5173/admin/campaigns/28/generate\" \"dessert\")",
+      "Bash(curl -s http://127.0.0.1:8000/api/categories)",
+      "Bash(curl -s http://127.0.0.1:8000/api/v1/categories)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>console.log\\(JSON.parse\\(d\\).data.map\\(c=>c.name\\).join\\(' | '\\)\\)\\)\")",
+      "Bash(node shot.mjs sweets.png \"http://localhost:5173/admin/campaigns/28/generate\" \"sweets\")",
+      "Bash(node shot.mjs coupons.png \"http://localhost:5173/admin/coupons\" \"smoke\")",
+      "Bash(taskkill //IM msedge.exe //F)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

@@ -25,6 +25,18 @@
   box-shadow: 0 0 0 2px rgba(218, 41, 28, 0.4) !important;
 }
 
+/* A grouped select's headings. antd gives them the same weight as the rows
+   they head, which leaves the popup reading as one long list — these are the
+   Field labels' treatment instead, so a category reads as a divider. */
+.ant-select-item-group {
+  font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #76767e; /* ash */
+}
+
 /* --- Table -------------------------------------------------------------- */
 
 /* The card's rounded edge closes the list; a hairline under the last row

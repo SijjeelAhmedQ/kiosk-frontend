@@ -106,12 +106,28 @@ export interface SelectOption<T extends string> {
   value: T;
   label: ReactNode;
   disabled?: boolean;
+  /**
+   * What typing matches against. Defaults to the label, so it is only needed
+   * when the label isn't plain text, or when an option should also answer to
+   * something it doesn't display — a product to its category name, say.
+   */
+  searchText?: string;
 }
+
+/** A titled run of options. antd draws the title as a heading in the popup. */
+export interface SelectGroup<T extends string> {
+  label: string;
+  options: SelectOption<T>[];
+}
+
+type SelectItem<T extends string> = SelectOption<T> | SelectGroup<T>;
 
 interface SelectProps<T extends string> {
   value: T;
   onChange: (value: T) => void;
-  options: SelectOption<T>[];
+  /** Flat options, groups, or both — a lone option before the groups reads as
+      the "any / none" row these filters usually open with. */
+  options: SelectItem<T>[];
   placeholder?: string;
   disabled?: boolean;
   invalid?: boolean;
@@ -119,10 +135,32 @@ interface SelectProps<T extends string> {
   'aria-label'?: string;
 }
 
+function isGroup<T extends string>(item: SelectItem<T>): item is SelectGroup<T> {
+  return 'options' in item;
+}
+
+/** Case- and accent-insensitive, so "cafe" finds "Café". */
+const fold = (text: string) =>
+  text
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim();
+
+function haystack<T extends string>(option: SelectOption<T>): string {
+  if (option.searchText) return option.searchText;
+  return typeof option.label === 'string' ? option.label : String(option.value);
+}
+
 /**
  * Options come in as a prop rather than as children — antd deprecated the
  * <Option> child form, and a plain array is easier to build from the API lists
  * these filters are populated from anyway.
+ *
+ * Every select types to filter. Some of these lists are two rows long and some
+ * are the whole menu, and an admin should never have to know which before
+ * reaching for the keyboard. Matching runs on `searchText`, precomputed here so
+ * a ReactNode label can never end up stringified to "[object Object]".
  */
 export function Select<T extends string>({
   value,
@@ -135,13 +173,29 @@ export function Select<T extends string>({
   ...rest
 }: SelectProps<T>) {
   const ariaLabel = useFieldLabel(rest['aria-label']);
+
+  const searchable = options.map((item) =>
+    isGroup(item)
+      ? { ...item, options: item.options.map((o) => ({ ...o, searchText: haystack(o) })) }
+      : { ...item, searchText: haystack(item) },
+  );
+
   return (
     <AntSelect<T>
       value={value}
       onChange={onChange}
-      options={options}
+      options={searchable}
       placeholder={placeholder}
       disabled={disabled}
+      showSearch={{
+        // Groups are never matched themselves; antd only offers leaf options
+        // here, and a group survives as long as one of its rows does.
+        filterOption: (input, option) =>
+          fold(String((option as { searchText?: string } | undefined)?.searchText ?? '')).includes(
+            fold(input),
+          ),
+      }}
+      notFoundContent={<span className="text-xs text-ash">Nothing matches that.</span>}
       variant={VARIANT}
       status={invalid ? 'error' : undefined}
       aria-label={ariaLabel}
