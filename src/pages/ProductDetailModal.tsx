@@ -116,7 +116,7 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
   return (
     <Modal open={!!product} onClose={close}>
       {step === 'customize' ? (
-        <div className="flex max-h-[88vh] flex-col">
+        <div data-testid="product-modal" className="flex max-h-[88vh] flex-col">
           <div className="pt-3"><div className="sheet-grip" /></div>
 
           {/* Uncropped, same as the grid card — the detail view shows the whole photo. */}
@@ -215,7 +215,7 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
             )}
             <div className="flex items-center gap-5">
               <QuantitySelector value={qty} onChange={setQty} />
-              <Button size="xl" fullWidth onClick={onAddPressed} disabled={unmet.length > 0}>
+              <Button data-testid="modal-add" size="xl" fullWidth onClick={onAddPressed} disabled={unmet.length > 0}>
                 Add to order · {formatCurrency(previewUnit * qty)}
               </Button>
             </div>
@@ -238,7 +238,7 @@ function MealUpgradeStep({
   product, onMeal, onItemOnly, onBack,
 }: { product: Product; onMeal: () => void; onItemOnly: () => void; onBack: () => void }) {
   return (
-    <div className="p-8 animate-fade-in">
+    <div data-testid="meal-step" className="p-8 animate-fade-in">
       <div className="pb-6"><div className="sheet-grip" /></div>
 
       <h2 className="text-center font-display text-kiosk-2xl font-extrabold text-ink">Make it a meal?</h2>
@@ -246,6 +246,7 @@ function MealUpgradeStep({
 
       <div className="mt-8 grid grid-cols-2 gap-5">
         <button
+          data-testid="meal-yes"
           onClick={onMeal}
           className="press group relative flex flex-col items-center gap-4 rounded-xl3 bg-cream p-8 ring-2 ring-ink transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card"
         >
@@ -262,6 +263,7 @@ function MealUpgradeStep({
         </button>
 
         <button
+          data-testid="meal-no"
           onClick={onItemOnly}
           className="press group flex flex-col items-center gap-4 rounded-xl3 bg-cream p-8 transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card"
         >

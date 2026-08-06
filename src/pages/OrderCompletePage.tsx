@@ -35,7 +35,7 @@ export default function OrderCompletePage() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-10 bg-cream animate-fade-in">
+    <div data-testid="order-complete" className="flex h-full w-full flex-col items-center justify-center gap-10 bg-cream animate-fade-in">
       {/* Shaped like the receipt the customer is about to be handed. */}
       <div className="relative w-[520px] overflow-hidden rounded-xl4 bg-paper shadow-card animate-slide-up">
         <div className="flex flex-col items-center gap-5 px-12 pb-10 pt-12">
@@ -58,7 +58,7 @@ export default function OrderCompletePage() {
 
         <div className="flex flex-col items-center gap-1 px-12 pb-12 pt-4">
           <span className="text-kiosk-xs uppercase tracking-[0.14em] text-ash">Your order number</span>
-          <span className="my-2 font-display text-[5.5rem] font-extrabold leading-none tabular-nums text-flame">
+          <span data-testid="order-number" className="my-2 font-display text-[5.5rem] font-extrabold leading-none tabular-nums text-flame">
             {order.orderNumber}
           </span>
           <span className="text-kiosk-sm text-ash">

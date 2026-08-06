@@ -10,6 +10,7 @@ export function SearchBar({ value, onChange, placeholder = 'Search the menu' }: 
     <div className="group flex h-16 items-center gap-3 rounded-full bg-mist px-6 transition-all duration-200 focus-within:bg-paper focus-within:shadow-card">
       <SearchIcon className="h-6 w-6 shrink-0 text-ash transition-colors group-focus-within:text-ink" />
       <input
+        data-testid="menu-search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}

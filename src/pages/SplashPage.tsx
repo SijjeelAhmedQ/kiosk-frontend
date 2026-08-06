@@ -6,7 +6,7 @@ import { APP } from '@/constants/app.constants';
 import { ADMIN_PATHS, PATHS } from '@/routes/paths';
 
 /** How many category chips fit on one line before it starts to read as a list. */
-const MAX_TEASERS = 5;
+const MAX_TEASERS = 4;
 
 /** Widths for the placeholder chips — uneven, so it reads as words, not a bar. */
 const SKELETON_WIDTHS = ['7rem', '9.5rem', '8rem', '6.5rem'];
@@ -53,6 +53,7 @@ export default function SplashPage() {
       </div>
 
       <button
+        data-testid="splash-start"
         onClick={() => navigate(PATHS.orderType)}
         className="relative flex h-full w-full items-center overflow-hidden bg-ink text-left text-white"
       >

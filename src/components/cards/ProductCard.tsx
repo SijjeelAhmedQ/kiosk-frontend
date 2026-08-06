@@ -21,6 +21,10 @@ interface ProductCardProps {
 export function ProductCard({ product, onSelect, tall = false }: ProductCardProps) {
   return (
     <button
+      data-testid="product-card"
+      data-product-id={product.id}
+      data-product-name={product.name}
+      data-product-price={product.price}
       onClick={() => onSelect(product)}
       className={cn(
         'press lift group relative flex h-full w-full flex-col overflow-hidden rounded-xl3 bg-paper text-left',

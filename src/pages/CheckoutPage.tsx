@@ -99,6 +99,7 @@ useEffect(() => {
                   return (
                     <button
                       key={p.value}
+                      data-testid={`payment-method-${p.value}`}
                       onClick={() => setLocal(p.value)}
                       className={cn(
                         'press flex w-full items-center gap-5 rounded-xl3 px-6 py-6 text-left transition-all duration-200 ease-smooth',
@@ -168,7 +169,7 @@ useEffect(() => {
                     {formatCurrency(total)}
                   </span>
                 )}
-                <span className="font-display text-kiosk-2xl font-extrabold tabular-nums text-ink">
+                <span data-testid="checkout-due" className="font-display text-kiosk-2xl font-extrabold tabular-nums text-ink">
                   {formatCurrency(dueNow)}
                 </span>
               </span>
@@ -177,6 +178,7 @@ useEffect(() => {
             <CouponEntry orderTotal={total} />
 
             <Button
+              data-testid="checkout-proceed"
               size="xl"
               fullWidth
               className="mt-7"

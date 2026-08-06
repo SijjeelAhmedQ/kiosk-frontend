@@ -86,12 +86,12 @@ export function BasketPanel() {
 
             <div className="flex items-baseline justify-between">
               <span className="font-display text-kiosk-base font-bold text-ink">Total</span>
-              <span className="font-display text-kiosk-xl font-extrabold tabular-nums text-ink">
+              <span data-testid="basket-total" className="font-display text-kiosk-xl font-extrabold tabular-nums text-ink">
                 {formatCurrency(total)}
               </span>
             </div>
 
-            <Button size="xl" fullWidth className="mt-5" onClick={() => navigate(PATHS.checkout)}>
+            <Button data-testid="basket-checkout" size="xl" fullWidth className="mt-5" onClick={() => navigate(PATHS.checkout)}>
               Checkout
             </Button>
             <button

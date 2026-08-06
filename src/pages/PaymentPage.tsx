@@ -99,7 +99,7 @@ export default function PaymentPage() {
 
   if (error) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center gap-8 bg-cream animate-fade-in">
+      <div data-testid="payment-error" className="flex h-full w-full flex-col items-center justify-center gap-8 bg-cream animate-fade-in">
         <div className="flex h-28 w-28 items-center justify-center rounded-full bg-flame-soft text-[3.25rem] animate-pop-in">
           ⚠️
         </div>

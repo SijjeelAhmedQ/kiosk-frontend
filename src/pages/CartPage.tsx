@@ -86,7 +86,7 @@ export default function CartPage() {
             <div className="my-5 h-px bg-mist" />
             <Row label="Total" value={formatCurrency(total)} strong />
 
-            <Button size="xl" fullWidth className="mt-7" onClick={() => navigate(PATHS.checkout)}>
+            <Button data-testid="cart-checkout" size="xl" fullWidth className="mt-7" onClick={() => navigate(PATHS.checkout)}>
               Checkout
             </Button>
             <Button variant="secondary" size="lg" fullWidth className="mt-3" onClick={() => navigate(PATHS.menu)}>

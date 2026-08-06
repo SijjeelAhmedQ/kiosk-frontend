@@ -67,7 +67,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
     const discount = couponDiscount(applied, orderTotal);
 
     return (
-      <div className="mt-5 rounded-2xl bg-leaf-soft p-5 animate-fade-in">
+      <div data-testid="coupon-applied" className="mt-5 rounded-2xl bg-leaf-soft p-5 animate-fade-in">
         <div className="flex items-start gap-3">
           <span className="mt-0.5 text-kiosk-base leading-none">✓</span>
           <div className="min-w-0 flex-1">
@@ -120,6 +120,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
           )}
         >
           <input
+            data-testid="coupon-input"
             value={code}
             onChange={(e) => {
               setCode(normalise(e.target.value));
@@ -137,6 +138,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
         </div>
 
         <Button
+          data-testid="coupon-apply"
           size="md"
           variant="secondary"
           className="shrink-0"
@@ -153,6 +155,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
       {notice && (
         <div
           id="coupon-notice"
+          data-testid="coupon-notice"
           role="alert"
           className="mt-2.5 flex items-start gap-2.5 rounded-2xl bg-flame-soft px-4 py-3 animate-fade-in"
         >

@@ -12,6 +12,9 @@ interface CategoryCardProps {
 export function CategoryCard({ category, active, onSelect, collapsed = false }: CategoryCardProps) {
   return (
     <button
+      data-testid="category-card"
+      data-category-id={category.id}
+      data-category-name={category.name}
       onClick={() => onSelect(category.id)}
       aria-label={category.name}
       aria-current={active ? 'true' : undefined}

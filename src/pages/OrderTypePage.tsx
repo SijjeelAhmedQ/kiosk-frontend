@@ -40,6 +40,7 @@ export default function OrderTypePage() {
       {ORDER_TYPES.map((o, i) => (
         <button
           key={o.value}
+          data-testid={`order-type-${o.value}`}
           onClick={() => choose(o.value)}
           className={cn(
             'group relative flex h-full flex-1 flex-col items-center justify-center gap-7 transition-colors duration-300',
