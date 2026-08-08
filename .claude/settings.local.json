@@ -190,7 +190,11 @@
       "Bash(git checkout *)",
       "Bash(rm -f src/constants/breakpoints.ts src/hooks/useMediaQuery.ts src/layouts/partials/BasketDock.tsx src/layouts/partials/CategoryStrip.tsx)",
       "Bash(awk '{print $NF}')",
-      "Bash(xargs -r -I{} taskkill //F //PID {})"
+      "Bash(xargs -r -I{} taskkill //F //PID {})",
+      "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless=new --disable-gpu --hide-scrollbars --no-first-run --remote-debugging-port=9223 --user-data-dir=\"C:/Users/92313/AppData/Local/Temp/claude/D--other-apps-kiosk-frontend/e873477f-120c-4c41-a1aa-7f718103fdd1/scratchpad/edge-voice\" \"http://localhost:5173/\")",
+      "Bash(xargs -r -I{} taskkill //F //PID {} //T)",
+      "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless=new --disable-gpu --window-size=1280,1000 --screenshot=voice.png --virtual-time-budget=6000 http://localhost:5173/)",
+      "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless=new --disable-gpu --window-size=1280,1000 \"--screenshot=C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\d8023f9b-a84f-4a2c-a07c-8a126c661c48\\\\scratchpad\\\\voice.png\" --virtual-time-budget=6000 http://localhost:5173/)"
     ]
   }
 }
