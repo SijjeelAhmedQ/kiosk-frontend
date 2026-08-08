@@ -1,8 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/redux/hooks';
 import { setOrderType } from '@/redux/slices/settingsSlice';
-import { fetchCategories } from '@/redux/slices/categoriesSlice';
-import { fetchProducts } from '@/redux/slices/productsSlice';
 import { ORDER_TYPES } from '@/constants/order.constants';
 import type { OrderType } from '@/types';
 import { PATHS } from '@/routes/paths';
@@ -21,10 +19,11 @@ export default function OrderTypePage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
+  /* Order type, then the menu — and nothing else. The menu screen fetches its
+     own catalogue, which is what lets voice reach it by the same two steps
+     without a second copy of the loading logic. */
   const choose = (type: OrderType) => {
     dispatch(setOrderType(type));
-    dispatch(fetchCategories());
-    dispatch(fetchProducts());
     navigate(PATHS.menu);
   };
 

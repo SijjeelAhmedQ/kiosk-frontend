@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { addLine } from '@/redux/slices/cartSlice';
-import { setSearch } from '@/redux/slices/productsSlice';
+import { fetchProducts, setSearch } from '@/redux/slices/productsSlice';
+import { fetchCategories } from '@/redux/slices/categoriesSlice';
 import { selectProductsByCategory } from '@/redux/selectors';
 import { OrderLayout } from '@/layouts/OrderLayout';
 import { ProductCard } from '@/components/cards/ProductCard';
@@ -22,13 +23,41 @@ export default function MenuPage() {
   const dispatch = useAppDispatch();
   const { activeId, items: categories, loading } = useAppSelector((s) => s.categories);
   const productsLoading = useAppSelector((s) => s.products.loading);
+  const productsLoaded = useAppSelector((s) => s.products.items.length > 0);
   const search = useAppSelector((s) => s.products.search);
   const [active, setActive] = useState<Product | null>(null);
+
+  /**
+   * The menu asks for its own data.
+   *
+   * The order-type screen used to fetch on the way past, which worked for
+   * exactly as long as tapping it was the only way in. Voice sets the order
+   * type and navigates straight here, and that landed on "Nothing here yet" —
+   * so the fetch lives with the screen that needs it, and every door works.
+   *
+   * Decided at first render rather than inside the effect, so the first paint
+   * is the spinner and not a momentary empty grid.
+   */
+  const [bootstrapping, setBootstrapping] = useState(() => !categories.length || !productsLoaded);
+
+  const requested = useRef(false);
+  useEffect(() => {
+    if (requested.current || !bootstrapping) return;
+    requested.current = true; // survives StrictMode's second mount, so the catalogue is fetched once
+    // Anything already in flight — the splash screen's categories — counts as
+    // asked for; dispatching over it would only run the same request twice.
+    const pending = [
+      categories.length || loading ? null : dispatch(fetchCategories()),
+      productsLoaded || productsLoading ? null : dispatch(fetchProducts()),
+    ].filter(Boolean);
+    Promise.all(pending).finally(() => setBootstrapping(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const activeCategory = categories.find((c) => c.id === activeId);
   const visible = useAppSelector(useMemo(() => selectProductsByCategory(activeId), [activeId]));
 
-  if (loading || productsLoading) {
+  if (bootstrapping || loading || productsLoading) {
     return (
       <OrderLayout showSidebar={false} showBasket={false}>
         <LoadingScreen label="Loading the menu…" />

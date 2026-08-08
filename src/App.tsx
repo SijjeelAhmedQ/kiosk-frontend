@@ -10,6 +10,7 @@ import { clearCart } from '@/redux/slices/cartSlice';
 import { clearCoupon } from '@/redux/slices/couponRedemptionSlice';
 import { APP } from '@/constants/app.constants';
 import { ADMIN_PATHS, PATHS } from '@/routes/paths';
+import { VoiceControl } from '@/voice/VoiceControl';
 
 /** Sits inside the router so it can navigate on idle. Resets kiosk to splash. */
 function IdleReset() {
@@ -35,6 +36,23 @@ function IdleReset() {
   return null;
 }
 
+/**
+ * The microphone, mounted beside the routes rather than inside a layout.
+ *
+ * A voice session owns a socket and an open microphone, and `AppRoutes` keys
+ * each screen on its path — so anywhere below it, walking from the menu to the
+ * basket would tear the conversation down mid-word. Up here it survives
+ * navigation, which is the whole point: the model is the one doing the
+ * navigating.
+ *
+ * Not in the back office. Nobody is voice-ordering a coupon report.
+ */
+function Voice() {
+  const location = useLocation();
+  if (location.pathname.startsWith(ADMIN_PATHS.root)) return null;
+  return <VoiceControl />;
+}
+
 export default function App() {
   return (
     // antd is themed once, at the root: the kiosk screens don't use it today,
@@ -44,6 +62,7 @@ export default function App() {
         <div className="mx-auto h-screen w-screen max-w-[1920px] overflow-hidden">
           <IdleReset />
           <AppRoutes />
+          <Voice />
         </div>
       </BrowserRouter>
     </ConfigProvider>
