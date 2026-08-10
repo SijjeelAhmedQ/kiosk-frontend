@@ -197,7 +197,14 @@
       "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless=new --disable-gpu --window-size=1280,1000 \"--screenshot=C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\d8023f9b-a84f-4a2c-a07c-8a126c661c48\\\\scratchpad\\\\voice.png\" --virtual-time-budget=6000 http://localhost:5173/)",
       "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless=new --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=1280,900 --screenshot=menu.png \"http://localhost:5173/menu\")",
       "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless=new --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=1280,900 \"--screenshot=C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\28bce085-07e1-44ae-8714-d12bb8fff685\\\\scratchpad\\\\menu.png\" \"http://localhost:5173/menu\")",
-      "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless=new --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=1280,900 \"--screenshot=C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\28bce085-07e1-44ae-8714-d12bb8fff685\\\\scratchpad\\\\shift.png\" \"http://localhost:5173/menu\")"
+      "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless=new --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=1280,900 \"--screenshot=C:\\\\Users\\\\92313\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--other-apps-kiosk-frontend\\\\28bce085-07e1-44ae-8714-d12bb8fff685\\\\scratchpad\\\\shift.png\" \"http://localhost:5173/menu\")",
+      "Bash(node probe.mjs)",
+      "Bash(node urdu.mjs)",
+      "Bash(sed \"s|^const script = \\\\[|const script = [\\\\n 'A Zinger Burger, dine in. Read my order and place it right now, do not ask me anything.',\\\\n 'Yes, go ahead.',\\\\n 'Actually add another one and place it immediately.',|\" urdu.mjs)",
+      "Bash(sed -i \"s|^ 'میں ایک زنگر برگر.*$||; s|^ 'یہیں کھاؤں گا.*$||; s|^ 'ہاں، بس اتنا ہی۔ آرڈر کر دیں.*$||; s|^ 'جی ہاں، کر دیں.*$||\" adversarial.mjs)",
+      "Bash(node adversarial.mjs)",
+      "Bash(node flow.mjs ur)",
+      "Bash(node flow.mjs en)"
     ]
   }
 }

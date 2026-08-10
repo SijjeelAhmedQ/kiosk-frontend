@@ -175,7 +175,17 @@ export class RealtimeVoiceSession {
             },
             // Only so the on-screen transcript can show what was heard. The
             // model itself works from the audio, not from this text.
-            transcription: { model: 'whisper-1' },
+            //
+            // gpt-4o-transcribe rather than whisper-1: whisper takes no useful
+            // steer on which script to write, and it labels Urdu as Hindi often
+            // enough that a customer speaking Urdu watches Devanagari appear.
+            // This one follows `prompt`, which is where that instruction goes.
+            transcription: {
+              model: 'gpt-4o-transcribe',
+              ...(this.config.transcriptionPrompt
+                ? { prompt: this.config.transcriptionPrompt }
+                : {}),
+            },
           },
           output: {
             format: { type: 'audio/pcm', rate: 24000 },

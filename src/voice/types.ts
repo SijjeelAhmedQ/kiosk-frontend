@@ -63,6 +63,12 @@ export interface VoiceSessionConfig {
   tools: VoiceTool[];
   /** Spoken the moment the session opens. Omit for a silent start. */
   greeting?: string;
+  /**
+   * Context for the speech-to-text that draws the transcript: what is likely to
+   * be said, and which script to write it in. Nothing the model reasons over —
+   * it hears the audio — so this only shapes what appears on screen.
+   */
+  transcriptionPrompt?: string;
   /** marin | cedar | alloy | … Defaults to whatever the relay is configured for. */
   voice?: string;
 }

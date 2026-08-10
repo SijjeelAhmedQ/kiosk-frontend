@@ -12,14 +12,18 @@
  *    gets back the item, the price and the new total — otherwise the model
  *    invents a figure, and an invented price at a kiosk is a complaint at the
  *    counter.
- * 2. **Nothing here spends money.** Voice can fill the basket and walk to
- *    checkout; the customer taps to pay. Payment is the one step where a
- *    misheard word is not recoverable, so it stays on the glass.
+ * 2. **The last step is spoken too, and it walks the same screens.** Voice can
+ *    settle the order, so a customer who cannot or will not touch the glass can
+ *    finish without it — but it goes to checkout, picks a payment method and
+ *    places it as separate steps, in front of the screens that show each one.
+ *    What guards the last step is not a tap but a token: `read_order` issues
+ *    one, and the only way to be holding it is to have read the total out in an
+ *    earlier turn and let the customer answer.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useStore } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { RootState } from '@/redux/store';
 import { useAppDispatch } from '@/redux/hooks';
 import { addLine, clearCart, removeLine } from '@/redux/slices/cartSlice';
@@ -27,10 +31,12 @@ import { setActiveCategory, fetchCategories } from '@/redux/slices/categoriesSli
 import { fetchProducts, setSearch } from '@/redux/slices/productsSlice';
 import { setOrderType } from '@/redux/slices/settingsSlice';
 import { validateCoupon } from '@/redux/slices/couponRedemptionSlice';
+import { setMethod } from '@/redux/slices/paymentSlice';
 import { productApi } from '@/services/api/productApi';
 import { defaultLineModifiers } from '@/utils/modifierRules';
 import { summarize } from '@/utils/priceCalculator';
-import { MEAL_UPGRADE_PRICE } from '@/constants/order.constants';
+import { couponDiscount } from '@/utils/couponDiscount';
+import { MEAL_UPGRADE_PRICE, PAYMENT_METHODS, SETTLED_BY_COUPON } from '@/constants/order.constants';
 import { APP } from '@/constants/app.constants';
 import { PATHS } from '@/routes/paths';
 import type { CartLine, Product } from '@/types';
@@ -147,6 +153,22 @@ const object = (properties: Record<string, unknown>, required: string[] = []): J
   additionalProperties: false,
 });
 
+/**
+ * What the order was when it was last read aloud.
+ *
+ * `place_order` will not run against a signature that has moved: a token handed
+ * out over "one Zinger, 748 rupees" is worthless the moment fries go on, and
+ * the customer must hear the new number before they can agree to it.
+ */
+const orderSignature = (state: RootState): string =>
+  [
+    state.cart.lines
+      .map((l) => `${l.productId}:${l.quantity}:${l.isMeal ? 1 : 0}:${l.lineTotal}`)
+      .join('|'),
+    state.couponRedemption.applied?.couponCode ?? '',
+    state.settings.orderType ?? '',
+  ].join('#');
+
 // --------------------------------------------------------------------------- //
 // The tools
 // --------------------------------------------------------------------------- //
@@ -155,6 +177,27 @@ export function useKioskVoiceTools(): VoiceTool[] {
   const store = useStore<RootState>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  /* Which screen the customer is actually looking at. Held in a ref so the
+     tools are not rebuilt on every navigation — they are read at call time,
+     like everything else here. */
+  const location = useLocation();
+  const screen = useRef(location.pathname);
+  screen.current = location.pathname;
+
+  /**
+   * The receipt for "I read you the total and you said yes".
+   *
+   * Issued by `read_order`, spent by `place_order`, and the only thing that
+   * makes the confirmation real. A model asked politely to confirm first will
+   * cheerfully emit read_order and place_order in one breath — it did exactly
+   * that the first time this was tried — and a customer is then charged for an
+   * order they never heard. It cannot do that with a token, because every call
+   * in a batch is written before any of their results come back: holding one
+   * proves the readback happened in an earlier turn, with a reply spoken in
+   * between for the customer to answer.
+   */
+  const readback = useRef<{ token: string; signature: string } | null>(null);
 
   // Built once. Every tool reads `store.getState()` when it runs rather than
   // closing over a snapshot, so a session opened on the splash screen still
@@ -350,16 +393,31 @@ export function useKioskVoiceTools(): VoiceTool[] {
       {
         name: 'read_order',
         description:
-          "Read back what is in the basket and what it comes to. Use this before sending the " +
-          'customer to checkout, and whenever they ask what they have ordered.',
+          'Read back what is in the basket and what it comes to. Use it whenever the customer ' +
+          'asks what they have ordered, and always before placing the order — it hands back the ' +
+          'confirmation_token that place_order needs.',
         parameters: object({}),
         run: () => {
-          const lines = store.getState().cart.lines;
+          const state = store.getState();
+          const lines = state.cart.lines;
+
+          if (!lines.length) {
+            readback.current = null;
+            return { ok: true, empty: true, items: [], ...totals() };
+          }
+
+          const token = `RB-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+          readback.current = { token, signature: orderSignature(state) };
+
           return {
             ok: true,
-            empty: lines.length === 0,
+            empty: false,
             items: lines.map(describeLine),
             ...totals(),
+            confirmation_token: token,
+            next:
+              'Say what is in the order and what it comes to, then ask whether to place it. ' +
+              'When they say yes, call place_order with this confirmation_token.',
           };
         },
       },
@@ -377,8 +435,9 @@ export function useKioskVoiceTools(): VoiceTool[] {
       {
         name: 'set_order_type',
         description:
-          'Record whether the customer is eating in or taking away. This has to be set before ' +
-          'the menu will open, so ask for it first if it is missing.',
+          'Record whether the customer is eating in or taking away, and open the menu. ' +
+          'Ask for this on the order_type screen — send them there with go_to first if they are ' +
+          'still on the welcome screen.',
         parameters: object(
           { type: { type: 'string', enum: ['dine_in', 'take_away'] } },
           ['type'],
@@ -426,18 +485,23 @@ export function useKioskVoiceTools(): VoiceTool[] {
       {
         name: 'go_to',
         description:
-          'Move the kiosk to another screen. Use "checkout" when the customer is done ordering — ' +
-          'they finish the payment themselves on the screen.',
+          'Move the kiosk to another screen. Use "order_type" to leave the welcome screen when the ' +
+          'customer wants to start ordering — dine in and take away are asked there, not on the ' +
+          'welcome screen. Use "checkout" when the customer is done ordering: paying and placing ' +
+          'both happen there, and neither can be done from the menu.',
         parameters: object(
-          { screen: { type: 'string', enum: ['menu', 'basket', 'checkout', 'start'] } },
+          { screen: { type: 'string', enum: ['order_type', 'menu', 'basket', 'checkout', 'start'] } },
           ['screen'],
         ),
-        run: ({ screen }: { screen: 'menu' | 'basket' | 'checkout' | 'start' }) => {
+        run: ({ screen }: { screen: 'order_type' | 'menu' | 'basket' | 'checkout' | 'start' }) => {
           const state = store.getState();
-          if (screen !== 'start' && !state.settings.orderType) {
+          // "start" and "order_type" are the two screens that exist *before* the
+          // choice is made, so they are the only ones reachable without it.
+          if (screen !== 'start' && screen !== 'order_type' && !state.settings.orderType) {
             return {
               ok: false,
               error: 'The customer has not said whether they are eating in or taking away yet.',
+              next: 'Send them to the order_type screen, then ask.',
             };
           }
           if ((screen === 'checkout' || screen === 'basket') && !state.cart.lines.length) {
@@ -445,12 +509,22 @@ export function useKioskVoiceTools(): VoiceTool[] {
           }
 
           const destination = {
+            order_type: PATHS.orderType,
             menu: PATHS.menu,
             basket: PATHS.cart,
             checkout: PATHS.checkout,
             start: PATHS.splash,
           }[screen];
           navigate(destination);
+
+          if (screen === 'order_type') {
+            return {
+              ok: true,
+              screen,
+              choices: ['dine_in', 'take_away'],
+              note: 'Dine in and take away are on screen now. Ask which one, then call set_order_type.',
+            };
+          }
           return { ok: true, screen };
         },
       },
@@ -488,6 +562,175 @@ export function useKioskVoiceTools(): VoiceTool[] {
           };
         },
       },
+
+      {
+        name: 'select_payment_method',
+        description:
+          'Pick how the customer is paying, on the checkout screen. It ticks the option they ' +
+          'chose, exactly as tapping it would. Ask them first — this is their choice, not yours.',
+        parameters: object(
+          {
+            method: {
+              type: 'string',
+              enum: PAYMENT_METHODS.map((p) => p.value),
+              description: 'The way they said they want to pay.',
+            },
+          },
+          ['method'],
+        ),
+        run: ({ method }: { method: string }) => {
+          if (screen.current !== PATHS.checkout) {
+            return {
+              ok: false,
+              error: 'Payment is chosen on the checkout screen, and the kiosk is not there yet.',
+              next: 'Call go_to with "checkout" first.',
+            };
+          }
+
+          const chosen = PAYMENT_METHODS.find((p) => p.value === method);
+          if (!chosen) {
+            return {
+              ok: false,
+              error: `This kiosk does not take "${method}".`,
+              choices: PAYMENT_METHODS.map((p) => ({ value: p.value, label: p.label })),
+            };
+          }
+
+          dispatch(setMethod(chosen.value));
+          const { total } = summarize(store.getState().cart.lines);
+          return {
+            ok: true,
+            payment_method: chosen.value,
+            label: chosen.label,
+            amount_due: Math.max(0, total - couponDiscount(store.getState().couponRedemption.applied, total)),
+            currency: APP.currency,
+            next: 'Say what is selected and what it comes to, then ask whether to place the order.',
+          };
+        },
+      },
+
+      {
+        name: 'place_order',
+        description:
+          'Send the order to the till and settle it. The very last step: the screen moves to ' +
+          'payment and then to the order number on its own, and the customer touches nothing. ' +
+          'It only works from the checkout screen, with a payment method already chosen and the ' +
+          'confirmation_token from read_order.',
+        parameters: object(
+          {
+            confirmation_token: {
+              type: 'string',
+              description:
+                'The token read_order handed back when you read this order out. It is only good ' +
+                'for the order as it stood then — add or remove anything and you need a new one.',
+            },
+            confirmed: {
+              type: 'boolean',
+              description:
+                'True only when the customer has just heard the total read back and agreed to pay. ' +
+                'Never true on your own initiative.',
+            },
+          },
+          ['confirmation_token', 'confirmed'],
+        ),
+        run: ({
+          confirmation_token,
+          confirmed,
+        }: {
+          confirmation_token: string;
+          confirmed: boolean;
+        }) => {
+          const state = store.getState();
+
+          /* The customer has to be watching the order they are agreeing to.
+             Settling one straight off the menu screen, with the basket rail the
+             only thing they have seen, is what this refuses. */
+          if (screen.current !== PATHS.checkout) {
+            return {
+              ok: false,
+              error: 'An order can only be placed from the checkout screen.',
+              next: 'Call go_to with "checkout", read the order back there, choose a payment method, and then place it.',
+            };
+          }
+
+          // The two things standing between a misheard word and a charged
+          // order. The boolean states the intent; the token is what makes it
+          // true — see `readback` above for why the boolean alone is not enough.
+          if (!confirmed) {
+            return {
+              ok: false,
+              error: 'The customer has not confirmed.',
+              next: 'Read the order and the total back with read_order, ask if you should place it, and only call this again once they say yes.',
+            };
+          }
+
+          const proof = readback.current;
+          if (!proof || proof.token !== confirmation_token) {
+            return {
+              ok: false,
+              error: 'That is not the current confirmation token.',
+              next: 'Call read_order, tell the customer what the order comes to, ask whether to place it, and use the token it returns — in your next turn, after they answer.',
+            };
+          }
+          if (proof.signature !== orderSignature(state)) {
+            readback.current = null;
+            return {
+              ok: false,
+              error: 'The order has changed since you last read it back.',
+              next: 'Read it back again with read_order, say the new total, and ask them to confirm that.',
+            };
+          }
+
+          if (!state.settings.orderType) {
+            return { ok: false, error: 'Dine in or take away has not been chosen yet.' };
+          }
+          if (!state.cart.lines.length) {
+            return { ok: false, error: 'The basket is empty, so there is nothing to place.' };
+          }
+
+          const { total } = summarize(state.cart.lines);
+          const dueNow = Math.max(0, total - couponDiscount(state.couponRedemption.applied, total));
+
+          /* Whatever is ticked on the checkout screen — the customer's own
+             choice, made a turn ago through select_payment_method or by hand.
+             The exception is an order a coupon has covered entirely: the picker
+             is not on screen at all then, and 'counter' is what the till calls
+             a settlement no terminal was involved in. */
+          const chosen = dueNow === 0 && state.couponRedemption.applied
+            ? SETTLED_BY_COUPON
+            : state.payment.method;
+
+          if (!chosen) {
+            return {
+              ok: false,
+              error: 'No payment method is selected.',
+              next: 'Ask the customer how they would like to pay, call select_payment_method, and then place the order.',
+              choices: PAYMENT_METHODS.map((p) => ({ value: p.value, label: p.label })),
+            };
+          }
+
+          /* The payment screen is what actually places and settles the order —
+             it also redeems any coupon against the real order id. Driving it
+             from here rather than reimplementing it is what keeps a spoken
+             order and a tapped one landing in the till the same way. */
+          dispatch(setMethod(chosen));
+          navigate(PATHS.payment);
+          // Spent. A second call cannot ride the same confirmation through.
+          readback.current = null;
+
+          return {
+            ok: true,
+            placing: true,
+            amount_due: dueNow,
+            currency: APP.currency,
+            payment_method: chosen,
+            // The tool returns the moment the screen changes; the till answers a
+            // second or two later. Promising a placed order here would be a lie
+            // the customer could watch fail.
+            note: 'The order is going to the till now. Tell the customer it is going through and their order number will come up on screen. Do not call any more tools.',
+          };
+        },
+      },
     ];
   }, [store, dispatch, navigate]);
 }
@@ -513,10 +756,40 @@ How to work:
 - Use the tools for everything. Never say something is in the basket unless a tool put it there.
 - Never invent a price, a total or an item. If you do not know, call search_menu.
 - If more than one item matches what they said, ask which they meant. Do not guess.
-- Before anything else, the customer must have chosen dine in or take away. If that is missing, ask, then call set_order_type.
-- When they are finished, read the order back with read_order and send them to checkout with go_to.
+- Nothing can be ordered until the customer has chosen dine in or take away. If that choice is missing, call go_to with "order_type" first — that puts the two options on screen — and only then ask which one and call set_order_type. Never ask dine in or take away while they are still on the welcome screen; move the screen first, so they are looking at what you are asking about.
+- On the welcome screen, anything that means "I want to order" — "tap to order", "start", "yes", naming an item — is your cue to call go_to with "order_type".
+- Never tell them to tap anything: the whole order, payment included, can be done out loud.
+
+Finishing the order. Four steps, in this order, and each one waits for the customer to answer before the next:
+1. They say they are done. Call go_to with "checkout" — the order is never placed from the menu screen.
+2. On the checkout screen, call read_order. Say what is in the order and what it comes to, then ask how they would like to pay.
+3. They answer. Call select_payment_method, say what is now selected, and ask whether to place the order.
+4. They say yes. Call place_order with the confirmation_token from step 2. That settles it; the screen moves on by itself.
+
+- If at any point they say no, or want to change something, stay on the order and fix it. Only place_order takes their money.
+
+What language to speak:
+- Speak whatever language the customer speaks, and follow them when they switch mid-order.
+- If they speak Urdu, answer in Urdu, written in Urdu script — "ایک زنگر برگر، سات سو اڑتالیس روپے" — never in Devanagari, never in Hindi, and never as Roman transliteration.
+- If they speak English, answer in English.
+- Only menu item names stay as they are printed on the menu. Do not drop any other English word into an Urdu sentence — in Urdu, dine in and take away are "یہیں کھائیں گے یا پارسل؟", and placing an order is "آرڈر کر دیتا ہوں".
 
 What you must not do:
-- You cannot take payment. When the order is right, tell them to tap the payment button on screen.
+- Do not run the four finishing steps together in one turn. The tools will refuse, and more to the point the customer will not have had a chance to answer. Placing an order they never agreed to is the one mistake that costs them money.
 - Do not clear the basket unless they clearly asked you to.
 - If a tool returns an error, say what went wrong in plain words and offer the next step.`;
+
+/**
+ * What the transcriber is told before it hears a word.
+ *
+ * Only the on-screen transcript rides on this — the model itself works from the
+ * audio — but Urdu is the case where getting it wrong is glaring. Recognisers
+ * routinely label Urdu as Hindi and hand back Devanagari, so a customer
+ * speaking Urdu watches the panel fill with a script they may not read. Naming
+ * the script, with an example in it, is what keeps اردو out of देवनागरी.
+ */
+export const KIOSK_TRANSCRIPTION_PROMPT =
+  `A customer ordering food at a ${APP.name} kiosk in Pakistan. They speak English or Urdu and ` +
+  'often mix the two in one sentence. Write Urdu in Urdu (Arabic) script — for example ' +
+  '"ایک برگر اور ایک کوک" — never in Devanagari, never in Hindi, and never as Roman ' +
+  'transliteration. Write English in English. Menu item names stay in English.';

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setMethod } from '@/redux/slices/paymentSlice';
@@ -7,8 +7,7 @@ import { OrderLayout } from '@/layouts/OrderLayout';
 import { Button } from '@/components/common/Button';
 import { StepBar } from '@/components/common/StepBar';
 import { CouponEntry } from '@/components/controls/CouponEntry';
-import { PAYMENT_METHODS } from '@/constants/order.constants';
-import type { PaymentMethod } from '@/types';
+import { PAYMENT_METHODS, SETTLED_BY_COUPON } from '@/constants/order.constants';
 import { couponDiscount } from '@/utils/couponDiscount';
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/utils/cn';
@@ -19,25 +18,15 @@ const HINT: Record<string, string> = {
   counter: 'Pay the cashier when you collect',
 };
 
-/**
- * What a fully-covered order is settled as.
- *
- * Nothing is charged, but the order still needs a method: 'counter' is the one
- * that means "no terminal was involved", which is exactly what happened.
- */
-const SETTLED_BY_COUPON: PaymentMethod = 'counter';
-
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { subtotal, tax, total, itemCount } = useAppSelector(selectCartSummary);
   const appliedCoupon = useAppSelector((s) => s.couponRedemption.applied);
-  /* Pre-selected when the kiosk only offers one way to pay — making the
-     customer tap the single option just to enable the button is a step that
-     carries no decision. */
-  const [method, setLocal] = useState<PaymentMethod | null>(
-    PAYMENT_METHODS.length === 1 ? PAYMENT_METHODS[0].value : null,
-  );
+  /* In the store rather than in component state: the voice picks a payment
+     method through the same action, and a choice held locally would leave the
+     screen showing one thing while the order carried another. */
+  const method = useAppSelector((s) => s.payment.method);
 
   /* An estimate only — the server recomputes the draw when the coupon is
      redeemed, and caps it at what the order actually owes. Capping here too
@@ -60,9 +49,17 @@ export default function CheckoutPage() {
     dispatch(setMethod(settleAs));
     navigate(PATHS.payment);
   };
-useEffect(() => {
-  dispatch(dismissCouponNotice())
-}, [])
+
+  useEffect(() => {
+    dispatch(dismissCouponNotice());
+  }, []);
+
+  /* Pre-selected when the kiosk only offers one way to pay — making the
+     customer tap the single option just to enable the button is a step that
+     carries no decision. */
+  useEffect(() => {
+    if (!method && PAYMENT_METHODS.length === 1) dispatch(setMethod(PAYMENT_METHODS[0].value));
+  }, [method, dispatch]);
 
   return (
     <OrderLayout showSidebar={false} showBasket={false}>
@@ -100,7 +97,7 @@ useEffect(() => {
                     <button
                       key={p.value}
                       data-testid={`payment-method-${p.value}`}
-                      onClick={() => setLocal(p.value)}
+                      onClick={() => dispatch(setMethod(p.value))}
                       className={cn(
                         'press flex w-full items-center gap-5 rounded-xl3 px-6 py-6 text-left transition-all duration-200 ease-smooth',
                         'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10',

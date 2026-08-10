@@ -37,7 +37,11 @@ import { useAppSelector } from '@/redux/hooks';
 import { selectCartCount } from '@/redux/selectors';
 import { PATHS } from '@/routes/paths';
 import { useVoiceSession, useVoiceAvailability } from './useVoiceSession';
-import { useKioskVoiceTools, KIOSK_VOICE_INSTRUCTIONS } from './kioskTools';
+import {
+  useKioskVoiceTools,
+  KIOSK_VOICE_INSTRUCTIONS,
+  KIOSK_TRANSCRIPTION_PROMPT,
+} from './kioskTools';
 import { VOICE_HEALTH_URL, VOICE_SOCKET_URL } from './endpoints';
 import type { VoiceStatus } from './types';
 import { APP } from '@/constants/app.constants';
@@ -110,6 +114,7 @@ export function VoiceControl() {
     url: VOICE_SOCKET_URL,
     instructions: KIOSK_VOICE_INSTRUCTIONS,
     tools,
+    transcriptionPrompt: KIOSK_TRANSCRIPTION_PROMPT,
     greeting: 'Hi! What can I get you today?',
   });
 
@@ -288,6 +293,11 @@ export function VoiceControl() {
             turn.role === 'user' ? (
               <p
                 key={turn.id}
+                /* Urdu is right-to-left and English is not, and the two turn up
+                   in the same conversation — often in the same sentence. `auto`
+                   lets the browser lay each bubble out by what is actually in
+                   it, which is the only thing that reads correctly either way. */
+                dir="auto"
                 className="ml-auto max-w-[80%] w-fit rounded-2xl bg-ink px-3.5 py-2 text-kiosk-sm text-white animate-fade-in"
               >
                 {turn.text}
@@ -298,7 +308,10 @@ export function VoiceControl() {
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-flame text-[0.7rem] leading-none">
                   🔥
                 </span>
-                <p className="max-w-[80%] rounded-2xl bg-cream px-3.5 py-2 text-kiosk-sm text-charcoal">
+                <p
+                  dir="auto"
+                  className="max-w-[80%] rounded-2xl bg-cream px-3.5 py-2 text-kiosk-sm text-charcoal"
+                >
                   {turn.text}
                 </p>
               </div>

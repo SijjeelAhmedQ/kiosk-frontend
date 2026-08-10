@@ -10,6 +10,15 @@ export const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: strin
 ];
 
 /**
+ * What a fully-covered order is settled as.
+ *
+ * Nothing is charged, but the order still needs a method: 'counter' is the one
+ * that means "no terminal was involved", which is exactly what happened. Shared
+ * so the checkout screen and the voice settle such an order identically.
+ */
+export const SETTLED_BY_COUPON: PaymentMethod = 'counter';
+
+/**
  * Display only. The backend re-prices every line from the `MealUpcharge` row in
  * dbo.AppSettings when the order is placed, so this must be kept in step with
  * that setting or the kiosk quotes a price it does not charge.
