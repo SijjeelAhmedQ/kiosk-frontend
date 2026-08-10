@@ -31,7 +31,11 @@
  */
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { reportActivity } from '@/hooks/useIdleTimer';
+import { useAppSelector } from '@/redux/hooks';
+import { selectCartCount } from '@/redux/selectors';
+import { PATHS } from '@/routes/paths';
 import { useVoiceSession, useVoiceAvailability } from './useVoiceSession';
 import { useKioskVoiceTools, KIOSK_VOICE_INSTRUCTIONS } from './kioskTools';
 import { VOICE_HEALTH_URL, VOICE_SOCKET_URL } from './endpoints';
@@ -81,8 +85,25 @@ const COMPOSER_HINT: Record<VoiceStatus, string> = {
   error: 'Voice stopped. Tap the mic to try again',
 };
 
+/**
+ * Where the dock parks on the right edge.
+ *
+ * The menu's basket rail owns the last 400px of the screen, and the dock is
+ * anchored to that same edge — so the moment the order has something in it, the
+ * microphone is sitting on top of the Checkout button. In that one case it
+ * steps left of the rail (400px + the same 1.5rem gutter); everywhere else, and
+ * on an empty basket, the corner is free and it stays where it belongs.
+ */
+const EDGE = {
+  corner: 'right-6',
+  besideBasket: 'right-[424px]',
+} as const;
+
 export function VoiceControl() {
   const tools = useKioskVoiceTools();
+  const location = useLocation();
+  const cartCount = useAppSelector(selectCartCount);
+  const besideBasket = location.pathname === PATHS.menu && cartCount > 0;
   const { ready, checking, reason } = useVoiceAvailability(VOICE_HEALTH_URL);
 
   const voice = useVoiceSession({
@@ -168,7 +189,10 @@ export function VoiceControl() {
         onClick={openDock}
         aria-label={LABEL[voice.status]}
         className={cn(
-          'press fixed bottom-6 right-6 z-40 flex h-16 w-16 items-center justify-center rounded-full',
+          'press fixed bottom-6 z-40 flex h-16 w-16 items-center justify-center rounded-full',
+          // Slides across as the first item lands, rather than teleporting.
+          'transition-[right] duration-300 ease-out',
+          besideBasket ? EDGE.besideBasket : EDGE.corner,
           'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/25',
           voice.active ? 'bg-ink text-white shadow-lift' : 'bg-amber text-ink shadow-brand-lg',
         )}
@@ -192,7 +216,14 @@ export function VoiceControl() {
        Floating it on a margin is what makes a panel read as a popover instead. */
     <div
       data-testid="voice-panel"
-      className="fixed bottom-0 right-6 z-40 flex w-[380px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-t-xl3 bg-paper shadow-pop animate-slide-up"
+      className={cn(
+        'fixed bottom-0 z-40 flex w-[380px] flex-col overflow-hidden rounded-t-xl3 bg-paper shadow-pop animate-slide-up',
+        // The window follows the launcher: an open dock over the basket hides
+        // the very lines the conversation is putting into it.
+        besideBasket
+          ? `${EDGE.besideBasket} max-w-[calc(100vw-28rem)]`
+          : `${EDGE.corner} max-w-[calc(100vw-3rem)]`,
+      )}
     >
       <header className="flex shrink-0 items-center gap-2.5 border-b border-mist px-3 py-2.5">
         {/* Where a chat app puts the face of whoever you are talking to. */}
