@@ -14,7 +14,7 @@
  *
  * Turn-taking is the server's job — `turn_detection` on the session means
  * OpenAI decides when the customer has stopped talking, which is far better
- * than a push-to-talk button at a kiosk where people trail off mid-sentence.
+ * than a push-to-talk button at a Friends Kitchen terminal where people trail off mid-sentence.
  */
 
 import { VoiceAudio } from './audio';
@@ -161,7 +161,7 @@ export class RealtimeVoiceSession {
         audio: {
           input: {
             format: { type: 'audio/pcm', rate: 24000 },
-            // Server-side VAD rather than push-to-talk: people at a kiosk pause
+            // Server-side VAD rather than push-to-talk: people at a Friends Kitchen terminal pause
             // mid-order ("I'll have… a Big Mac"), and a button would cut them
             // off. `create_response` lets the model answer the moment they
             // finish, with no round trip to decide that it should.
@@ -275,7 +275,7 @@ export class RealtimeVoiceSession {
       return;
     }
 
-    // ---- the kiosk talking ------------------------------------------------
+    // ---- Friends Kitchen talking ------------------------------------------------
     if (type === 'response.output_item.added' && event.item?.type === 'message') {
       this.speakingItemId = event.item.id;
       this.assistantTurnId = event.item.id;
@@ -395,7 +395,7 @@ export class RealtimeVoiceSession {
       }
     }
 
-    // One response for the batch: asking after each call makes the kiosk
+    // One response for the batch: asking after each call makes Friends Kitchen
     // narrate every step of "a burger, fries and a Coke" separately.
     this.send({ type: 'response.create' });
   }
@@ -425,7 +425,7 @@ function summarize(result: unknown): string | null {
   return null;
 }
 
-/** getUserMedia's failures, in words a person at a kiosk could act on. */
+/** getUserMedia's failures, in words a person at a Friends Kitchen terminal could act on. */
 function micProblem(err: unknown): string {
   const name = (err as { name?: string })?.name;
   if (name === 'NotAllowedError') {

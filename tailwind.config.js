@@ -36,14 +36,14 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        // kiosk type scale — large, finger + far-viewing friendly
-        'kiosk-xs': ['0.9rem', { lineHeight: '1.35' }],
-        'kiosk-sm': ['1.05rem', { lineHeight: '1.45' }],
-        'kiosk-base': ['1.25rem', { lineHeight: '1.5' }],
-        'kiosk-lg': ['1.6rem', { lineHeight: '1.3', letterSpacing: '-0.015em' }],
-        'kiosk-xl': ['2.25rem', { lineHeight: '1.15', letterSpacing: '-0.025em' }],
-        'kiosk-2xl': ['3.25rem', { lineHeight: '1.05', letterSpacing: '-0.03em' }],
-        'kiosk-3xl': ['4.5rem', { lineHeight: '1', letterSpacing: '-0.035em' }],
+        // Friends Kitchen type scale — large, finger + far-viewing friendly
+        'fk-xs': ['0.9rem', { lineHeight: '1.35' }],
+        'fk-sm': ['1.05rem', { lineHeight: '1.45' }],
+        'fk-base': ['1.25rem', { lineHeight: '1.5' }],
+        'fk-lg': ['1.6rem', { lineHeight: '1.3', letterSpacing: '-0.015em' }],
+        'fk-xl': ['2.25rem', { lineHeight: '1.15', letterSpacing: '-0.025em' }],
+        'fk-2xl': ['3.25rem', { lineHeight: '1.05', letterSpacing: '-0.03em' }],
+        'fk-3xl': ['4.5rem', { lineHeight: '1', letterSpacing: '-0.035em' }],
       },
       borderRadius: { xl2: '1.5rem', xl3: '2rem', xl4: '2.75rem' },
       boxShadow: {

@@ -135,7 +135,7 @@ export default function CategoryFormPage() {
         title={isEdit ? 'Edit category' : 'New category'}
         subtitle={
           isEdit
-            ? 'Changes show on the kiosk immediately. Nothing in the category moves.'
+            ? 'Changes show on Friends Kitchen immediately. Nothing in the category moves.'
             : 'A section of the menu. Products are added to it afterwards.'
         }
         backTo={ADMIN_PATHS.categories}
@@ -188,7 +188,7 @@ export default function CategoryFormPage() {
             />
           </Field>
 
-          <Field label="Position" hint="Lower numbers come first on the kiosk.">
+          <Field label="Position" hint="Lower numbers come first on Friends Kitchen.">
             <TextInput
               type="number"
               min={0}

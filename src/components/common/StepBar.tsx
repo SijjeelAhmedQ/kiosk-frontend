@@ -16,7 +16,7 @@ export function StepBar({ current, className }: { current: number; className?: s
           <li key={label} className="flex items-center gap-2">
             <span
               className={cn(
-                'flex h-9 items-center gap-2 rounded-full px-4 font-display text-kiosk-xs font-bold transition-colors duration-300',
+                'flex h-9 items-center gap-2 rounded-full px-4 font-display text-fk-xs font-bold transition-colors duration-300',
                 done && 'bg-leaf-soft text-leaf',
                 active && 'bg-ink text-white',
                 !done && !active && 'bg-mist text-ash',

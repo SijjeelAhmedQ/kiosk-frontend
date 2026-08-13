@@ -1,11 +1,11 @@
 /**
  * The microphone, and everything the customer sees of it.
  *
- * Voice at a kiosk fails in a specific way: the customer speaks, nothing
+ * Voice at a Friends Kitchen terminal fails in a specific way: the customer speaks, nothing
  * visible happens, and they cannot tell whether they were heard, whether the
  * thing is thinking, or whether it is broken. So the control always says which
  * of those it is, and the panel shows the words as they are recognised — the
- * transcript is not a debug view, it is the receipt for what the kiosk thinks
+ * transcript is not a debug view, it is the receipt for what Friends Kitchen thinks
  * it was told.
  *
  * Drawn as a messenger dock on the right edge, following the desktop chat
@@ -38,10 +38,10 @@ import { selectCartCount } from '@/redux/selectors';
 import { PATHS } from '@/routes/paths';
 import { useVoiceSession, useVoiceAvailability } from './useVoiceSession';
 import {
-  useKioskVoiceTools,
-  KIOSK_VOICE_INSTRUCTIONS,
-  KIOSK_TRANSCRIPTION_PROMPT,
-} from './kioskTools';
+  useFriendsKitchenVoiceTools,
+  FK_VOICE_INSTRUCTIONS,
+  FK_TRANSCRIPTION_PROMPT,
+} from './friendsKitchenTools';
 import { VOICE_HEALTH_URL, VOICE_SOCKET_URL } from './endpoints';
 import type { VoiceStatus } from './types';
 import { APP } from '@/constants/app.constants';
@@ -104,7 +104,7 @@ const EDGE = {
 } as const;
 
 export function VoiceControl() {
-  const tools = useKioskVoiceTools();
+  const tools = useFriendsKitchenVoiceTools();
   const location = useLocation();
   const cartCount = useAppSelector(selectCartCount);
   const besideBasket = location.pathname === PATHS.menu && cartCount > 0;
@@ -112,9 +112,9 @@ export function VoiceControl() {
 
   const voice = useVoiceSession({
     url: VOICE_SOCKET_URL,
-    instructions: KIOSK_VOICE_INSTRUCTIONS,
+    instructions: FK_VOICE_INSTRUCTIONS,
     tools,
-    transcriptionPrompt: KIOSK_TRANSCRIPTION_PROMPT,
+    transcriptionPrompt: FK_TRANSCRIPTION_PROMPT,
     greeting: 'Hi! What can I get you today?',
   });
 
@@ -124,7 +124,7 @@ export function VoiceControl() {
   const [openedAt, setOpenedAt] = useState<Date | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
 
-  // A customer who is talking is not idle. Without this the kiosk resets to the
+  // A customer who is talking is not idle. Without this Friends Kitchen resets to the
   // splash screen and bins the basket ninety seconds into a conversation,
   // because nothing has touched the glass.
   useEffect(() => {
@@ -132,7 +132,7 @@ export function VoiceControl() {
   }, [voice.active, voice.status, voice.turns.length]);
 
   // Follow the conversation down. A customer reading a transcript that has
-  // stopped scrolling assumes the kiosk has stopped listening. `open` is a
+  // stopped scrolling assumes Friends Kitchen has stopped listening. `open` is a
   // dependency because the scroller does not exist while the dock is collapsed,
   // so the position has to be restored when it comes back.
   useEffect(() => {
@@ -152,7 +152,7 @@ export function VoiceControl() {
     return reason && !checking ? (
       <div
         data-testid="voice-unavailable"
-        className="pointer-events-none fixed bottom-6 right-6 z-40 max-w-xs rounded-2xl bg-mist px-5 py-3 text-kiosk-xs text-ash opacity-70"
+        className="pointer-events-none fixed bottom-6 right-6 z-40 max-w-xs rounded-2xl bg-mist px-5 py-3 text-fk-xs text-ash opacity-70"
       >
         {reason}
       </div>
@@ -163,7 +163,7 @@ export function VoiceControl() {
   const busy = voice.status === 'thinking' || voice.status === 'connecting';
 
   /* Opening starts the session in the same tap. Two taps to say one sentence is
-     one tap too many at a kiosk, and an open window with a dead mic is exactly
+     one tap too many at a Friends Kitchen terminal, and an open window with a dead mic is exactly
      the "am I being heard?" ambiguity this whole component exists to remove. */
   const openDock = () => {
     setOpen(true);
@@ -242,12 +242,12 @@ export function VoiceControl() {
 
         <span className="flex min-w-0 flex-col leading-tight">
           <span className="flex items-center gap-1">
-            <span className="truncate font-display text-kiosk-sm font-extrabold text-ink">
+            <span className="truncate font-display text-fk-sm font-extrabold text-ink">
               {APP.name}
             </span>
             <ChevronDown className="h-3 w-3 shrink-0 text-ash" />
           </span>
-          <span className="truncate text-kiosk-xs text-ash">{STATUS_TEXT[voice.status]}</span>
+          <span className="truncate text-fk-xs text-ash">{STATUS_TEXT[voice.status]}</span>
         </span>
 
         {/* Tinted, not grey — the coloured control cluster is the single most
@@ -274,7 +274,7 @@ export function VoiceControl() {
         {/* The timestamp a chat thread opens with — it dates the conversation,
             and it is the first sign that the session actually started. */}
         {openedAt && (
-          <p className="pb-3 text-center text-kiosk-xs text-ash">
+          <p className="pb-3 text-center text-fk-xs text-ash">
             {openedAt.toLocaleString(undefined, {
               hour: 'numeric',
               minute: '2-digit',
@@ -283,7 +283,7 @@ export function VoiceControl() {
         )}
 
         {voice.turns.length === 0 && !voice.error && (
-          <p className="px-1 text-kiosk-sm text-ash">
+          <p className="px-1 text-fk-sm text-ash">
             Try “a cheeseburger and a large fries”, or ask what's on the menu.
           </p>
         )}
@@ -298,7 +298,7 @@ export function VoiceControl() {
                    lets the browser lay each bubble out by what is actually in
                    it, which is the only thing that reads correctly either way. */
                 dir="auto"
-                className="ml-auto max-w-[80%] w-fit rounded-2xl bg-ink px-3.5 py-2 text-kiosk-sm text-white animate-fade-in"
+                className="ml-auto max-w-[80%] w-fit rounded-2xl bg-ink px-3.5 py-2 text-fk-sm text-white animate-fade-in"
               >
                 {turn.text}
               </p>
@@ -310,7 +310,7 @@ export function VoiceControl() {
                 </span>
                 <p
                   dir="auto"
-                  className="max-w-[80%] rounded-2xl bg-cream px-3.5 py-2 text-kiosk-sm text-charcoal"
+                  className="max-w-[80%] rounded-2xl bg-cream px-3.5 py-2 text-fk-sm text-charcoal"
                 >
                   {turn.text}
                 </p>
@@ -323,7 +323,7 @@ export function VoiceControl() {
           {voice.actions.slice(-3).map((action) => (
             <div
               key={action.callId}
-              className="flex items-center gap-2 pl-8 text-kiosk-xs font-bold text-ash"
+              className="flex items-center gap-2 pl-8 text-fk-xs font-bold text-ash"
             >
               <span aria-hidden>{action.ok === null ? '⋯' : action.ok ? '✓' : '✕'}</span>
               {action.name.replace(/_/g, ' ')}
@@ -332,7 +332,7 @@ export function VoiceControl() {
           ))}
 
           {voice.error && (
-            <p className="rounded-2xl bg-flame-soft px-3.5 py-2 text-kiosk-sm font-bold text-flame">
+            <p className="rounded-2xl bg-flame-soft px-3.5 py-2 text-fk-sm font-bold text-flame">
               {voice.error}
             </p>
           )}
@@ -344,7 +344,7 @@ export function VoiceControl() {
       <footer className="flex shrink-0 items-center gap-2 border-t border-mist px-3 py-2.5">
         <span
           className={cn(
-            'flex h-11 min-w-0 flex-1 items-center rounded-full px-4 text-kiosk-xs',
+            'flex h-11 min-w-0 flex-1 items-center rounded-full px-4 text-fk-xs',
             listening ? 'bg-leaf-soft text-leaf' : 'bg-mist text-ash',
           )}
         >
@@ -401,7 +401,7 @@ function WindowButton({
 /**
  * The one glyph that carries the whole launcher now that the caption is gone.
  *
- * Two icons, not one: while the kiosk is talking the microphone is the wrong
+ * Two icons, not one: while Friends Kitchen is talking the microphone is the wrong
  * picture — headphones say "your turn to listen", which is also the moment a
  * customer is most likely to start talking over it.
  */

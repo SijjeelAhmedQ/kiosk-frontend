@@ -199,7 +199,7 @@ export default function ProductFormPage() {
         title={isEdit ? 'Edit product' : 'New product'}
         subtitle={
           isEdit
-            ? 'Changes show on the kiosk immediately. Past orders keep the name and price they were sold at.'
+            ? 'Changes show on Friends Kitchen immediately. Past orders keep the name and price they were sold at.'
             : 'One item on the menu.'
         }
         backTo={ADMIN_PATHS.products}
@@ -234,7 +234,7 @@ export default function ProductFormPage() {
           />
         </Field>
 
-        <Field label="Description" hint="One line, shown under the name on the kiosk.">
+        <Field label="Description" hint="One line, shown under the name on Friends Kitchen.">
           <TextArea
             value={form.description}
             maxLength={500}

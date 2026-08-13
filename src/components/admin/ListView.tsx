@@ -4,7 +4,7 @@ import { cn } from '@/utils/cn';
 /**
  * The back office's lists, as cards rather than table rows.
  *
- * Same anatomy as the kiosk's OrderRow, so the staff screens and the admin read
+ * Same anatomy as Friends Kitchen's OrderRow, so the staff screens and the admin read
  * as one product: a tile that says what kind of thing this is, a name with its
  * badges, quiet context underneath, and the number that matters on the right.
  *

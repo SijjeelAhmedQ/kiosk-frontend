@@ -13,8 +13,8 @@ export function EmptyState({ icon = '🍽️', title, message, action }: EmptySt
       <div className="flex h-28 w-28 items-center justify-center rounded-full bg-mist">
         <span className="text-[3.25rem] leading-none opacity-80">{icon}</span>
       </div>
-      <h3 className="font-display text-kiosk-xl font-extrabold text-ink">{title}</h3>
-      {message && <p className="max-w-md text-kiosk-base leading-relaxed text-ash">{message}</p>}
+      <h3 className="font-display text-fk-xl font-extrabold text-ink">{title}</h3>
+      {message && <p className="max-w-md text-fk-base leading-relaxed text-ash">{message}</p>}
       {action && <div className="mt-3">{action}</div>}
     </div>
   );

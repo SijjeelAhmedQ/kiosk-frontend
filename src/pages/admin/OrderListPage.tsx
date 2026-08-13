@@ -72,7 +72,7 @@ const rangeToQuery = (range: Range): Pick<OrderListQuery, 'from'> =>
 const toOrderNumber = (raw: string): string => raw.replace(/\D/g, '').slice(0, 10);
 
 /**
- * Every order the kiosk has taken.
+ * Every order Friends Kitchen has taken.
  *
  * Lives in the back office with the menu and the coupons rather than on its own
  * screen: it is the same job — someone at a desk looking things up — and having
@@ -147,7 +147,7 @@ export default function OrderListPage() {
           eyebrow="Sales"
           icon="🧾"
           title="Orders"
-          subtitle="Every ticket the kiosk has taken, newest first. Open one to see its lines and what was paid."
+          subtitle="Every ticket Friends Kitchen has taken, newest first. Open one to see its lines and what was paid."
         />
 
         <AlertBanner message={error} onDismiss={() => setError(null)} />

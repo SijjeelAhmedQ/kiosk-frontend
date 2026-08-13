@@ -32,9 +32,9 @@ export function BasketPanel() {
     <aside className="flex w-[400px] shrink-0 flex-col bg-paper">
       <header className="flex items-center justify-between px-6 pb-4 pt-6">
         <div className="flex items-center gap-3">
-          <h2 className="font-display text-kiosk-lg font-extrabold text-ink">Your order</h2>
+          <h2 className="font-display text-fk-lg font-extrabold text-ink">Your order</h2>
           {count > 0 && (
-            <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-ink px-2.5 font-display text-kiosk-xs font-bold text-white">
+            <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-ink px-2.5 font-display text-fk-xs font-bold text-white">
               <span key={count} className="animate-pop-in tabular-nums">{count}</span>
             </span>
           )}
@@ -42,7 +42,7 @@ export function BasketPanel() {
         {count > 0 && (
           <button
             onClick={() => dispatch(clearCart())}
-            className="press rounded-full px-3 py-2 font-display text-kiosk-xs font-bold text-ash transition-colors hover:bg-flame-soft hover:text-flame"
+            className="press rounded-full px-3 py-2 font-display text-fk-xs font-bold text-ash transition-colors hover:bg-flame-soft hover:text-flame"
           >
             Clear
           </button>
@@ -52,8 +52,8 @@ export function BasketPanel() {
       {lines.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-cream text-[2.75rem]">🛍️</div>
-          <p className="font-display text-kiosk-base font-extrabold text-ink">Nothing added yet</p>
-          <p className="text-kiosk-xs leading-relaxed text-ash">
+          <p className="font-display text-fk-base font-extrabold text-ink">Nothing added yet</p>
+          <p className="text-fk-xs leading-relaxed text-ash">
             Tap any dish on the left and it will show up here.
           </p>
         </div>
@@ -73,11 +73,11 @@ export function BasketPanel() {
           </div>
 
           <footer className="shrink-0 px-6 pb-6 pt-4 shadow-bar">
-            <div className="flex justify-between text-kiosk-sm text-ash">
+            <div className="flex justify-between text-fk-sm text-ash">
               <span>Subtotal</span>
               <span className="font-medium tabular-nums text-charcoal">{formatCurrency(subtotal)}</span>
             </div>
-            <div className="mt-1.5 flex justify-between text-kiosk-sm text-ash">
+            <div className="mt-1.5 flex justify-between text-fk-sm text-ash">
               <span>Tax ({(APP.taxRate * 100).toFixed(2)}%)</span>
               <span className="font-medium tabular-nums text-charcoal">{formatCurrency(tax)}</span>
             </div>
@@ -85,8 +85,8 @@ export function BasketPanel() {
             <div className="my-4 h-px bg-mist" />
 
             <div className="flex items-baseline justify-between">
-              <span className="font-display text-kiosk-base font-bold text-ink">Total</span>
-              <span data-testid="basket-total" className="font-display text-kiosk-xl font-extrabold tabular-nums text-ink">
+              <span className="font-display text-fk-base font-bold text-ink">Total</span>
+              <span data-testid="basket-total" className="font-display text-fk-xl font-extrabold tabular-nums text-ink">
                 {formatCurrency(total)}
               </span>
             </div>
@@ -96,7 +96,7 @@ export function BasketPanel() {
             </Button>
             <button
               onClick={() => navigate(PATHS.cart)}
-              className="press mt-3 w-full rounded-full py-3 font-display text-kiosk-xs font-bold text-ash transition-colors hover:bg-cream hover:text-ink"
+              className="press mt-3 w-full rounded-full py-3 font-display text-fk-xs font-bold text-ash transition-colors hover:bg-cream hover:text-ink"
             >
               Review full order
             </button>

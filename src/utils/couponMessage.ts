@@ -8,7 +8,7 @@ import { formatDay } from '@/utils/couponDisplay';
  * Two parts, because a refusal is two facts: what happened, and what to do
  * about it. The server's own `reasonMessage` is one terse sentence written to
  * be correct rather than useful — "Coupon is not applicable." is true and tells
- * someone standing at a kiosk nothing. The API also sends back the coupon, so
+ * someone standing at a Friends Kitchen terminal nothing. The API also sends back the coupon, so
  * the same refusal can name the item, the date or the balance the customer
  * needs, and that is what turns it into an instruction.
  *
@@ -35,7 +35,7 @@ export const COUPON_CODE_REQUIRED: CouponNotice = {
 /**
  * A rejected validation → what to show under the field.
  *
- * `orderTotal` is only needed by the balance case, which the kiosk does not
+ * `orderTotal` is only needed by the balance case, which Friends Kitchen does not
  * normally reach: it validates with `allowPartial`, so a small coupon pays what
  * it can instead of being refused. Handled anyway — the flag is one call site
  * away from being turned off.
@@ -165,7 +165,7 @@ export const couponFailure = (error: unknown, fallback: CouponNotice): CouponNot
   }
 };
 
-/** The two the kiosk falls back to when a request never got an answer. */
+/** The two Friends Kitchen falls back to when a request never got an answer. */
 export const COUPON_CHECK_FAILED: CouponNotice = {
   title: 'We could not check that coupon just now.',
   hint: 'Please try again in a moment, or carry on without one.',

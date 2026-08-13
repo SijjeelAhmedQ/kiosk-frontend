@@ -6,7 +6,7 @@ import { ADMIN_PATHS, PATHS } from '@/routes/paths';
 /**
  * The back office shell.
  *
- * Separate from OrderLayout on purpose: the kiosk is a full-screen, touch-first
+ * Separate from OrderLayout on purpose: Friends Kitchen is a full-screen, touch-first
  * flow with a basket rail, and none of that belongs around a coupon table. What
  * the two share is the palette and the type family, so this still looks like the
  * same product.

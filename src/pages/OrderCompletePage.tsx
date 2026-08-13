@@ -18,7 +18,7 @@ export default function OrderCompletePage() {
     navigate(PATHS.splash);
   };
 
-  // auto-reset kiosk after 15s on the confirmation screen
+  // auto-reset Friends Kitchen after 15s on the confirmation screen
   useEffect(() => {
     const t = setTimeout(finish, 15000);
     return () => clearTimeout(t);
@@ -28,7 +28,7 @@ export default function OrderCompletePage() {
   if (!order) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-6 bg-cream">
-        <p className="text-kiosk-lg text-ash">No recent order.</p>
+        <p className="text-fk-lg text-ash">No recent order.</p>
         <Button onClick={() => navigate(PATHS.splash)}>Start over</Button>
       </div>
     );
@@ -45,8 +45,8 @@ export default function OrderCompletePage() {
               ✓
             </span>
           </div>
-          <h1 className="font-display text-kiosk-xl font-extrabold text-ink">Order confirmed</h1>
-          <p className="text-center text-kiosk-base text-ash">Thanks — your food is on the way</p>
+          <h1 className="font-display text-fk-xl font-extrabold text-ink">Order confirmed</h1>
+          <p className="text-center text-fk-base text-ash">Thanks — your food is on the way</p>
         </div>
 
         {/* Perforation: notches punched out of both edges, dashes between. */}
@@ -57,16 +57,16 @@ export default function OrderCompletePage() {
         </div>
 
         <div className="flex flex-col items-center gap-1 px-12 pb-12 pt-4">
-          <span className="text-kiosk-xs uppercase tracking-[0.14em] text-ash">Your order number</span>
+          <span className="text-fk-xs uppercase tracking-[0.14em] text-ash">Your order number</span>
           <span data-testid="order-number" className="my-2 font-display text-[5.5rem] font-extrabold leading-none tabular-nums text-flame">
             {order.orderNumber}
           </span>
-          <span className="text-kiosk-sm text-ash">
+          <span className="text-fk-sm text-ash">
             {formatCurrency(order.summary.amountDue ?? order.summary.total)} ·{' '}
             {order.summary.itemCount} item{order.summary.itemCount === 1 ? '' : 's'}
           </span>
           {Boolean(order.summary.couponDiscount) && (
-            <span className="mt-1 text-kiosk-xs font-medium text-leaf">
+            <span className="mt-1 text-fk-xs font-medium text-leaf">
               Coupon saved you {formatCurrency(order.summary.couponDiscount ?? 0)}
             </span>
           )}
@@ -77,7 +77,7 @@ export default function OrderCompletePage() {
         <Button size="xl" onClick={finish} className="min-w-[360px]">
           Start new order
         </Button>
-        <p className="text-kiosk-xs text-ash">Listen for your number at the counter</p>
+        <p className="text-fk-xs text-ash">Listen for your number at the counter</p>
       </div>
     </div>
   );

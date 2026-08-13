@@ -1,6 +1,6 @@
-# Friends Kitchen — Self-Order Kiosk (Frontend)
+# Friends Kitchen — Self-Order Friends Kitchen (Frontend)
 
-Touch-first restaurant ordering kiosk. React 19 + TypeScript + Vite + Redux Toolkit +
+Touch-first restaurant ordering app. React 19 + TypeScript + Vite + Redux Toolkit +
 React Router + Tailwind + Axios. Built for a 22" Full HD (1920×1080) touch display.
 
 > Generic "Friends Kitchen" branding only — no third-party assets. UX/interaction
@@ -15,7 +15,7 @@ npm run build      # type-check + production build
 npm run type-check
 ```
 
-The app talks to the FastAPI backend in `../kiosk-backend` (`VITE_API_BASE_URL`). To run
+The app talks to the FastAPI backend in `../friends-kitchen-backend` (`VITE_API_BASE_URL`). To run
 standalone off `src/data/menu.ts` instead — no backend, no database — set
 `USE_MOCK = true` in `src/services/api/config.ts`; order history is the only screen that
 needs the backend.
@@ -23,7 +23,7 @@ needs the backend.
 ## Flow
 
 Splash → Language → Dine-in/Take-away → Menu (sidebar + grid) → Product detail (modifiers +
-quantity) → Make-it-a-meal → Cart → Checkout → Payment → Order confirmed. The kiosk
+quantity) → Make-it-a-meal → Cart → Checkout → Payment → Order confirmed. Friends Kitchen
 auto-resets to the splash after inactivity (`VITE_IDLE_TIMEOUT_MS`) or 15s on the
 confirmation screen.
 

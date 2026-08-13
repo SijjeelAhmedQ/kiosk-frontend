@@ -1,7 +1,7 @@
 import type { ThemeConfig } from 'antd';
 
 /**
- * antd, dressed in the kiosk palette.
+ * antd, dressed in Friends Kitchen palette.
  *
  * The back office now uses antd for the controls that are genuinely hard to
  * hand-roll — Table, DatePicker, Select — but nothing about the *look* changes.

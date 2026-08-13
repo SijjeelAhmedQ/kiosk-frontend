@@ -5,7 +5,7 @@ import { cn } from '@/utils/cn';
 /**
  * Falls back to a throwaway textarea when the clipboard API isn't there.
  *
- * It usually is — but only in a secure context, and a kiosk back office opened
+ * It usually is — but only in a secure context, and a back office opened
  * over plain http on a LAN address is not one, which is exactly where staff are
  * most likely to be copying codes out of the list.
  */

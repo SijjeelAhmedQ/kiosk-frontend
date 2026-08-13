@@ -13,7 +13,7 @@ import { ENDPOINTS } from '../http/endpoints';
 
 /**
  * Menu maintenance. No mock branch, like campaignApi: the menu only exists in
- * the database, so a standalone kiosk has nothing to maintain.
+ * the database, so a standalone Friends Kitchen has nothing to maintain.
  */
 export const catalogAdminApi = {
   // ------------------------------------------------------------------------

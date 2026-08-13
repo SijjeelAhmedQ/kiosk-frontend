@@ -70,7 +70,7 @@ export const validateCoupon = createAsyncThunk<
   }));
 
   try {
-    // `true` matches the redeem below: the kiosk lets a small coupon pay what
+    // `true` matches the redeem below: Friends Kitchen lets a small coupon pay what
     // it can, so validation has to judge it the same way.
     return await couponApi.validate(couponCode, orderAmount, true, cartLines);
   } catch (err) {
@@ -92,7 +92,7 @@ export const redeemCoupon = createAsyncThunk<
     return await couponApi.redeem({
       couponCode: applied.couponCode,
       orderId,
-      // The kiosk wants wallet behaviour: a small coupon pays what it can and
+      // Friends Kitchen wants wallet behaviour: a small coupon pays what it can and
       // the card covers the rest, rather than being refused outright.
       allowPartial: true,
     });

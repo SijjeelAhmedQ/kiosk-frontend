@@ -54,7 +54,7 @@ export default function CheckoutPage() {
     dispatch(dismissCouponNotice());
   }, []);
 
-  /* Pre-selected when the kiosk only offers one way to pay — making the
+  /* Pre-selected when Friends Kitchen only offers one way to pay — making the
      customer tap the single option just to enable the button is a step that
      carries no decision. */
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function CheckoutPage() {
     <OrderLayout showSidebar={false} showBasket={false}>
       <div className="mx-auto flex h-full w-full max-w-[1400px] gap-8 p-8">
         <section className="flex min-w-0 flex-1 flex-col">
-          <h1 className="font-display text-kiosk-2xl font-extrabold text-ink">Checkout</h1>
+          <h1 className="font-display text-fk-2xl font-extrabold text-ink">Checkout</h1>
           <StepBar current={1} className="mt-4" />
 
           {fullyCovered ? (
@@ -74,10 +74,10 @@ export default function CheckoutPage() {
                 ✓
               </span>
               <div className="flex flex-col gap-3">
-                <h2 className="font-display text-kiosk-lg font-extrabold text-leaf">
+                <h2 className="font-display text-fk-lg font-extrabold text-leaf">
                   Nothing left to pay
                 </h2>
-                <p className="max-w-[28rem] text-kiosk-sm leading-relaxed text-leaf/80">
+                <p className="max-w-[28rem] text-fk-sm leading-relaxed text-leaf/80">
                   Your coupon covers this order in full, tax included. Place it and collect your
                   number — there is nothing to settle at the counter.
                 </p>
@@ -85,7 +85,7 @@ export default function CheckoutPage() {
             </div>
           ) : (
             <>
-              <h2 className="mt-8 font-display text-kiosk-lg font-extrabold text-ink">
+              <h2 className="mt-8 font-display text-fk-lg font-extrabold text-ink">
                 How would you like to pay?
               </h2>
               {/* overflow-y-auto also clips the x-axis, so pull the box out and pad it
@@ -106,21 +106,21 @@ export default function CheckoutPage() {
                     >
                       <span
                         className={cn(
-                          'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-kiosk-xl transition-colors duration-200',
+                          'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-fk-xl transition-colors duration-200',
                           on ? 'bg-flame-soft' : 'bg-mist',
                         )}
                       >
                         {p.icon}
                       </span>
                       <span className="flex min-w-0 flex-col">
-                        <span className="font-display text-kiosk-base font-extrabold text-ink">
+                        <span className="font-display text-fk-base font-extrabold text-ink">
                           {p.label}
                         </span>
-                        <span className="mt-1 text-kiosk-xs text-ash">{HINT[p.value]}</span>
+                        <span className="mt-1 text-fk-xs text-ash">{HINT[p.value]}</span>
                       </span>
                       <span
                         className={cn(
-                          'ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-kiosk-xs font-bold transition-all duration-200 ease-spring',
+                          'ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-fk-xs font-bold transition-all duration-200 ease-spring',
                           on ? 'scale-110 bg-ink text-white' : 'bg-mist',
                         )}
                       >
@@ -136,19 +136,19 @@ export default function CheckoutPage() {
 
         <aside className="flex w-[420px] shrink-0 flex-col">
           <div className="sticky top-0 rounded-xl3 bg-paper p-7 shadow-card">
-            <h2 className="font-display text-kiosk-lg font-extrabold text-ink">Summary</h2>
+            <h2 className="font-display text-fk-lg font-extrabold text-ink">Summary</h2>
 
-            <div className="mt-5 flex justify-between text-kiosk-sm text-ash">
+            <div className="mt-5 flex justify-between text-fk-sm text-ash">
               <span>{itemCount} item{itemCount === 1 ? '' : 's'}</span>
               <span className="font-medium tabular-nums text-charcoal">{formatCurrency(subtotal)}</span>
             </div>
-            <div className="mt-2 flex justify-between text-kiosk-sm text-ash">
+            <div className="mt-2 flex justify-between text-fk-sm text-ash">
               <span>Tax</span>
               <span className="font-medium tabular-nums text-charcoal">{formatCurrency(tax)}</span>
             </div>
 
             {discount > 0 && (
-              <div className="mt-2 flex justify-between text-kiosk-sm text-leaf animate-fade-in">
+              <div className="mt-2 flex justify-between text-fk-sm text-leaf animate-fade-in">
                 <span>Coupon</span>
                 <span className="font-medium tabular-nums">−{formatCurrency(discount)}</span>
               </div>
@@ -157,16 +157,16 @@ export default function CheckoutPage() {
             <div className="my-5 h-px bg-mist" />
 
             <div className="flex items-baseline justify-between">
-              <span className="font-display text-kiosk-lg font-bold text-ink">
+              <span className="font-display text-fk-lg font-bold text-ink">
                 {discount > 0 ? 'To pay' : 'Total'}
               </span>
               <span className="flex items-baseline gap-3">
                 {discount > 0 && (
-                  <span className="font-display text-kiosk-base font-bold tabular-nums text-ash line-through">
+                  <span className="font-display text-fk-base font-bold tabular-nums text-ash line-through">
                     {formatCurrency(total)}
                   </span>
                 )}
-                <span data-testid="checkout-due" className="font-display text-kiosk-2xl font-extrabold tabular-nums text-ink">
+                <span data-testid="checkout-due" className="font-display text-fk-2xl font-extrabold tabular-nums text-ink">
                   {formatCurrency(dueNow)}
                 </span>
               </span>

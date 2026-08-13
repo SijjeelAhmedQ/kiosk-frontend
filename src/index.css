@@ -8,7 +8,7 @@
   html, body, #root { height: 100%; }
   body {
     @apply bg-cream text-charcoal font-sans antialiased;
-    /* Kiosk: no text selection / callouts on touch */
+    /* Friends Kitchen: no text selection / callouts on touch */
     -webkit-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;

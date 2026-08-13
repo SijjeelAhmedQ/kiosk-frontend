@@ -17,7 +17,7 @@ export function FilterChips({ chips, activeId, onSelect }: FilterChipsProps) {
             key={c.id}
             onClick={() => onSelect(c.id)}
             className={cn(
-              'press h-14 shrink-0 rounded-full px-7 font-display text-kiosk-sm font-bold transition-colors duration-200',
+              'press h-14 shrink-0 rounded-full px-7 font-display text-fk-sm font-bold transition-colors duration-200',
               active ? 'bg-ink text-white' : 'bg-mist text-charcoal hover:bg-ash/25',
             )}
           >

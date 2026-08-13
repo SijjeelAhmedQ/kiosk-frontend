@@ -130,7 +130,7 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
 
           <button
             onClick={close}
-            className="press absolute right-6 top-6 flex h-12 w-12 items-center justify-center rounded-full bg-mist text-kiosk-base text-charcoal transition-colors hover:bg-ash/30"
+            className="press absolute right-6 top-6 flex h-12 w-12 items-center justify-center rounded-full bg-mist text-fk-base text-charcoal transition-colors hover:bg-ash/30"
             aria-label="Close"
           >
             ✕
@@ -138,19 +138,19 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
 
           <div className="no-scrollbar flex-1 overflow-y-auto px-8 pb-4">
             <div className="flex items-start justify-between gap-6">
-              <h2 className="font-display text-kiosk-xl font-extrabold text-ink">{product.name}</h2>
-              <span className="shrink-0 font-display text-kiosk-xl font-extrabold tabular-nums text-ink">
+              <h2 className="font-display text-fk-xl font-extrabold text-ink">{product.name}</h2>
+              <span className="shrink-0 font-display text-fk-xl font-extrabold tabular-nums text-ink">
                 {formatCurrency(product.price)}
               </span>
             </div>
 
-            <p className="mt-3 text-kiosk-base leading-relaxed text-ash">{product.description}</p>
-            <p className="mt-4 inline-block rounded-full bg-mist px-4 py-1.5 text-kiosk-xs font-bold text-ash">
+            <p className="mt-3 text-fk-base leading-relaxed text-ash">{product.description}</p>
+            <p className="mt-4 inline-block rounded-full bg-mist px-4 py-1.5 text-fk-xs font-bold text-ash">
               {formatCalories(previewCalories)}
             </p>
 
             {loadingOptions && (
-              <div className="mt-8 flex items-center gap-4 text-kiosk-sm text-ash">
+              <div className="mt-8 flex items-center gap-4 text-fk-sm text-ash">
                 <Spinner size={26} /> Loading options…
               </div>
             )}
@@ -158,10 +158,10 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
             {groups.map((g) => (
               <section key={g.id} className="mt-8">
                 <div className="mb-4 flex items-baseline justify-between">
-                  <h3 className="font-display text-kiosk-lg font-extrabold text-ink">{g.name}</h3>
+                  <h3 className="font-display text-fk-lg font-extrabold text-ink">{g.name}</h3>
                   <span
                     className={cn(
-                      'rounded-full px-3.5 py-1 text-kiosk-xs font-bold',
+                      'rounded-full px-3.5 py-1 text-fk-xs font-bold',
                       g.required ? 'bg-flame-soft text-flame' : 'bg-mist text-ash',
                     )}
                   >
@@ -186,16 +186,16 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
                         <span className="flex min-w-0 items-center gap-3">
                           <span
                             className={cn(
-                              'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-kiosk-xs font-bold transition-all duration-200 ease-spring',
+                              'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-fk-xs font-bold transition-all duration-200 ease-spring',
                               on ? 'scale-110 bg-ink text-white' : 'bg-mist',
                             )}
                           >
                             {on && '✓'}
                           </span>
-                          <span className="truncate font-display text-kiosk-sm font-bold text-charcoal">{m.name}</span>
+                          <span className="truncate font-display text-fk-sm font-bold text-charcoal">{m.name}</span>
                         </span>
                         {m.priceDelta > 0 && (
-                          <span className="shrink-0 text-kiosk-xs font-bold tabular-nums text-ash">
+                          <span className="shrink-0 text-fk-xs font-bold tabular-nums text-ash">
                             +{formatCurrency(m.priceDelta)}
                           </span>
                         )}
@@ -209,7 +209,7 @@ export function ProductDetailModal({ product, onClose, onAdd }: Props) {
 
           <div className="bg-paper px-8 py-6 shadow-bar">
             {unmet.length > 0 && (
-              <p className="mb-4 text-center text-kiosk-sm font-bold text-flame animate-fade-in">
+              <p className="mb-4 text-center text-fk-sm font-bold text-flame animate-fade-in">
                 Choose {unmet.map((g) => g.name.toLowerCase()).join(' and ')} to continue
               </p>
             )}
@@ -241,8 +241,8 @@ function MealUpgradeStep({
     <div data-testid="meal-step" className="p-8 animate-fade-in">
       <div className="pb-6"><div className="sheet-grip" /></div>
 
-      <h2 className="text-center font-display text-kiosk-2xl font-extrabold text-ink">Make it a meal?</h2>
-      <p className="mt-3 text-center text-kiosk-base text-ash">Add fries and a drink for less than buying them alone</p>
+      <h2 className="text-center font-display text-fk-2xl font-extrabold text-ink">Make it a meal?</h2>
+      <p className="mt-3 text-center text-fk-base text-ash">Add fries and a drink for less than buying them alone</p>
 
       <div className="mt-8 grid grid-cols-2 gap-5">
         <button
@@ -250,14 +250,14 @@ function MealUpgradeStep({
           onClick={onMeal}
           className="press group relative flex flex-col items-center gap-4 rounded-xl3 bg-cream p-8 ring-2 ring-ink transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card"
         >
-          <span className="absolute right-5 top-5 rounded-full bg-amber px-3.5 py-1 font-display text-kiosk-xs font-bold text-ink">
+          <span className="absolute right-5 top-5 rounded-full bg-amber px-3.5 py-1 font-display text-fk-xs font-bold text-ink">
             Best value
           </span>
           <div className="flex items-end gap-2 text-[4rem] transition-transform duration-500 ease-spring group-hover:scale-105">
             🍟🥤{product.image}
           </div>
-          <span className="font-display text-kiosk-lg font-extrabold text-ink">Yes, make it a meal</span>
-          <span className="rounded-full bg-amber px-6 py-2 font-display text-kiosk-sm font-bold text-ink">
+          <span className="font-display text-fk-lg font-extrabold text-ink">Yes, make it a meal</span>
+          <span className="rounded-full bg-amber px-6 py-2 font-display text-fk-sm font-bold text-ink">
             +{formatCurrency(MEAL_UPGRADE_PRICE)}
           </span>
         </button>
@@ -270,8 +270,8 @@ function MealUpgradeStep({
           <div className="text-[4rem] transition-transform duration-500 ease-spring group-hover:scale-105">
             {product.image}
           </div>
-          <span className="font-display text-kiosk-lg font-extrabold text-ink">No, item only</span>
-          <span className="rounded-full bg-mist px-6 py-2 font-display text-kiosk-sm font-bold text-ash">
+          <span className="font-display text-fk-lg font-extrabold text-ink">No, item only</span>
+          <span className="rounded-full bg-mist px-6 py-2 font-display text-fk-sm font-bold text-ash">
             {formatCurrency(product.price)}
           </span>
         </button>
@@ -279,7 +279,7 @@ function MealUpgradeStep({
 
       <button
         onClick={onBack}
-        className="press mx-auto mt-6 block rounded-full px-8 py-4 font-display text-kiosk-sm font-bold text-ash transition-colors hover:bg-mist hover:text-ink"
+        className="press mx-auto mt-6 block rounded-full px-8 py-4 font-display text-fk-sm font-bold text-ash transition-colors hover:bg-mist hover:text-ink"
       >
         Back
       </button>

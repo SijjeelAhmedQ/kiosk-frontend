@@ -102,7 +102,7 @@ export default function CategoryListPage() {
           eyebrow="Menu"
           icon="🗂️"
           title="Categories"
-          subtitle="The sections the kiosk groups the menu into. A category has to exist before anything can be put in it."
+          subtitle="The sections Friends Kitchen groups the menu into. A category has to exist before anything can be put in it."
           actions={
             <Button size="md" onClick={() => navigate(ADMIN_PATHS.categoryNew)}>
               New category
@@ -117,7 +117,7 @@ export default function CategoryListPage() {
             icon="🗂️"
             label="Categories"
             value={`${activeCount} of ${categories.length} active`}
-            hint={`${categories.length - activeCount} hidden from the kiosk`}
+            hint={`${categories.length - activeCount} hidden from Friends Kitchen`}
           />
           <Stat
             icon="🍔"
@@ -182,7 +182,7 @@ export default function CategoryListPage() {
           </h2>
           <p className="text-sm leading-relaxed text-ash">
             {pendingDelete && pendingDelete.productCount > 0
-              ? `${pendingDelete.productCount} product(s) are still in this category, so it cannot be deleted. Move them elsewhere first, or deactivate the category — that takes it off the kiosk and keeps everything in place.`
+              ? `${pendingDelete.productCount} product(s) are still in this category, so it cannot be deleted. Move them elsewhere first, or deactivate the category — that takes it off Friends Kitchen and keeps everything in place.`
               : 'The category is removed for good. Nothing is in it, so nothing else changes.'}
           </p>
 

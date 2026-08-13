@@ -15,7 +15,7 @@ import { ENDPOINTS } from '../http/endpoints';
 
 export const couponApi = {
   // ------------------------------------------------------------------------
-  // Kiosk-facing
+  // Friends Kitchen-facing
   // ------------------------------------------------------------------------
   /**
    * Checks a code without changing anything.

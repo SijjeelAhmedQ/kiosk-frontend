@@ -20,9 +20,9 @@ const variants: Record<Variant, string> = {
 
 /** Pills at every size — the single strongest "this is a 2020s app" signal. */
 const sizes: Record<Size, string> = {
-  md: 'h-14 px-7 text-kiosk-sm rounded-full',
-  lg: 'h-[68px] px-9 text-kiosk-base rounded-full',
-  xl: 'h-[76px] px-10 text-kiosk-lg rounded-full',
+  md: 'h-14 px-7 text-fk-sm rounded-full',
+  lg: 'h-[68px] px-9 text-fk-base rounded-full',
+  xl: 'h-[76px] px-10 text-fk-lg rounded-full',
 };
 
 export function Button({

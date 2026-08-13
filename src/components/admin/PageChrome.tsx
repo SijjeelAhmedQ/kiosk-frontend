@@ -115,7 +115,7 @@ interface EmptyPanelProps {
 }
 
 /**
- * The kiosk's EmptyState at desk scale.
+ * Friends Kitchen's EmptyState at desk scale.
  *
  * The customer-facing one is sized for a 32" panel read from a metre away; the
  * same type inside an admin card shouts. Same anatomy, quieter voice.

@@ -12,9 +12,9 @@ interface QuantitySelectorProps {
 }
 
 const dims: Record<Size, { btn: string; icon: string; label: string; gap: string; pad: string }> = {
-  sm: { btn: 'h-9 w-9', icon: 'h-4 w-4', label: 'min-w-[2ch] text-kiosk-sm', gap: 'gap-1.5', pad: 'p-1' },
-  md: { btn: 'h-11 w-11', icon: 'h-5 w-5', label: 'min-w-[2ch] text-kiosk-base', gap: 'gap-2', pad: 'p-1.5' },
-  lg: { btn: 'h-14 w-14', icon: 'h-6 w-6', label: 'min-w-[2.5ch] text-kiosk-lg', gap: 'gap-3', pad: 'p-1.5' },
+  sm: { btn: 'h-9 w-9', icon: 'h-4 w-4', label: 'min-w-[2ch] text-fk-sm', gap: 'gap-1.5', pad: 'p-1' },
+  md: { btn: 'h-11 w-11', icon: 'h-5 w-5', label: 'min-w-[2ch] text-fk-base', gap: 'gap-2', pad: 'p-1.5' },
+  lg: { btn: 'h-14 w-14', icon: 'h-6 w-6', label: 'min-w-[2.5ch] text-fk-lg', gap: 'gap-3', pad: 'p-1.5' },
 };
 
 export function QuantitySelector({ value, onChange, min = 1, max = 99, size = 'lg' }: QuantitySelectorProps) {

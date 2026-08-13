@@ -14,12 +14,12 @@ export function SearchBar({ value, onChange, placeholder = 'Search the menu' }: 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-transparent font-sans text-kiosk-base font-medium text-charcoal outline-none placeholder:font-normal placeholder:text-ash"
+        className="w-full bg-transparent font-sans text-fk-base font-medium text-charcoal outline-none placeholder:font-normal placeholder:text-ash"
       />
       {value && (
         <button
           onClick={() => onChange('')}
-          className="press flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ash/20 text-kiosk-xs text-charcoal hover:bg-ash/30"
+          className="press flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ash/20 text-fk-xs text-charcoal hover:bg-ash/30"
           aria-label="Clear"
         >
           ✕

@@ -21,6 +21,6 @@ export const SETTLED_BY_COUPON: PaymentMethod = 'counter';
 /**
  * Display only. The backend re-prices every line from the `MealUpcharge` row in
  * dbo.AppSettings when the order is placed, so this must be kept in step with
- * that setting or the kiosk quotes a price it does not charge.
+ * that setting or Friends Kitchen quotes a price it does not charge.
  */
 export const MEAL_UPGRADE_PRICE = 200;

@@ -30,10 +30,10 @@ export default function OrderTypePage() {
   return (
     <div className="relative flex h-full w-full animate-fade-in">
       <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col items-center gap-3 pt-16">
-        <span className="rounded-full bg-ink px-5 py-2 font-display text-kiosk-xs font-bold uppercase tracking-[0.1em] text-white">
+        <span className="rounded-full bg-ink px-5 py-2 font-display text-fk-xs font-bold uppercase tracking-[0.1em] text-white">
           Step 1 of 3
         </span>
-        <h1 className="font-display text-kiosk-2xl font-extrabold text-ink">How are you eating today?</h1>
+        <h1 className="font-display text-fk-2xl font-extrabold text-ink">How are you eating today?</h1>
       </header>
 
       {ORDER_TYPES.map((o, i) => (
@@ -57,14 +57,14 @@ export default function OrderTypePage() {
             {/* Two lines' worth of height on both halves whether the blurb wraps
                 or not — otherwise one column's icon and title sit lower than the
                 other's, and the split screen reads as misaligned. */}
-            <span className="flex min-h-[3.75rem] max-w-[26rem] items-start justify-center text-center text-kiosk-base text-ash">
+            <span className="flex min-h-[3.75rem] max-w-[26rem] items-start justify-center text-center text-fk-base text-ash">
               {BLURB[o.value]}
             </span>
           </div>
 
           {/* Amber at rest, not on hover — a touch panel has no hover, so a
               grey-until-hover CTA is simply a grey CTA. */}
-          <span className="mt-4 flex h-16 items-center rounded-full bg-amber px-12 font-display text-kiosk-base font-bold text-ink shadow-brand transition-colors duration-300 group-hover:bg-amber-hover">
+          <span className="mt-4 flex h-16 items-center rounded-full bg-amber px-12 font-display text-fk-base font-bold text-ink shadow-brand transition-colors duration-300 group-hover:bg-amber-hover">
             Choose
           </span>
         </button>

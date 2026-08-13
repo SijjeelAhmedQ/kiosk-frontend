@@ -32,7 +32,7 @@ const CouponHistoryPage = lazy(() => import('@/pages/admin/CouponHistoryPage'));
 export function AppRoutes() {
   const location = useLocation();
 
-  /* Keying on the path remounts each kiosk screen so its entrance animation
+  /* Keying on the path remounts each Friends Kitchen screen so its entrance animation
      replays. The admin section is a nested layout, though, and remounting it
      on every click would tear the sidebar down with it — so it keys as one. */
   const routeKey = location.pathname.startsWith(ADMIN_PATHS.root) ? 'admin' : location.pathname;

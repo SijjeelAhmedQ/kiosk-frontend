@@ -104,14 +104,14 @@ export default function PaymentPage() {
           ⚠️
         </div>
         <div className="flex max-w-[720px] flex-col items-center gap-3 text-center">
-          <h1 className="font-display text-kiosk-xl font-extrabold text-ink">Payment didn’t go through</h1>
-          <p className="text-kiosk-base leading-relaxed text-ash">{error}</p>
+          <h1 className="font-display text-fk-xl font-extrabold text-ink">Payment didn’t go through</h1>
+          <p className="text-fk-base leading-relaxed text-ash">{error}</p>
 
           {/* The coupon was already spent against the order that failed, so it
               will not come off a second attempt. Say so rather than letting the
               customer discover it at the total. */}
           {coupon.status === 'redeemed' && (
-            <p className="mt-2 rounded-2xl bg-amber-soft px-6 py-4 text-kiosk-sm leading-relaxed text-amber-dark">
+            <p className="mt-2 rounded-2xl bg-amber-soft px-6 py-4 text-fk-sm leading-relaxed text-amber-dark">
               Your coupon <span className="font-mono font-bold">{coupon.applied?.couponCode}</span> was
               already applied to that order. Please ask a member of staff before trying again.
             </p>
@@ -141,16 +141,16 @@ export default function PaymentPage() {
       </div>
 
       <div className="flex flex-col items-center gap-4 text-center">
-        <h1 className="font-display text-kiosk-xl font-extrabold text-ink">
+        <h1 className="font-display text-fk-xl font-extrabold text-ink">
           {status === 'processing' ? 'Processing payment…' : 'Please wait…'}
         </h1>
-        <p className="text-kiosk-base text-ash">
+        <p className="text-fk-base text-ash">
           {method === 'counter' ? 'Confirming your order' : `Charging ${formatCurrency(charging)} — follow the terminal`}
         </p>
         <span className="mt-3 h-1.5 w-56 overflow-hidden rounded-full bg-mist">
           <span className="skeleton block h-full w-full rounded-full" />
         </span>
-        <p className="mt-2 text-kiosk-xs text-ash">Please don’t leave this screen</p>
+        <p className="mt-2 text-fk-xs text-ash">Please don’t leave this screen</p>
       </div>
     </div>
   );

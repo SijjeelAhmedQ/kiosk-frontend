@@ -1,5 +1,5 @@
 /**
- * What the voice can actually do to the kiosk.
+ * What the voice can actually do to Friends Kitchen.
  *
  * Every one of these runs in the page: they dispatch to the same Redux store
  * the touchscreen dispatches to, and navigate with the same router. That is
@@ -10,7 +10,7 @@
  *
  * 1. **A tool returns what the model needs to speak.** After adding an item it
  *    gets back the item, the price and the new total — otherwise the model
- *    invents a figure, and an invented price at a kiosk is a complaint at the
+ *    invents a figure, and an invented price at a Friends Kitchen terminal is a complaint at the
  *    counter.
  * 2. **The last step is spoken too, and it walks the same screens.** Voice can
  *    settle the order, so a customer who cannot or will not touch the glass can
@@ -173,7 +173,7 @@ const orderSignature = (state: RootState): string =>
 // The tools
 // --------------------------------------------------------------------------- //
 
-export function useKioskVoiceTools(): VoiceTool[] {
+export function useFriendsKitchenVoiceTools(): VoiceTool[] {
   const store = useStore<RootState>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -485,7 +485,7 @@ export function useKioskVoiceTools(): VoiceTool[] {
       {
         name: 'go_to',
         description:
-          'Move the kiosk to another screen. Use "order_type" to leave the welcome screen when the ' +
+          'Move Friends Kitchen to another screen. Use "order_type" to leave the welcome screen when the ' +
           'customer wants to start ordering — dine in and take away are asked there, not on the ' +
           'welcome screen. Use "checkout" when the customer is done ordering: paying and placing ' +
           'both happen there, and neither can be done from the menu.',
@@ -547,7 +547,7 @@ export function useKioskVoiceTools(): VoiceTool[] {
           const validation = result.payload;
           if (!validation.valid) {
             // The server writes this line to be read to a customer; passing it
-            // through beats paraphrasing a rule the kiosk does not enforce.
+            // through beats paraphrasing a rule Friends Kitchen does not enforce.
             return { ok: false, code: cleaned, error: validation.reasonMessage ?? 'That coupon cannot be used.' };
           }
 
@@ -582,7 +582,7 @@ export function useKioskVoiceTools(): VoiceTool[] {
           if (screen.current !== PATHS.checkout) {
             return {
               ok: false,
-              error: 'Payment is chosen on the checkout screen, and the kiosk is not there yet.',
+              error: 'Payment is chosen on the checkout screen, and Friends Kitchen is not there yet.',
               next: 'Call go_to with "checkout" first.',
             };
           }
@@ -591,7 +591,7 @@ export function useKioskVoiceTools(): VoiceTool[] {
           if (!chosen) {
             return {
               ok: false,
-              error: `This kiosk does not take "${method}".`,
+              error: `This Friends Kitchen does not take "${method}".`,
               choices: PAYMENT_METHODS.map((p) => ({ value: p.value, label: p.label })),
             };
           }
@@ -738,13 +738,13 @@ export function useKioskVoiceTools(): VoiceTool[] {
 /**
  * Who the voice is.
  *
- * Written for the room rather than for a chat window: a kiosk queue is noisy,
+ * Written for the room rather than for a chat window: a Friends Kitchen terminal queue is noisy,
  * the customer is standing up, and anything the model says twice is time
  * somebody spends waiting. The hard rules — never invent a price, never take
  * payment — are stated as rules because a friendly model will otherwise be
  * helpful in exactly the wrong direction.
  */
-export const KIOSK_VOICE_INSTRUCTIONS = `You are the voice of a ${APP.name} self-order kiosk. You take a customer's order out loud while they watch the screen change.
+export const FK_VOICE_INSTRUCTIONS = `You are the voice of a ${APP.name} self-order app. You take a customer's order out loud while they watch the screen change.
 
 How to speak:
 - Short. One or two sentences. This is a counter, not a conversation.
@@ -788,8 +788,8 @@ What you must not do:
  * speaking Urdu watches the panel fill with a script they may not read. Naming
  * the script, with an example in it, is what keeps اردو out of देवनागरी.
  */
-export const KIOSK_TRANSCRIPTION_PROMPT =
-  `A customer ordering food at a ${APP.name} kiosk in Pakistan. They speak English or Urdu and ` +
+export const FK_TRANSCRIPTION_PROMPT =
+  `A customer ordering food at a ${APP.name} Friends Kitchen in Pakistan. They speak English or Urdu and ` +
   'often mix the two in one sentence. Write Urdu in Urdu (Arabic) script — for example ' +
   '"ایک برگر اور ایک کوک" — never in Devanagari, never in Hindi, and never as Roman ' +
   'transliteration. Write English in English. Menu item names stay in English.';

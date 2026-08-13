@@ -12,7 +12,7 @@ import { ENDPOINTS } from '../http/endpoints';
 
 /**
  * Campaign admin. No mock branch: campaigns only exist in the database, so
- * running the kiosk standalone (USE_MOCK) simply has no back office.
+ * running Friends Kitchen standalone (USE_MOCK) simply has no back office.
  */
 export const campaignApi = {
   list: async (query: CampaignListQuery = {}): Promise<CampaignListPage> => {

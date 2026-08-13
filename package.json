@@ -1,9 +1,9 @@
 {
-  "name": "friends-kitchen-kiosk-frontend",
+  "name": "friends-kitchen-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Friends Kitchen self-order kiosk — React 19 + TS + Vite touch client",
+  "description": "Friends Kitchen self-order app — React 19 + TS + Vite touch client",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

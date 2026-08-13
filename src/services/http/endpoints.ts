@@ -11,7 +11,7 @@ export const ENDPOINTS = {
   orderByNumber: (orderNumber: string) => `/orders/number/${orderNumber}`,
   payments: '/payments',
 
-  /* Menu maintenance. Under /admin so the kiosk's own /categories and /products
+  /* Menu maintenance. Under /admin so Friends Kitchen's own /categories and /products
      keep their shape — the admin list carries inactive rows, which would be a
      bug if the menu ever read it by accident. */
   adminCategories: '/admin/categories',

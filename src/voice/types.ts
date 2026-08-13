@@ -33,7 +33,7 @@ export type VoiceStatus =
   | 'listening'     // live, and nobody is talking
   | 'hearing'       // the customer is speaking right now
   | 'thinking'      // the model is composing, or a tool is running
-  | 'speaking'      // the kiosk is talking back
+  | 'speaking'      // Friends Kitchen is talking back
   | 'error';        // `error` says what happened; the session is over
 
 /** One line of the conversation, as the on-screen transcript shows it. */

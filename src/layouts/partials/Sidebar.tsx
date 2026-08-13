@@ -61,7 +61,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           )}
         >
           <ArrowLeft className="h-5 w-5" />
-          {!collapsed && <span className="font-display text-kiosk-xs font-bold">Back</span>}
+          {!collapsed && <span className="font-display text-fk-xs font-bold">Back</span>}
         </button>
 
         <button
@@ -74,7 +74,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           )}
         >
           <Chevron className={cn('h-5 w-5 transition-transform duration-300 ease-spring', collapsed && 'rotate-180')} />
-          {!collapsed && <span className="font-display text-kiosk-xs font-bold">Collapse</span>}
+          {!collapsed && <span className="font-display text-fk-xs font-bold">Collapse</span>}
         </button>
       </div>
     </aside>

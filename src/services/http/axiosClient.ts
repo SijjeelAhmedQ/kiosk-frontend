@@ -9,9 +9,9 @@ export const axiosClient: AxiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// --- Request interceptor: attach kiosk/session headers ---
+// --- Request interceptor: attach Friends Kitchen/session headers ---
 axiosClient.interceptors.request.use((config) => {
-  config.headers.set('X-Kiosk-Id', 'kiosk-01');
+  config.headers.set('X-Terminal-Id', 'terminal-01');
   return config;
 });
 

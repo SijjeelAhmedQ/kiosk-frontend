@@ -72,7 +72,7 @@ export function ProductCard({ product, onSelect, tall = false }: ProductCardProp
         <h3
           className={cn(
             'font-display font-extrabold leading-snug text-ink',
-            tall ? 'line-clamp-2 text-kiosk-base' : 'line-clamp-1 text-kiosk-sm',
+            tall ? 'line-clamp-2 text-fk-base' : 'line-clamp-1 text-fk-sm',
           )}
         >
           {product.name}
@@ -82,7 +82,7 @@ export function ProductCard({ product, onSelect, tall = false }: ProductCardProp
         <p
           className={cn(
             'line-clamp-2 text-ash',
-            tall ? 'mt-2 text-kiosk-xs leading-relaxed' : 'mt-1.5 text-[0.85rem] leading-snug',
+            tall ? 'mt-2 text-fk-xs leading-relaxed' : 'mt-1.5 text-[0.85rem] leading-snug',
           )}
         >
           {product.description}
@@ -93,7 +93,7 @@ export function ProductCard({ product, onSelect, tall = false }: ProductCardProp
             <span
               className={cn(
                 'font-display font-extrabold leading-none text-ink',
-                tall ? 'text-kiosk-lg' : 'text-kiosk-base',
+                tall ? 'text-fk-lg' : 'text-fk-base',
               )}
             >
               {formatCurrency(product.price)}

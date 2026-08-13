@@ -26,16 +26,16 @@ export function CartItem({ line, onInc, onDec, onRemove, imgBase64 }: CartItemPr
       <div className="flex flex-1 flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h4 className="font-display text-kiosk-base font-extrabold text-ink">
+            <h4 className="font-display text-fk-base font-extrabold text-ink">
               {line.name}
               {line.isMeal && (
-                <span className="ml-2 inline-block rounded-full bg-amber-soft px-3 py-0.5 align-middle text-kiosk-xs font-bold text-amber-dark">
+                <span className="ml-2 inline-block rounded-full bg-amber-soft px-3 py-0.5 align-middle text-fk-xs font-bold text-amber-dark">
                   Meal
                 </span>
               )}
             </h4>
             {line.modifiers.length > 0 && (
-              <p className="mt-1.5 text-kiosk-xs leading-relaxed text-ash">
+              <p className="mt-1.5 text-fk-xs leading-relaxed text-ash">
                 {line.modifiers.map((m) => m.name).join(' · ')}
               </p>
             )}
@@ -56,7 +56,7 @@ export function CartItem({ line, onInc, onDec, onRemove, imgBase64 }: CartItemPr
             size="md"
             min={1}
           />
-          <span className="font-display text-kiosk-lg font-extrabold text-ink">
+          <span className="font-display text-fk-lg font-extrabold text-ink">
             {formatCurrency(line.lineTotal)}
           </span>
         </div>

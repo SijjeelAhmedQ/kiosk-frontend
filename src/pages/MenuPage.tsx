@@ -70,11 +70,11 @@ export default function MenuPage() {
       <div className="flex min-h-full flex-col">
         {/* Canvas header — title, count and search travel with the grid. */}
         <div className="glass sticky top-0 z-20 px-8 pb-5 pt-6">
-          <h1 className="font-display text-kiosk-2xl font-extrabold text-ink">
+          <h1 className="font-display text-fk-2xl font-extrabold text-ink">
             {search ? 'Search results' : activeCategory?.name ?? 'Menu'}
           </h1>
           <div className="mt-4 flex items-center justify-between gap-6">
-            <p className="shrink-0 text-kiosk-sm text-ash">
+            <p className="shrink-0 text-fk-sm text-ash">
               {visible.length} item{visible.length === 1 ? '' : 's'}
               {search ? ` matching “${search}”` : ' · tap to customise'}
             </p>

@@ -7,7 +7,7 @@ import { cn } from '@/utils/cn';
  * The file is drawn onto a canvas and re-encoded before it leaves the browser.
  * A phone photo is three or four megabytes, which becomes a third larger again
  * as base64, and it all ends up in an NVARCHAR(MAX) column that every menu read
- * then drags across the wire. Downscaling to a kiosk tile's worth of pixels
+ * then drags across the wire. Downscaling to a menu tile's worth of pixels
  * turns that into tens of kilobytes and costs nothing anyone can see.
  *
  * `value` is whatever is stored — a data: URL, raw base64, or nothing. `onChange`
@@ -15,7 +15,7 @@ import { cn } from '@/utils/cn';
  * shape the API reads as "replace" and "remove".
  */
 
-/** Longest edge, in pixels. A kiosk tile is ~320px on a 1080p screen. */
+/** Longest edge, in pixels. A menu tile is ~320px on a 1080p screen. */
 const MAX_EDGE = 640;
 const QUALITY = 0.82;
 /** Refuse the obviously-wrong file before spending time decoding it. */
@@ -146,7 +146,7 @@ export function ImagePicker({ value, onChange, fallback, disabled, className }: 
           <p className="text-xs font-medium text-flame">{error}</p>
         ) : (
           <p className="text-xs text-ash">
-            Shown on the kiosk instead of the emoji. Scaled to {MAX_EDGE}px before it is saved.
+            Shown on Friends Kitchen instead of the emoji. Scaled to {MAX_EDGE}px before it is saved.
           </p>
         )}
       </div>

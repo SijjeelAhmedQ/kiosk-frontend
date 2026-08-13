@@ -46,7 +46,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
     if (busy) return;
 
     /* Enter on an empty field used to do nothing at all, which reads as a
-       broken kiosk rather than a missing code. The button stays disabled — this
+       broken Friends Kitchen rather than a missing code. The button stays disabled — this
        is only for the keypad path. */
     if (!couponCode) {
       dispatch(rejectCoupon(COUPON_CODE_REQUIRED));
@@ -69,23 +69,23 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
     return (
       <div data-testid="coupon-applied" className="mt-5 rounded-2xl bg-leaf-soft p-5 animate-fade-in">
         <div className="flex items-start gap-3">
-          <span className="mt-0.5 text-kiosk-base leading-none">✓</span>
+          <span className="mt-0.5 text-fk-base leading-none">✓</span>
           <div className="min-w-0 flex-1">
-            <p className="font-display text-kiosk-sm font-extrabold text-leaf">
+            <p className="font-display text-fk-sm font-extrabold text-leaf">
               {applied.couponType === 'product'
                 ? `${applied.productName ?? 'Free item'} is on us`
                 : `Coupon applied — ${formatCurrency(discount)} off`}
             </p>
-            <p className="mt-1 truncate font-mono text-kiosk-xs text-leaf/80">{applied.couponCode}</p>
+            <p className="mt-1 truncate font-mono text-fk-xs text-leaf/80">{applied.couponCode}</p>
             {/* Spelling out "tax included" because the free line still shows in
                 the subtotal above — otherwise the discount looks short. */}
             {applied.couponType === 'product' && (
-              <p className="mt-1.5 text-kiosk-xs text-leaf/80">
+              <p className="mt-1.5 text-fk-xs text-leaf/80">
                 {formatCurrency(discount)} off, tax included
               </p>
             )}
             {applied.couponType === 'value' && applied.remainingBalance !== null && (
-              <p className="mt-1.5 text-kiosk-xs text-leaf/80">
+              <p className="mt-1.5 text-fk-xs text-leaf/80">
                 {formatCurrency(Math.max(0, applied.remainingBalance - discount))} will be left on it
               </p>
             )}
@@ -93,7 +93,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
           <button
             type="button"
             onClick={() => dispatch(clearCoupon())}
-            className="press shrink-0 rounded-full bg-white/60 px-4 py-2 font-display text-kiosk-xs font-bold text-leaf transition-colors hover:bg-white"
+            className="press shrink-0 rounded-full bg-white/60 px-4 py-2 font-display text-fk-xs font-bold text-leaf transition-colors hover:bg-white"
           >
             Remove
           </button>
@@ -104,7 +104,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
 
   return (
     <div className="mt-5">
-      <p className="font-display text-kiosk-xs font-bold uppercase tracking-[0.1em] text-ash">
+      <p className="font-display text-fk-xs font-bold uppercase tracking-[0.1em] text-ash">
         Coupon
       </p>
 
@@ -133,7 +133,7 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
             aria-describedby={notice ? 'coupon-notice' : undefined}
             autoComplete="off"
             spellCheck={false}
-            className="w-full bg-transparent font-mono text-kiosk-sm font-semibold uppercase tracking-wide text-charcoal outline-none placeholder:font-sans placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:text-ash"
+            className="w-full bg-transparent font-mono text-fk-sm font-semibold uppercase tracking-wide text-charcoal outline-none placeholder:font-sans placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:text-ash"
           />
         </div>
 
@@ -159,11 +159,11 @@ export function CouponEntry({ orderTotal }: CouponEntryProps) {
           role="alert"
           className="mt-2.5 flex items-start gap-2.5 rounded-2xl bg-flame-soft px-4 py-3 animate-fade-in"
         >
-          <span className="mt-0.5 text-kiosk-sm leading-none">⚠️</span>
+          <span className="mt-0.5 text-fk-sm leading-none">⚠️</span>
           <div className="min-w-0 flex-1">
-            <p className="font-display text-kiosk-sm font-bold text-flame-dark">{notice.title}</p>
+            <p className="font-display text-fk-sm font-bold text-flame-dark">{notice.title}</p>
             {notice.hint && (
-              <p className="mt-1 text-kiosk-xs leading-snug text-flame-dark/80">{notice.hint}</p>
+              <p className="mt-1 text-fk-xs leading-snug text-flame-dark/80">{notice.hint}</p>
             )}
           </div>
         </div>

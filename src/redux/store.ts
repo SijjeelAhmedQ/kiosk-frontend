@@ -13,7 +13,7 @@ import couponRedemption from './slices/couponRedemptionSlice';
 export const store = configureStore({
   reducer: {
     settings, categories, products, cart, payment, orders,
-    // The menu, twice over: `categories`/`products` are what the kiosk shows a
+    // The menu, twice over: `categories`/`products` are what Friends Kitchen shows a
     // customer, `catalogAdmin` is the same tables as the back office maintains
     // them — inactive rows and all.
     catalogAdmin,

@@ -14,7 +14,7 @@ export function LoadingScreen({ label = 'Warming up…' }: { label?: string }) {
     <div className="flex h-full w-full flex-col gap-8 p-8 animate-fade-in">
       <div className="flex items-center gap-4">
         <Spinner size={30} />
-        <p className="font-display text-kiosk-lg font-extrabold text-ink">{label}</p>
+        <p className="font-display text-fk-lg font-extrabold text-ink">{label}</p>
       </div>
 
       {/* Skeletons shaped like the menu grid — the wait previews the layout. */}

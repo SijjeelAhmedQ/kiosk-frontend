@@ -111,7 +111,7 @@ export default function CouponHistoryPage() {
             icon="📊"
             label="Redemptions"
             value={String(historyTotal)}
-            hint={filtered ? 'matching the filters' : 'since the kiosk opened'}
+            hint={filtered ? 'matching the filters' : 'since Friends Kitchen opened'}
           />
           <Stat
             icon="💸"

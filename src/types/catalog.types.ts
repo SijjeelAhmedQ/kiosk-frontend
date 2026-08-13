@@ -3,7 +3,7 @@ import type { Category, Product, ProductBadge } from './product.types';
 /**
  * The back office's view of the menu.
  *
- * The kiosk's Category and Product are what a customer is shown: active rows
+ * Friends Kitchen's Category and Product are what a customer is shown: active rows
  * only, no ordering, no bookkeeping. These add what someone *maintaining* the
  * menu needs — the inactive rows, the sort order, and the counts that decide
  * whether a row can be deleted at all.

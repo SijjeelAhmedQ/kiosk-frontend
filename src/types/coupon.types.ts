@@ -185,7 +185,7 @@ export interface CouponGenerateInput {
  * The answer to "is this code any good?".
  *
  * An unusable coupon is a successful response with `valid: false` and a reason —
- * not a thrown ApiError. The kiosk shows `reasonMessage` to the customer.
+ * not a thrown ApiError. Friends Kitchen shows `reasonMessage` to the customer.
  */
 export interface CouponValidation {
   valid: boolean;
@@ -218,7 +218,7 @@ export interface CouponValidation {
 }
 
 /**
- * What the kiosk tells the server is in the cart when validating.
+ * What Friends Kitchen tells the server is in the cart when validating.
  *
  * Quantities only — the server prices every line from the menu, so there is
  * nothing here worth tampering with.
@@ -233,7 +233,7 @@ export interface CouponRedeemInput {
   orderId: number;
   /** Value coupons: how much to draw. Omit to cover whatever is still due. */
   amount?: number;
-  /** Draw what is there and leave the rest for the card. The kiosk sets this. */
+  /** Draw what is there and leave the rest for the card. Friends Kitchen sets this. */
   allowPartial?: boolean;
   customerId?: string;
 }
@@ -295,7 +295,7 @@ export interface CouponHistoryQuery {
  * A coupon the customer has entered at checkout but not yet redeemed.
  *
  * Redemption needs an orderId, which does not exist until the order is placed,
- * so the kiosk holds the validated coupon here and commits it straight after
+ * so Friends Kitchen holds the validated coupon here and commits it straight after
  * placing. See redux/slices/couponSlice.ts.
  */
 export interface AppliedCoupon {

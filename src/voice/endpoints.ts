@@ -2,9 +2,9 @@
  * Where the voice relay lives.
  *
  * Derived from the same base URL axios uses rather than configured separately:
- * the relay is a route on the kiosk backend, so pointing the app at a different
+ * the relay is a route on the Friends Kitchen backend, so pointing the app at a different
  * backend has to move the microphone with it. Getting these out of step gives
- * the worst kind of bug — a kiosk ordering from one restaurant and talking to
+ * the worst kind of bug — a Friends Kitchen terminal ordering from one restaurant and talking to
  * another.
  */
 

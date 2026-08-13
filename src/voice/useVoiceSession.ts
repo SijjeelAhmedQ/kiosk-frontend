@@ -127,7 +127,7 @@ export function useVoiceSession(config: VoiceSessionConfig): VoiceSession {
 /**
  * Whether the backend can do voice at all.
  *
- * Asked once, before anything is rendered, so a kiosk with no key shows a
+ * Asked once, before anything is rendered, so a Friends Kitchen terminal with no key shows a
  * disabled mic carrying the reason instead of one that fails on first press.
  */
 export function useVoiceAvailability(healthUrl: string): {

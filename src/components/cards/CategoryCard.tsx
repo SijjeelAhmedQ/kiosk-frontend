@@ -35,7 +35,7 @@ export function CategoryCard({ category, active, onSelect, collapsed = false }: 
       <span
         className={cn(
           'flex shrink-0 items-center justify-center',
-          collapsed ? 'h-14 w-14 text-kiosk-lg' : 'h-12 w-12 text-kiosk-base',
+          collapsed ? 'h-14 w-14 text-fk-lg' : 'h-12 w-12 text-fk-base',
         )}
       >
         {/* Inline artwork wins, then an image URL, then the emoji in `icon`. */}
@@ -52,7 +52,7 @@ export function CategoryCard({ category, active, onSelect, collapsed = false }: 
             ? // Two lines rather than an ellipsis — the rail is narrow enough that
               // "Sweets & Treats" truncated to "Sweets & Tr…" tells you nothing.
               'line-clamp-2 w-full break-words text-center text-[0.8rem] font-bold leading-tight'
-            : 'truncate text-kiosk-sm font-bold',
+            : 'truncate text-fk-sm font-bold',
           active ? 'text-white' : 'text-ash group-hover:text-ink',
         )}
       >

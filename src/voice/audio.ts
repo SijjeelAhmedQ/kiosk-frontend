@@ -59,7 +59,7 @@ registerProcessor('fk-recorder', RecorderProcessor);
  * Plays a queue of chunks gaplessly, and can be emptied on the instant.
  *
  * Emptying is the whole reason this is a worklet rather than a chain of
- * AudioBufferSourceNodes: when the customer interrupts, the sentence the kiosk
+ * AudioBufferSourceNodes: when the customer interrupts, the sentence Friends Kitchen
  * is halfway through has to stop *now*, and scheduled source nodes are already
  * committed to the audio clock.
  */
@@ -162,7 +162,7 @@ interface VoiceAudioOptions {
 /**
  * One microphone, one speaker, one audio clock.
  *
- * Created per voice session and thrown away with it — a kiosk that has been
+ * Created per voice session and thrown away with it — a Friends Kitchen terminal that has been
  * idle for an hour should not be holding the mic open.
  */
 export class VoiceAudio {
@@ -183,7 +183,7 @@ export class VoiceAudio {
   async start(): Promise<void> {
     this.stream = await navigator.mediaDevices.getUserMedia({
       audio: {
-        // A kiosk has its speaker a foot from its microphone, so without
+        // A Friends Kitchen has its speaker a foot from its microphone, so without
         // cancellation the model hears itself, treats it as the customer
         // talking, and interrupts its own sentence.
         echoCancellation: true,
@@ -232,7 +232,7 @@ export class VoiceAudio {
 
     context.createMediaStreamSource(this.stream).connect(this.recorder);
     // The recorder is not connected to the destination: it would echo the
-    // customer back at themselves through the kiosk's own speaker.
+    // customer back at themselves through Friends Kitchen's own speaker.
     this.player.connect(context.destination);
   }
 
@@ -286,7 +286,7 @@ export class VoiceAudio {
  * Linear resampling, for the browser that would not give us a 24 kHz context.
  *
  * Good enough and no more: this is a fallback path for speech, where the
- * alternative is no audio at all. Chrome — which is what the kiosk runs —
+ * alternative is no audio at all. Chrome — which is what Friends Kitchen runs —
  * honours the requested rate and never reaches this.
  */
 function makeResampler(from: number, to: number): (input: Float32Array) => Float32Array {

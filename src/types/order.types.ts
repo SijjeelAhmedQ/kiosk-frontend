@@ -34,7 +34,7 @@ export interface PlacedOrder {
  * What the client posts to place an order.
  *
  * `summary` is sent for traceability only — the database re-prices the whole
- * cart from dbo.Products, so a tampered kiosk cannot change what is charged.
+ * cart from dbo.Products, so a tampered terminal cannot change what is charged.
  */
 export interface PlaceOrderInput {
   orderType: OrderType;
@@ -62,7 +62,7 @@ export interface OrderLineDetail extends CartLine {
 export interface OrderDetail extends PlacedOrder {
   businessDate: string;
   taxRate: number;
-  kioskId: string;
+  terminalId: string;
   lines: OrderLineDetail[];
   payments: OrderPayment[];
 }
@@ -81,7 +81,7 @@ export interface OrderListItem {
   couponDiscount: number;
   amountDue: number;
   itemCount: number;
-  kioskId: string;
+  terminalId: string;
   placedAt: string;
   itemsPreview: string;      // "2× Ember Stack, 1× Flame Fries"
 }

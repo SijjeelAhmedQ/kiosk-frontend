@@ -150,7 +150,7 @@ export default function ProductListPage() {
           eyebrow="Menu"
           icon="🍔"
           title="Products"
-          subtitle="Everything the kiosk can sell. Hiding a product takes it off the menu and leaves the history alone."
+          subtitle="Everything Friends Kitchen can sell. Hiding a product takes it off the menu and leaves the history alone."
           actions={
             <Button size="md" onClick={() => navigate(ADMIN_PATHS.productNew)}>
               New product

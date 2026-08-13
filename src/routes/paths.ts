@@ -17,7 +17,7 @@ export type PathKey = keyof typeof PATHS;
 export const ADMIN_PATHS = {
   root: '/admin',
 
-  // What the kiosk has sold.
+  // What Friends Kitchen has sold.
   orders: '/admin/orders',
 
   // The menu.

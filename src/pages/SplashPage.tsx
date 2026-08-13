@@ -40,13 +40,13 @@ export default function SplashPage() {
       <div className="absolute right-6 top-6 z-20 flex gap-2">
         <button
           onClick={() => navigate(ADMIN_PATHS.orders)}
-          className="press rounded-full bg-white/10 px-5 py-3 font-display text-kiosk-xs font-bold text-white/60 transition-colors hover:bg-white/20 hover:text-white"
+          className="press rounded-full bg-white/10 px-5 py-3 font-display text-fk-xs font-bold text-white/60 transition-colors hover:bg-white/20 hover:text-white"
         >
           Orders
         </button>
         <button
           onClick={() => navigate(ADMIN_PATHS.campaigns)}
-          className="press rounded-full bg-white/10 px-5 py-3 font-display text-kiosk-xs font-bold text-white/60 transition-colors hover:bg-white/20 hover:text-white"
+          className="press rounded-full bg-white/10 px-5 py-3 font-display text-fk-xs font-bold text-white/60 transition-colors hover:bg-white/20 hover:text-white"
         >
           Coupons
         </button>
@@ -64,7 +64,7 @@ export default function SplashPage() {
         <div className="pointer-events-none absolute -right-24 top-1/2 h-[820px] w-[820px] -translate-y-1/2 rounded-full bg-flame/20 blur-[140px]" />
 
         <div className="relative z-10 flex max-w-[900px] flex-col gap-10 pl-32">
-          <span className="w-fit rounded-full bg-white/10 px-5 py-2.5 font-display text-kiosk-xs font-bold uppercase tracking-[0.16em] text-white/70">
+          <span className="w-fit rounded-full bg-white/10 px-5 py-2.5 font-display text-fk-xs font-bold uppercase tracking-[0.16em] text-white/70">
             Self order &amp; pay
           </span>
 
@@ -90,7 +90,7 @@ export default function SplashPage() {
                   {teasers.map((c, i) => (
                     <span
                       key={c.id}
-                      className="animate-pop-in rounded-full border border-white/15 px-5 py-2.5 font-display text-kiosk-sm font-bold text-white/70"
+                      className="animate-pop-in rounded-full border border-white/15 px-5 py-2.5 font-display text-fk-sm font-bold text-white/70"
                       style={{ animationDelay: `${i * 0.07}s` }}
                     >
                       {c.name}
@@ -98,7 +98,7 @@ export default function SplashPage() {
                   ))}
                   {extra > 0 && (
                     <span
-                      className="animate-pop-in rounded-full border border-white/15 px-5 py-2.5 font-display text-kiosk-sm font-bold text-white/40"
+                      className="animate-pop-in rounded-full border border-white/15 px-5 py-2.5 font-display text-fk-sm font-bold text-white/40"
                       style={{ animationDelay: `${teasers.length * 0.07}s` }}
                     >
                       +{extra} more
@@ -110,11 +110,11 @@ export default function SplashPage() {
           )}
 
           <div className="mt-4 flex items-center gap-6">
-            <span className="flex items-center gap-3.5 rounded-full bg-amber px-12 py-6 font-display text-kiosk-lg font-extrabold text-ink shadow-brand-lg">
+            <span className="flex items-center gap-3.5 rounded-full bg-amber px-12 py-6 font-display text-fk-lg font-extrabold text-ink shadow-brand-lg">
               <span className="h-3 w-3 animate-dot-blink rounded-full bg-ink" />
               Tap to order
             </span>
-            <span className="text-kiosk-sm text-white/40">Ready in minutes</span>
+            <span className="text-fk-sm text-white/40">Ready in minutes</span>
           </div>
         </div>
       </button>

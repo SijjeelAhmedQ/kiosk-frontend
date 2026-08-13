@@ -29,7 +29,7 @@ export function BasketLine({ line, onInc, onDec, onRemove, imgBase64 }: BasketLi
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-2">
-          <h4 className="min-w-0 font-display text-kiosk-sm font-extrabold leading-snug text-ink">
+          <h4 className="min-w-0 font-display text-fk-sm font-extrabold leading-snug text-ink">
             {line.name}
             {line.isMeal && (
               <span className="ml-1.5 inline-block rounded-full bg-amber-soft px-2 py-0.5 align-middle text-[0.7rem] font-bold text-amber-dark">
@@ -39,7 +39,7 @@ export function BasketLine({ line, onInc, onDec, onRemove, imgBase64 }: BasketLi
           </h4>
           <button
             onClick={() => onRemove(line.lineId)}
-            className="press -mr-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-kiosk-xs text-ash transition-colors hover:bg-flame-soft hover:text-flame"
+            className="press -mr-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-fk-xs text-ash transition-colors hover:bg-flame-soft hover:text-flame"
             aria-label="Remove item"
           >
             ✕
@@ -59,7 +59,7 @@ export function BasketLine({ line, onInc, onDec, onRemove, imgBase64 }: BasketLi
             size="sm"
             min={1}
           />
-          <span className="font-display text-kiosk-sm font-extrabold tabular-nums text-ink">
+          <span className="font-display text-fk-sm font-extrabold tabular-nums text-ink">
             {formatCurrency(line.lineTotal)}
           </span>
         </div>

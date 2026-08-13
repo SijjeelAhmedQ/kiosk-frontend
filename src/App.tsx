@@ -12,7 +12,7 @@ import { APP } from '@/constants/app.constants';
 import { ADMIN_PATHS, PATHS } from '@/routes/paths';
 import { VoiceControl } from '@/voice/VoiceControl';
 
-/** Sits inside the router so it can navigate on idle. Resets kiosk to splash. */
+/** Sits inside the router so it can navigate on idle. Resets Friends Kitchen to splash. */
 function IdleReset() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,7 +55,7 @@ function Voice() {
 
 export default function App() {
   return (
-    // antd is themed once, at the root: the kiosk screens don't use it today,
+    // antd is themed once, at the root: the Friends Kitchen screens don't use it today,
     // but anything that later does inherits the same palette as the back office.
     <ConfigProvider theme={adminTheme} locale={enUS}>
       <BrowserRouter>

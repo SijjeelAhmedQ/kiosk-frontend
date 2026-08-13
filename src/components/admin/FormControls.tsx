@@ -10,15 +10,15 @@ import { disabledTimesAt } from '@/utils/instantBounds';
  * Form controls for the back office.
  *
  * These are antd controls underneath — Select and DatePicker in particular are
- * not worth hand-rolling — but every one of them is themed to the kiosk palette
+ * not worth hand-rolling — but every one of them is themed to Friends Kitchen palette
  * in src/theme/antdTheme.ts, so the fields look exactly as they did: cream fill,
  * no border, white and lifted on focus.
  *
- * They stay deliberately smaller than the kiosk's own controls: those are sized
+ * They stay deliberately smaller than Friends Kitchen's own controls: those are sized
  * for a finger on a 32" screen, these are for a keyboard and mouse.
  */
 
-/** antd's `filled` variant is the one that matches the kiosk fields. */
+/** antd's `filled` variant is the one that matches Friends Kitchen fields. */
 const VARIANT = 'filled' as const;
 
 const ISO = 'YYYY-MM-DD';

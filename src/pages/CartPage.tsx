@@ -30,7 +30,7 @@ export default function CartPage() {
     return (
       <OrderLayout showSidebar={false} showBasket={false}>
         <div className="flex h-full flex-col p-8">
-          <h1 className="font-display text-kiosk-2xl font-extrabold text-ink">Your order</h1>
+          <h1 className="font-display text-fk-2xl font-extrabold text-ink">Your order</h1>
           <EmptyState
             icon="🛒"
             title="Your cart is empty"
@@ -49,12 +49,12 @@ export default function CartPage() {
         <section className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-center justify-between gap-6">
             <div>
-              <h1 className="font-display text-kiosk-2xl font-extrabold text-ink">Your order</h1>
+              <h1 className="font-display text-fk-2xl font-extrabold text-ink">Your order</h1>
               <StepBar current={0} className="mt-4" />
             </div>
             <button
               onClick={() => dispatch(clearCart())}
-              className="press rounded-full bg-mist px-6 py-3 font-display text-kiosk-sm font-bold text-ash transition-colors hover:bg-flame-soft hover:text-flame"
+              className="press rounded-full bg-mist px-6 py-3 font-display text-fk-sm font-bold text-ash transition-colors hover:bg-flame-soft hover:text-flame"
             >
               Clear all
             </button>
@@ -76,7 +76,7 @@ export default function CartPage() {
 
         <aside className="flex w-[420px] shrink-0 flex-col">
           <div className="sticky top-0 rounded-xl3 bg-paper p-7 shadow-card">
-            <h2 className="font-display text-kiosk-lg font-extrabold text-ink">Summary</h2>
+            <h2 className="font-display text-fk-lg font-extrabold text-ink">Summary</h2>
 
             <div className="mt-5">
               <Row label={`Subtotal · ${itemCount} item${itemCount === 1 ? '' : 's'}`} value={formatCurrency(subtotal)} />
@@ -102,13 +102,13 @@ export default function CartPage() {
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-baseline justify-between py-1">
-      <span className={cn(strong ? 'font-display text-kiosk-lg font-bold text-ink' : 'text-kiosk-sm text-ash')}>
+      <span className={cn(strong ? 'font-display text-fk-lg font-bold text-ink' : 'text-fk-sm text-ash')}>
         {label}
       </span>
       <span
         className={cn(
           'tabular-nums',
-          strong ? 'font-display text-kiosk-2xl font-extrabold text-ink' : 'text-kiosk-sm font-medium text-charcoal',
+          strong ? 'font-display text-fk-2xl font-extrabold text-ink' : 'text-fk-sm font-medium text-charcoal',
         )}
       >
         {value}
