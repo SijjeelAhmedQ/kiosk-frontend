@@ -30,7 +30,7 @@
  *                 believes they shut is the one state this must never reach.
  */
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { reportActivity } from '@/hooks/useIdleTimer';
 import { useAppSelector } from '@/redux/hooks';
@@ -42,7 +42,7 @@ import {
   FK_VOICE_INSTRUCTIONS,
   FK_TRANSCRIPTION_PROMPT,
 } from './friendsKitchenTools';
-import { VOICE_HEALTH_URL, VOICE_SOCKET_URL } from './endpoints';
+import { VOICE_HEALTH_URL, voiceSocketUrl } from './endpoints';
 import type { VoiceStatus } from './types';
 import { APP } from '@/constants/app.constants';
 import { cn } from '@/utils/cn';
@@ -78,15 +78,49 @@ const STATUS_TEXT: Record<VoiceStatus, string> = {
   error: 'Unavailable',
 };
 
-/** What the composer's pill says, where a chat app would show a text cursor. */
+/**
+ * The mic button does three different things, so it is named three ways.
+ *
+ * The middle case is the one that would otherwise be mislabelled: a session
+ * taking typed orders with the microphone closed. "Stop listening" there is a
+ * lie, and "Start listening" on a session that is already running reads as if
+ * the tap would throw the order away.
+ */
+const MIC_LABEL = (active: boolean, mic: boolean): string =>
+  !active ? 'Start listening' : mic ? 'Stop listening' : 'Turn on the microphone';
+
+/**
+ * What the composer's box says when it is empty and the microphone is live.
+ *
+ * Both ways in are named, because a customer who can see a text field still
+ * assumes a voice dock only takes voice — and the ones most likely to need the
+ * keyboard are the least likely to experiment to find out.
+ */
 const COMPOSER_HINT: Record<VoiceStatus, string> = {
-  idle: 'Tap the mic and say what you want',
-  connecting: 'Opening the microphone…',
-  listening: 'Listening — go ahead',
+  idle: 'Say it or type it',
+  connecting: 'Connecting…',
+  listening: 'Listening — or type your order',
   hearing: 'Go on, I’m listening…',
   thinking: 'Working on that…',
-  speaking: 'Speaking — tap the mic to cut in',
-  error: 'Voice stopped. Tap the mic to try again',
+  speaking: 'Speaking — cut in, or type',
+  error: 'Type your order, or tap the mic to retry',
+};
+
+/**
+ * …and when it is not.
+ *
+ * A typed session is a complete session, so this says nothing about the
+ * microphone being off — an apology in a placeholder is a permanent one. The
+ * mic button beside it is the offer, for anyone who wants it.
+ */
+const TYPING_HINT: Record<VoiceStatus, string> = {
+  idle: 'Type your order',
+  connecting: 'Connecting…',
+  listening: 'Type your order',
+  hearing: 'Type your order',
+  thinking: 'Working on that…',
+  speaking: 'Speaking — type to cut in',
+  error: 'Type your order',
 };
 
 /**
@@ -108,10 +142,14 @@ export function VoiceControl() {
   const location = useLocation();
   const cartCount = useAppSelector(selectCartCount);
   const besideBasket = location.pathname === PATHS.menu && cartCount > 0;
-  const { ready, checking, reason } = useVoiceAvailability(VOICE_HEALTH_URL);
+  const { ready, checking, reason, provider } = useVoiceAvailability(VOICE_HEALTH_URL);
 
   const voice = useVoiceSession({
-    url: VOICE_SOCKET_URL,
+    // Both come from the same answer, so the client and the route it opens can
+    // never disagree — a page talking the pipeline protocol at the relay gets
+    // no error, just a microphone that does nothing.
+    provider,
+    url: voiceSocketUrl(provider),
     instructions: FK_VOICE_INSTRUCTIONS,
     tools,
     transcriptionPrompt: FK_TRANSCRIPTION_PROMPT,
@@ -122,6 +160,8 @@ export function VoiceControl() {
   const [open, setOpen] = useState(false);
   /** Stamped once per session, for the separator the transcript opens with. */
   const [openedAt, setOpenedAt] = useState<Date | null>(null);
+  /** What is in the text box but not yet sent. */
+  const [draft, setDraft] = useState('');
   const scroller = useRef<HTMLDivElement>(null);
 
   // A customer who is talking is not idle. Without this Friends Kitchen resets to the
@@ -159,8 +199,17 @@ export function VoiceControl() {
     ) : null;
   }
 
-  const listening = voice.status === 'listening' || voice.status === 'hearing';
+  // "Listening" has to mean the microphone is actually open, or the pulsing
+  // ring promises something a typed session is not doing.
+  const listening =
+    voice.micActive && (voice.status === 'listening' || voice.status === 'hearing');
   const busy = voice.status === 'thinking' || voice.status === 'connecting';
+  const hasDraft = draft.trim().length > 0;
+
+  /* A live session with no microphone is not "Listening", and saying so is how
+     a customer who declined the prompt learns they can still order. */
+  const statusText =
+    voice.active && !voice.micActive && !busy ? 'Ready — type your order' : STATUS_TEXT[voice.status];
 
   /* Opening starts the session in the same tap. Two taps to say one sentence is
      one tap too many at a Friends Kitchen terminal, and an open window with a dead mic is exactly
@@ -180,7 +229,20 @@ export function VoiceControl() {
 
   const closeDock = () => {
     voice.stop();
+    setDraft('');
     setOpen(false);
+  };
+
+  /* Sending opens a session if there is not one, and opens it without the
+     microphone — a permission prompt in answer to someone choosing to type is
+     the surest way to lose them. */
+  const submitDraft = (event: FormEvent) => {
+    event.preventDefault();
+    if (!hasDraft) return;
+    if (!voice.active) setOpenedAt(new Date());
+    voice.sendText(draft);
+    setDraft('');
+    reportActivity();
   };
 
   if (!open) {
@@ -247,7 +309,7 @@ export function VoiceControl() {
             </span>
             <ChevronDown className="h-3 w-3 shrink-0 text-ash" />
           </span>
-          <span className="truncate text-fk-xs text-ash">{STATUS_TEXT[voice.status]}</span>
+          <span className="truncate text-fk-xs text-ash">{statusText}</span>
         </span>
 
         {/* Tinted, not grey — the coloured control cluster is the single most
@@ -339,38 +401,73 @@ export function VoiceControl() {
         </div>
       </div>
 
-      {/* The composer row: the pill where the text box goes, and the microphone
-          in the primary action's corner. */}
-      <footer className="flex shrink-0 items-center gap-2 border-t border-mist px-3 py-2.5">
-        <span
+      {/* The composer row: a real text box, and one button in the primary
+          action's corner. The button is the microphone until something is
+          typed and the send arrow after — the same swap every messenger does,
+          and the reason the row does not need three controls. */}
+      <form
+        onSubmit={submitDraft}
+        className="flex shrink-0 items-center gap-2 border-t border-mist px-3 py-2.5"
+      >
+        <input
+          data-testid="voice-composer"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder={(voice.micActive ? COMPOSER_HINT : TYPING_HINT)[voice.status]}
+          aria-label="Type your order"
+          /* Same reasoning as the transcript bubbles: Urdu is right-to-left,
+             English is not, and both get typed into this one box. */
+          dir="auto"
+          enterKeyHint="send"
+          autoComplete="off"
           className={cn(
-            'flex h-11 min-w-0 flex-1 items-center rounded-full px-4 text-fk-xs',
-            listening ? 'bg-leaf-soft text-leaf' : 'bg-mist text-ash',
+            'h-11 min-w-0 flex-1 rounded-full px-4 text-fk-sm text-ink transition-colors',
+            'placeholder:text-fk-xs focus:outline-none focus:ring-2 focus:ring-ink/20',
+            listening
+              ? 'bg-leaf-soft placeholder:text-leaf'
+              : 'bg-mist placeholder:text-ash',
           )}
-        >
-          <span className="truncate">{COMPOSER_HINT[voice.status]}</span>
-        </span>
+        />
 
-        <button
-          data-testid="voice-toggle"
-          onClick={toggleMic}
-          aria-label={voice.active ? 'Stop listening' : 'Start listening'}
-          title={voice.active ? 'Stop listening' : 'Start listening'}
-          className={cn(
-            'press relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full',
-            'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/25',
-            voice.active ? 'bg-ink text-white' : 'bg-amber text-ink shadow-brand',
-          )}
-        >
-          {listening && (
-            <span className="pointer-events-none absolute inset-0 rounded-full bg-current opacity-30 animate-ring-pulse" />
-          )}
-          <VoiceIcon
-            status={voice.status}
-            className={cn('relative h-5 w-5', busy && 'animate-dot-blink')}
-          />
-        </button>
-      </footer>
+        {hasDraft ? (
+          <button
+            type="submit"
+            data-testid="voice-send"
+            aria-label="Send"
+            title="Send"
+            className={cn(
+              'press flex h-11 w-11 shrink-0 items-center justify-center rounded-full',
+              'bg-amber text-ink shadow-brand',
+              'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/25',
+            )}
+          >
+            <SendIcon className="h-5 w-5" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            data-testid="voice-toggle"
+            onClick={toggleMic}
+            aria-label={MIC_LABEL(voice.active, voice.micActive)}
+            title={MIC_LABEL(voice.active, voice.micActive)}
+            className={cn(
+              'press relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full',
+              'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/25',
+              // Filled only while the mic is genuinely capturing: a dark button
+              // on a typed session reads as "you are being recorded".
+              voice.micActive ? 'bg-ink text-white' : 'bg-amber text-ink shadow-brand',
+            )}
+          >
+            {listening && (
+              <span className="pointer-events-none absolute inset-0 rounded-full bg-current opacity-30 animate-ring-pulse" />
+            )}
+            <VoiceIcon
+              status={voice.status}
+              className={cn('relative h-5 w-5', busy && 'animate-dot-blink')}
+            />
+          </button>
+        )}
+      </form>
     </div>
   );
 }
@@ -410,6 +507,24 @@ function VoiceIcon({ status, className }: { status: VoiceStatus; className?: str
     <HeadphonesIcon className={className} />
   ) : (
     <MicIcon className={className} />
+  );
+}
+
+/** The paper-plane every composer ends in, so the tap needs no explaining. */
+function SendIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 12 20 4l-4 16-4-6-8-2Z" />
+    </svg>
   );
 }
 

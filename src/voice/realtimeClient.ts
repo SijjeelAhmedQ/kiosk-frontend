@@ -18,14 +18,12 @@
  */
 
 import { VoiceAudio } from './audio';
-import type { VoiceAction, VoiceSessionConfig, VoiceStatus, VoiceTool, VoiceTurn } from './types';
-
-interface Handlers {
-  onStatus: (status: VoiceStatus) => void;
-  onTurn: (turn: VoiceTurn) => void;
-  onAction: (action: VoiceAction) => void;
-  onError: (message: string) => void;
-}
+import type {
+  VoiceSessionClient,
+  VoiceSessionConfig,
+  VoiceSessionHandlers,
+  VoiceTool,
+} from './types';
 
 /** Server event names changed at GA and the old ones still appear in older
  *  docs and SDK samples. Accepting both costs one array and removes a class of
@@ -36,7 +34,7 @@ const TRANSCRIPT_DELTA = [
   'response.audio_transcript.delta',
 ];
 
-export class RealtimeVoiceSession {
+export class RealtimeVoiceSession implements VoiceSessionClient {
   private socket: WebSocket | null = null;
   private audio: VoiceAudio | null = null;
   private closing = false;
@@ -56,9 +54,14 @@ export class RealtimeVoiceSession {
   private assistantText = '';
   private assistantTurnId: string | null = null;
 
+  /** True once `session.update` has gone up, so typed input has somewhere to land. */
+  private configured = false;
+  /** Typed while the socket was still opening — see the pipeline client. */
+  private pendingText: string[] = [];
+
   constructor(
     private readonly config: VoiceSessionConfig,
-    private readonly handlers: Handlers,
+    private readonly handlers: VoiceSessionHandlers,
   ) {
     this.tools = config.tools;
   }
@@ -75,27 +78,39 @@ export class RealtimeVoiceSession {
     this.handlers.onStatus('error');
   }
 
-  async start(): Promise<void> {
+  async start({ microphone = true }: { microphone?: boolean } = {}): Promise<void> {
     this.closing = false;
     this.failed = false;
+    this.configured = false;
     this.handlers.onStatus('connecting');
 
-    // Microphone first. Permission is the most likely thing to fail, and
-    // failing before the socket opens keeps a refusal from costing a session.
+    this.audio = new VoiceAudio({
+      onChunk: (audio) => this.send({ type: 'input_audio_buffer.append', audio }),
+      onSpeakingChange: (speaking) => {
+        if (speaking) this.handlers.onStatus('speaking');
+        else if (!this.closing) this.handlers.onStatus('listening');
+      },
+    });
+
+    // The speaker first, and on its own: it needs no permission, so a refused
+    // microphone leaves a session that still takes typed orders and still
+    // answers out loud, rather than no session at all.
     try {
-      this.audio = new VoiceAudio({
-        onChunk: (audio) => this.send({ type: 'input_audio_buffer.append', audio }),
-        onSpeakingChange: (speaking) => {
-          if (speaking) this.handlers.onStatus('speaking');
-          else if (!this.closing) this.handlers.onStatus('listening');
-        },
-      });
-      await this.audio.start();
+      await this.audio.start({ microphone: false });
     } catch (err) {
-      this.fail(micProblem(err));
+      this.fail(`Could not start audio: ${err instanceof Error ? err.message : String(err)}`);
       await this.stop();
       return;
     }
+
+    if (microphone) {
+      try {
+        await this.audio.startMicrophone();
+      } catch (err) {
+        this.handlers.onError(`${micProblem(err)} You can still type your order.`);
+      }
+    }
+    this.handlers.onMicChange(this.audio.microphoneOpen);
 
     const socket = new WebSocket(this.config.url);
     this.socket = socket;
@@ -125,7 +140,77 @@ export class RealtimeVoiceSession {
     await this.audio?.stop();
     this.audio = null;
     this.speakingItemId = null;
+    this.configured = false;
+    this.pendingText = [];
+    this.handlers.onMicChange(false);
     this.handlers.onStatus(this.failed ? 'error' : 'idle');
+  }
+
+  /** Add the microphone to a session that began typed. */
+  async startMicrophone(): Promise<void> {
+    if (!this.audio) return;
+    try {
+      await this.audio.startMicrophone();
+      this.handlers.onMicChange(true);
+    } catch (err) {
+      this.handlers.onError(micProblem(err));
+      this.handlers.onMicChange(false);
+    }
+  }
+
+  /**
+   * Order in writing.
+   *
+   * A text item in the same conversation the audio goes into, so the model
+   * carries one thread either way — a customer can say "two burgers" and then
+   * type "no onions" and be understood.
+   */
+  sendText(text: string): void {
+    const typed = text.trim();
+    if (!typed) return;
+
+    // Typing over a reply is interrupting it, exactly as talking over it is.
+    if (this.speakingItemId) {
+      const playedMs = this.audio?.interrupt() ?? 0;
+      this.send({
+        type: 'conversation.item.truncate',
+        item_id: this.speakingItemId,
+        content_index: 0,
+        audio_end_ms: playedMs,
+      });
+      this.speakingItemId = null;
+    }
+
+    // Shown from here rather than waiting for the server to echo it: the
+    // customer typed it, so a bubble a round trip late reads as lag.
+    this.handlers.onTurn({
+      id: `typed-${Date.now()}`,
+      role: 'user',
+      text: typed,
+      done: true,
+    });
+
+    if (!this.configured) {
+      this.pendingText.push(typed);
+      this.handlers.onStatus('connecting');
+      return;
+    }
+
+    this.pushText(typed);
+    this.send({ type: 'response.create' });
+    this.handlers.onStatus('thinking');
+  }
+
+  /** Add a typed line to the conversation without asking for an answer yet. */
+  private pushText(text: string): void {
+    this.send({
+      type: 'conversation.item.create',
+      item: {
+        type: 'message',
+        role: 'user',
+        content: [{ type: 'input_text', text }],
+      },
+    });
   }
 
   /**
@@ -201,6 +286,20 @@ export class RealtimeVoiceSession {
         tool_choice: 'auto',
       },
     });
+    this.configured = true;
+
+    // Someone who typed while this was connecting has already said what they
+    // want. Greeting them first and answering second is one turn too many.
+    if (this.pendingText.length) {
+      const queued = this.pendingText;
+      this.pendingText = [];
+      // All the lines, then one answer: asking after each would have it reply
+      // to "a burger" before it has read "and no pickles".
+      for (const text of queued) this.pushText(text);
+      this.send({ type: 'response.create' });
+      this.handlers.onStatus('thinking');
+      return;
+    }
 
     if (this.config.greeting) {
       this.send({

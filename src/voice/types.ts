@@ -55,8 +55,58 @@ export interface VoiceAction {
   detail: string | null;
 }
 
+/**
+ * Which stack is behind the microphone. Chosen by the backend, not the page —
+ * it depends on which key the server holds, and the page must not be told
+ * either of them.
+ *
+ *   openai      one socket to the Realtime API. Speech in, speech out.
+ *   openrouter  transcribe, chat, speak — three calls a turn, stitched
+ *               together by the backend, with turn-taking done in the page.
+ */
+export type VoiceProvider = 'openai' | 'openrouter';
+
+/** What a session reports back to React. Both providers raise the same five. */
+export interface VoiceSessionHandlers {
+  onStatus: (status: VoiceStatus) => void;
+  onTurn: (turn: VoiceTurn) => void;
+  onAction: (action: VoiceAction) => void;
+  onError: (message: string) => void;
+  /** Whether the microphone is capturing. False in a typed-only session. */
+  onMicChange: (active: boolean) => void;
+}
+
+/**
+ * The surface `useVoiceSession` drives, and the whole of what the two
+ * implementations have to agree on. Everything below it — sockets, PCM,
+ * whether turn-taking happens here or on a server — is theirs alone.
+ */
+export interface VoiceSessionClient {
+  /**
+   * Open the session. Without the microphone it is still a full session —
+   * typed input, spoken replies, the same tools — which is what a customer in
+   * a loud room, or one who would rather not say their order out loud, gets
+   * without ever being asked for permission.
+   */
+  start: (options?: { microphone?: boolean }) => Promise<void>;
+  stop: () => Promise<void>;
+  /** Add the microphone to a session that began typed. */
+  startMicrophone: () => Promise<void>;
+  /**
+   * Order in writing. Queued if the socket is still opening, so the first
+   * thing a customer types is never the thing that gets dropped.
+   */
+  sendText: (text: string) => void;
+  /** Have the voice mention something the customer did not ask about. */
+  say: (context: string) => void;
+  /** Point the session at fresh executors, same definitions. */
+  setTools: (tools: VoiceTool[]) => void;
+}
+
 export interface VoiceSessionConfig {
-  /** ws:// URL of the relay — never OpenAI directly; the key is server-side. */
+  /** Which client to build. Comes from the health check. */
+  provider?: VoiceProvider;
+  /** ws:// URL of the relay — never the model vendor directly; keys stay server-side. */
   url: string;
   /** The system prompt: who this voice is and how it should behave. */
   instructions: string;

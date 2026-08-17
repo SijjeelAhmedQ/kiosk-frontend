@@ -15,6 +15,23 @@ const absoluteBase = (): string =>
   API_BASE.startsWith('http') ? API_BASE : `${window.location.origin}${API_BASE}`;
 
 /** ws:// for http, wss:// for https — a page on https cannot open a ws:// socket. */
-export const VOICE_SOCKET_URL = `${absoluteBase().replace(/^http/, 'ws')}/realtime/voice`;
+const wsBase = (): string => absoluteBase().replace(/^http/, 'ws');
+
+/** The Realtime relay: one socket, straight through to OpenAI. */
+export const VOICE_SOCKET_URL = `${wsBase()}/realtime/voice`;
+
+/** The OpenRouter pipeline: utterances up, sentences of audio back. */
+export const VOICE_PIPELINE_URL = `${wsBase()}/voice/pipeline`;
+
+/**
+ * The socket for whichever stack the backend is running.
+ *
+ * They are separate routes rather than one negotiating endpoint because the
+ * protocols are not compatible — the relay forwards frames it does not read,
+ * the pipeline speaks its own event vocabulary. Which of the two is live is the
+ * backend's decision, and the health check is where it says so.
+ */
+export const voiceSocketUrl = (provider: string | null | undefined): string =>
+  provider === 'openai' ? VOICE_SOCKET_URL : VOICE_PIPELINE_URL;
 
 export const VOICE_HEALTH_URL = `${absoluteBase()}/realtime/health`;

@@ -115,7 +115,7 @@ const moduleUrl = (source: string): string =>
   URL.createObjectURL(new Blob([source], { type: 'application/javascript' }));
 
 /** Float samples (-1..1) to the little-endian 16-bit the API expects. */
-function toPcm16(input: Float32Array): ArrayBuffer {
+export function toPcm16(input: Float32Array): ArrayBuffer {
   const out = new DataView(new ArrayBuffer(input.length * 2));
   for (let i = 0; i < input.length; i++) {
     // Clamp before scaling: anything past ±1 wraps to the opposite extreme
@@ -152,9 +152,45 @@ export function base64ToBytes(value: string): ArrayBuffer {
   return bytes.buffer;
 }
 
+/**
+ * Join captured frames into one base64 PCM16 blob.
+ *
+ * The pipeline path sends a whole utterance in a single message rather than a
+ * stream of chunks, so the frames have to be held and concatenated. Doing it
+ * once at the end beats growing a base64 string frame by frame: base64 is
+ * padded per call, and stitching padded segments produces something no decoder
+ * will read back.
+ */
+export function samplesToBase64(frames: Float32Array[]): string {
+  let length = 0;
+  for (const frame of frames) length += frame.length;
+
+  const joined = new Float32Array(length);
+  let offset = 0;
+  for (const frame of frames) {
+    joined.set(frame, offset);
+    offset += frame.length;
+  }
+
+  return bytesToBase64(toPcm16(joined));
+}
+
 interface VoiceAudioOptions {
-  /** Base64 PCM16 ready to go up the socket. */
-  onChunk: (base64: string) => void;
+  /**
+   * Base64 PCM16 ready to go up the socket, frame by frame.
+   *
+   * The Realtime path streams these continuously. The pipeline path leaves it
+   * unset — it batches whole utterances instead — and the conversion is skipped
+   * entirely when nobody is listening for it.
+   */
+  onChunk?: (base64: string) => void;
+  /**
+   * The same frame as raw samples, for anything that has to *look* at the audio
+   * rather than forward it. The pipeline's voice detector reads this to decide
+   * when the customer has stopped talking — a job the Realtime API does server
+   * side, and which has nowhere else to live on the OpenRouter path.
+   */
+  onSamples?: (samples: Float32Array) => void;
   /** True while the speaker is actually producing sound. */
   onSpeakingChange?: (speaking: boolean) => void;
 }
@@ -171,6 +207,8 @@ export class VoiceAudio {
   private recorder: AudioWorkletNode | null = null;
   private player: AudioWorkletNode | null = null;
   private muted = false;
+  /** Set when the browser refused a 24 kHz context; used by a late microphone. */
+  private resample: ((input: Float32Array) => Float32Array) | null = null;
 
   /** Milliseconds of assistant audio handed to the speaker since it last went
    *  quiet. The interruption message needs a position, and this is the only
@@ -180,19 +218,21 @@ export class VoiceAudio {
 
   constructor(private readonly options: VoiceAudioOptions) {}
 
-  async start(): Promise<void> {
-    this.stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        // A Friends Kitchen has its speaker a foot from its microphone, so without
-        // cancellation the model hears itself, treats it as the customer
-        // talking, and interrupts its own sentence.
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-        channelCount: 1,
-      },
-    });
+  /** True once the microphone is actually capturing. */
+  get microphoneOpen(): boolean {
+    return this.recorder !== null;
+  }
 
+  /**
+   * Open the speaker, and — unless told otherwise — the microphone with it.
+   *
+   * The two are separable because typing is a first-class way to order: a
+   * customer in a loud room, or one who would rather not say their order out
+   * loud, gets the spoken reply without ever being asked for microphone
+   * permission. `startMicrophone` adds capture to a session that began without
+   * it, so changing your mind costs a tap rather than the conversation.
+   */
+  async start({ microphone = true }: { microphone?: boolean } = {}): Promise<void> {
     const context = new AudioContext({ sampleRate: SAMPLE_RATE });
     this.context = context;
     if (context.state === 'suspended') await context.resume();
@@ -207,21 +247,14 @@ export class VoiceAudio {
       URL.revokeObjectURL(playerUrl);
     }
 
-    const resample = context.sampleRate !== SAMPLE_RATE
+    this.resample = context.sampleRate !== SAMPLE_RATE
       ? makeResampler(context.sampleRate, SAMPLE_RATE)
       : null;
-    if (resample) {
+    if (this.resample) {
       console.warn(
         `[voice] The browser gave a ${context.sampleRate} Hz context; resampling to ${SAMPLE_RATE} Hz in software.`,
       );
     }
-
-    this.recorder = new AudioWorkletNode(context, 'fk-recorder');
-    this.recorder.port.onmessage = (event: MessageEvent<Float32Array>) => {
-      if (this.muted) return;
-      const samples = resample ? resample(event.data) : event.data;
-      this.options.onChunk(bytesToBase64(toPcm16(samples)));
-    };
 
     this.player = new AudioWorkletNode(context, 'fk-player', { outputChannelCount: [1] });
     this.player.port.onmessage = (event: MessageEvent<string>) => {
@@ -229,11 +262,43 @@ export class VoiceAudio {
       if (!speaking) this.enqueuedMs = 0;
       this.options.onSpeakingChange?.(speaking);
     };
+    this.player.connect(context.destination);
 
-    context.createMediaStreamSource(this.stream).connect(this.recorder);
+    if (microphone) await this.startMicrophone();
+  }
+
+  /** Add capture to a running session. Idempotent; throws what getUserMedia throws. */
+  async startMicrophone(): Promise<void> {
+    const context = this.context;
+    if (!context) throw new Error('The audio context is not open.');
+    if (this.recorder) return;
+
+    this.stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        // A Friends Kitchen has its speaker a foot from its microphone, so without
+        // cancellation the model hears itself, treats it as the customer
+        // talking, and interrupts its own sentence.
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: 1,
+      },
+    });
+
+    const recorder = new AudioWorkletNode(context, 'fk-recorder');
+    recorder.port.onmessage = (event: MessageEvent<Float32Array>) => {
+      if (this.muted) return;
+      const samples = this.resample ? this.resample(event.data) : event.data;
+      this.options.onSamples?.(samples);
+      // Converted only when there is somewhere for it to go: on the pipeline
+      // path this would be ~12 pointless base64 encodings a second.
+      if (this.options.onChunk) this.options.onChunk(bytesToBase64(toPcm16(samples)));
+    };
+    this.recorder = recorder;
+
     // The recorder is not connected to the destination: it would echo the
     // customer back at themselves through Friends Kitchen's own speaker.
-    this.player.connect(context.destination);
+    context.createMediaStreamSource(this.stream).connect(recorder);
   }
 
   /** Queue a chunk of the model's reply. */
@@ -279,6 +344,7 @@ export class VoiceAudio {
     this.stream = null;
     this.recorder = null;
     this.player = null;
+    this.resample = null;
   }
 }
 
